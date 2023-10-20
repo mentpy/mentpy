@@ -30,12 +30,6 @@ dependencies = [
 
 requires-python = ">=3.9"
 
-urls = {
-    "Bug Tracker" = "https://github.com/mentpy/mentpy/issues",
-    "Documentation" = "https://docs.mentpy.com",
-    "Source Code" = "https://github.com/mentpy/mentpy",
-}
-
 [project.optional-dependencies]
 dev = [
     "black>=23.3.0",
