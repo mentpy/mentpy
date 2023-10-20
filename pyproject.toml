@@ -35,6 +35,7 @@ dev = [
     "coverage",
     "ipykernel>=6.25.2",
     "pandas>=2.0.1",
+    "pytest>=7.4.2",
     "Sphinx>=7.2.6",
     "sphinx_immaterial>=0.11.7"
 ]
