@@ -23,22 +23,30 @@
     </a>
 </div>
 
-The `MentPy` library is an open-source software for simulations of 
+The `mentpy` library is an open-source software for simulations of 
 measurement-based quantum computing circuits. Currently, this package is in its alpha version and many features are still in development.
 
 ## Installation
 
-The `MentPy` library can be installed using `pip` with
+You can install the stable release of `mentpy` from PyPI using:
 
 ```bash
 pip install mentpy
 ```
 
-or directly from the source code for the latest version with
+For the latest, potentially unstable version, you can install directly from the source:
 
 ```bash
-pip install git+https://github.com/BestQuark/mentpy.git
+pip install git+https://github.com/mentpy/mentpy.git
 ```
+
+If you're contributing to `mentpy` and need to install development dependencies, you can do so using:
+
+```bash
+pip install -e '.[dev]'
+```
+
+This command installs `mentpy` in editable mode with its additional development dependencies.
 
 ## Usage
 To simulate a measurement pattern, you can use the `mp.PatternSimulator`.
@@ -64,13 +72,13 @@ len(lie_alg)
 
 ## Documentation
 
-The documentation for `MentPy` can be found <a href="https://mentpy.readthedocs.io/en/latest/" target="_blank">here</a>.
+The documentation for `mentpy` can be found <a href="https://mentpy.readthedocs.io/en/latest/" target="_blank">here</a>.
 
 ## Contributing
 
-We welcome contributions to `MentPy`! Please see our [contributing guidelines](./CONTRIBUTING.md) for more information.
+We welcome contributions to `mentpy`! Please see our [contributing guidelines](./CONTRIBUTING.md) for more information.
 
 ## License
 
-`MentPy` is licensed under the [GNU General Public License v3.0](./LICENSE).
+`mentpy` is licensed under the [Apache License 2.0](./LICENSE).
 

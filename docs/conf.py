@@ -113,8 +113,8 @@ html_theme_options = {
     "icon": {
         "repo": "fontawesome/brands/github",
     },
-    "site_url": "https://github.com/BestQuark/mentpy",
-    "repo_url": "https://github.com/BestQuark/mentpy",
+    "site_url": "https://github.com/mentpy/mentpy",
+    "repo_url": "https://github.com/mentpy/mentpy",
     "repo_name": "MentPy",
     "repo_type": "github",
     # "google_analytics": ["UA-XXXXX", "auto"],

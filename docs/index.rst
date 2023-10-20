@@ -66,27 +66,27 @@ If you find MentPy useful in your research, please consider citing us 🙂
             title = {{MentPy: A python package for simulating and training QML models in the MBQC framework.}},
             author = {Mantilla, Luis},
             year = {2023},
-            url = {https://github.com/bestquark/mentpy},
+            url = {https://github.com/mentpy/mentpy},
          }
 
    .. md-tab-item:: AIP
 
       .. code-block:: text
 
-         L. Mantilla, MentPy: A python package for simulating and training QML models in the MBQC framework, (2023). https://github.com/bestquark/mentpy
+         L. Mantilla, MentPy: A python package for simulating and training QML models in the MBQC framework, (2023). https://github.com/mentpy/mentpy
      
 
    .. md-tab-item:: APA
 
       .. code-block:: text
 
-         Mantilla, L. (2023). MentPy: A python package for simulating and training QML models in the MBQC framework. Retrieved from https://github.com/bestquark/mentpy
+         Mantilla, L. (2023). MentPy: A python package for simulating and training QML models in the MBQC framework. Retrieved from https://github.com/mentpy/mentpy
    
    .. md-tab-item:: MLA
 
       .. code-block:: text
 
-         Mantilla, Luis. MentPy: A python package for simulating and training QML models in the MBQC framework. 2023. Web. https://github.com/bestquark/mentpy
+         Mantilla, Luis. MentPy: A python package for simulating and training QML models in the MBQC framework. 2023. Web. https://github.com/mentpy/mentpy
 
 
 
@@ -112,6 +112,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
    tutorials/intro-to-mbqml.rst
    tutorials/intro-to-mbqml-parallel.rst
    tutorials/classify-classical-data.rst
+   tutorials/povm-fisher.rst
 
 .. toctree::
    :caption: API Reference
