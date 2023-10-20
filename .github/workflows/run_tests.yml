@@ -23,7 +23,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # This command installs your project in editable mode along with its 'dev' dependencies.
-        pip install -e .[dev]
+        pip install -e '.[dev]'
 
     - name: Test with pytest
       run: |
