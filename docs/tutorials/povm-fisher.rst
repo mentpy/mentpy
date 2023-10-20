@@ -15,7 +15,7 @@ Fisher information classifier
 
 Here, we will learn now to perform a classification of quantum states according to their Fisher information. First, we generate a dataset of states 
 
-.. ipython:: python
+.. code-block:: python
       
    def gen_states_polina(numstates):
       st1a = np.array([1,0,0,0])
