@@ -12,7 +12,6 @@ description = "A Python library for simulating MBQC circuits"
 readme = "README.md"
 authors = [{name = "Luis Mantilla", email = "contact@mentpy.com"}]
 license = {text = "Apache-2.0"}
-homepage = "https://github.com/mentpy/mentpy"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: Apache Software License",
