@@ -9,8 +9,8 @@
     <a href="https://pypi.org/project/mentpy">
         <img src="https://img.shields.io/pypi/wheel/mentpy">
     </a>
-    <a href="https://mentpy.readthedocs.io/en/latest/?badge=latest">
-        <img src="https://readthedocs.org/projects/mentpy/badge/?version=latest" alt="Documentation Status">
+    <a href='https://docs.mentpy.com/en/latest/?badge=latest'>
+        <img src='https://readthedocs.org/projects/mentpy/badge/?version=latest' alt='Documentation Status' />
     </a>
     <a href="https://codecov.io/gh/mentpy/mentpy" > 
         <img src="https://codecov.io/gh/mentpy/mentpy/graph/badge.svg?token=3EM0A3Q4MG"/> 
