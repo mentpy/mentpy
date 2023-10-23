@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/BestQuark/mentpy/blob/main/docs/_static/logo.png?raw=true" alt="MentPy: A Measurement-Based Quantum computing simulator." width="70%">
+  <img src="https://github.com/mentpy/mentpy/blob/main/docs/_static/logo.png?raw=true" alt="MentPy: A Measurement-Based Quantum computing simulator." width="70%">
 </p>
 
 <div align="center">
@@ -12,8 +12,8 @@
     <a href="https://mentpy.readthedocs.io/en/latest/?badge=latest">
         <img src="https://readthedocs.org/projects/mentpy/badge/?version=latest" alt="Documentation Status">
     </a>
-    <a href="https://codecov.io/gh/BestQuark/mentpy">
-        <img src="https://codecov.io/gh/BestQuark/mentpy/graph/badge.svg?token=TDWFQPW3KD">
+    <a href="https://codecov.io/gh/mentpy/mentpy" > 
+        <img src="https://codecov.io/gh/mentpy/mentpy/graph/badge.svg?token=3EM0A3Q4MG"/> 
     </a>
     <a href="https://x.com/mentpy">
         <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/mentpy">
