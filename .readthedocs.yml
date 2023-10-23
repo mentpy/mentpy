@@ -11,10 +11,10 @@ sphinx:
    configuration: docs/conf.py
 
 python:
-   install:
-      - method: pip
-         path: .
-         extra_requirements:
-         - [dev]
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - dev
 
 # Other configurations can continue below
