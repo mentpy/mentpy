@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mentpy"
+version = "0.1.0a9"
+description = "A Python library for simulating MBQC circuits"
+readme = "README.md"
+authors = [{name = "Luis Mantilla", email = "contact@mentpy.com"}]
+license = {text = "Apache-2.0"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+    "galois>=0.3.5",
+    "matplotlib>=3.7.1",
+    "networkx>=2.8.8",
+    "numpy>=1.23.5",
+    "pathos",
+    "PennyLane>=0.30.0",
+    "scikit-learn>=1.2.2",
+    "scipy>=1.10.1"
+]
+
+requires-python = ">=3.9"
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.3.0",
+    "coverage",
+    "ipykernel>=6.25.2",
+    "pandas>=2.0.1",
+    "pytest>=7.4.2",
+    "Sphinx>=7.2.6",
+    "sphinx_immaterial>=0.11.7"
+]
