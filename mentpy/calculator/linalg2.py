@@ -1,7 +1,7 @@
-# Copyright (C) [2023] Luis Mantilla
+# Copyright 2023 Luis Mantilla
 #
-# This program is released under the GNU GPL v3.0 or later.
-# See <https://www.gnu.org/licenses/> for details.
+# Licensed under the Apache License, Version 2.0.
+# See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module to store common linear algebra functions."""
 import numpy as np
 
