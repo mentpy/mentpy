@@ -67,7 +67,27 @@ class MBQCircuit:
     ) -> None:
         """Initializes a graph state"""
         # TODO: Remove measurement_order and gflow from the constructor
-        self._setup_graph(graph, relabel_indices)
+
+        if relabel_indices:
+            N = graph.number_of_nodes()
+            mapping = dict(zip(sorted(graph.nodes), range(N)))
+            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
+            graph = nx.relabel_nodes(graph, mapping)
+            input_nodes = [mapping[i] for i in input_nodes]
+            output_nodes = [mapping[i] for i in output_nodes]
+            if flow is not None:
+                flow = lambda x: mapping[flow(inv_mapping[x])]
+            if partial_order is not None:
+                partial_order = lambda x, y: partial_order(
+                    inv_mapping[x], inv_mapping[y]
+                )
+            if measurement_order is not None:
+                measurement_order = [mapping[i] for i in measurement_order]
+            if measurements is not None:
+                measurements = {mapping[k]: v for k, v in measurements.items()}
+
+        self._graph = graph
+
         self._setup_nodes(input_nodes, output_nodes)
         self._setup_measurements(measurements, default_measurement)
 
@@ -95,28 +115,6 @@ class MBQCircuit:
         ]
         self._quantum_output_nodes = quantum_output_nodes
         self._measurement_order = measurement_order
-
-    def _setup_graph(self, graph: GraphState, relabel_indices: bool = True) -> None:
-        """Setup the graph of the MBQCircuit"""
-        if relabel_indices:
-            N = graph.number_of_nodes()
-            mapping = dict(zip(sorted(graph.nodes), range(N)))
-            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
-            graph = nx.relabel_nodes(graph, mapping)
-            input_nodes = [mapping[i] for i in input_nodes]
-            output_nodes = [mapping[i] for i in output_nodes]
-            if flow is not None:
-                flow = lambda x: mapping[flow(inv_mapping[x])]
-            if partial_order is not None:
-                partial_order = lambda x, y: partial_order(
-                    inv_mapping[x], inv_mapping[y]
-                )
-            if measurement_order is not None:
-                measurement_order = [mapping[i] for i in measurement_order]
-            if measurements is not None:
-                measurements = {mapping[k]: v for k, v in measurements.items()}
-
-        self._graph = graph
 
     def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
         """Setup the input and output nodes of the MBQCircuit"""
