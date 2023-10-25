@@ -67,71 +67,10 @@ class MBQCircuit:
     ) -> None:
         """Initializes a graph state"""
         # TODO: Remove measurement_order and gflow from the constructor
+        self._setup_graph(graph, relabel_indices)
+        self._setup_nodes(input_nodes, output_nodes)
+        self._setup_measurements(measurements, default_measurement)
 
-        if relabel_indices:
-            N = graph.number_of_nodes()
-            mapping = dict(zip(sorted(graph.nodes), range(N)))
-            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
-            graph = nx.relabel_nodes(graph, mapping)
-            input_nodes = [mapping[i] for i in input_nodes]
-            output_nodes = [mapping[i] for i in output_nodes]
-            if flow is not None:
-                flow = lambda x: mapping[flow(inv_mapping[x])]
-            if partial_order is not None:
-                partial_order = lambda x, y: partial_order(
-                    inv_mapping[x], inv_mapping[y]
-                )
-            if measurement_order is not None:
-                measurement_order = [mapping[i] for i in measurement_order]
-            if measurements is not None:
-                measurements = {mapping[k]: v for k, v in measurements.items()}
-
-        self._graph = graph
-
-        # check input and output nodes are in graph. If not, raise error with the node(s) that are not in the graph
-        if not all([v in self.graph.nodes for v in input_nodes]):
-            raise ValueError(
-                f"Input nodes {input_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
-            )
-        if not all([v in self.graph.nodes for v in output_nodes]):
-            raise ValueError(
-                f"Output nodes {output_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
-            )
-
-        self._input_nodes = input_nodes
-        self._output_nodes = output_nodes
-
-        if not isinstance(default_measurement, Ment):
-            raise ValueError(
-                f"Default measurement {default_measurement} is not an instance of Ment."
-            )
-        self._default_measurement = default_measurement
-
-        if measurements is None:
-            measurements = {node: default_measurement for node in self.outputc}
-            for node in self.output_nodes:
-                measurements[node] = None
-        else:
-            if not all([v in self.graph.nodes for v in measurements.keys()]):
-                nodes_not_in_graph = [
-                    v for v in measurements.keys() if v not in self.graph.nodes
-                ]
-                raise ValueError(f"Nodes {nodes_not_in_graph} are not in the graph.")
-            if not all(
-                [isinstance(v, Ment) or v is None for v in measurements.values()]
-            ):
-                raise ValueError(
-                    f"Values {measurements.values()} are not instances of Ment."
-                )
-
-            # set X Ment in outputc nodes that are not in measurements
-            for node in self.graph.nodes:
-                if node not in measurements:
-                    measurements[node] = (
-                        self._default_measurement if node in self.outputc else None
-                    )
-
-        self._measurements = measurements
         self._flow, self._partial_order = None, None
         self._update_attributes()
 
@@ -156,6 +95,79 @@ class MBQCircuit:
         ]
         self._quantum_output_nodes = quantum_output_nodes
         self._measurement_order = measurement_order
+
+    def _setup_graph(self, graph: GraphState, relabel_indices: bool = True) -> None:
+        """Setup the graph of the MBQCircuit"""
+        if relabel_indices:
+            N = graph.number_of_nodes()
+            mapping = dict(zip(sorted(graph.nodes), range(N)))
+            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
+            graph = nx.relabel_nodes(graph, mapping)
+            input_nodes = [mapping[i] for i in input_nodes]
+            output_nodes = [mapping[i] for i in output_nodes]
+            if flow is not None:
+                flow = lambda x: mapping[flow(inv_mapping[x])]
+            if partial_order is not None:
+                partial_order = lambda x, y: partial_order(
+                    inv_mapping[x], inv_mapping[y]
+                )
+            if measurement_order is not None:
+                measurement_order = [mapping[i] for i in measurement_order]
+            if measurements is not None:
+                measurements = {mapping[k]: v for k, v in measurements.items()}
+
+        self._graph = graph
+
+    def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
+        """Setup the input and output nodes of the MBQCircuit"""
+        if not all([v in self.graph.nodes for v in input_nodes]):
+            raise ValueError(
+                f"Input nodes {input_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
+            )
+        if not all([v in self.graph.nodes for v in output_nodes]):
+            raise ValueError(
+                f"Output nodes {output_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
+            )
+
+        self._input_nodes = input_nodes
+        self._output_nodes = output_nodes
+
+    def _setup_measurements(
+        self, measurements: Dict[int, Ment], default_measurement: Ment
+    ) -> None:
+        """Setup the measurements of the MBQCircuit"""
+        # Type check default_measurement
+        if not isinstance(default_measurement, Ment):
+            raise ValueError(
+                f"Default measurement {default_measurement} is not an instance of Ment."
+            )
+        self._default_measurement = default_measurement
+
+        # Type check measurements
+        if measurements is None:
+            measurements = {node: default_measurement for node in self.outputc}
+            for node in self.output_nodes:
+                measurements[node] = None
+        else:
+            if not all([v in self.graph.nodes for v in measurements.keys()]):
+                nodes_not_in_graph = [
+                    v for v in measurements.keys() if v not in self.graph.nodes
+                ]
+                raise ValueError(f"Nodes {nodes_not_in_graph} are not in the graph.")
+            if not all(
+                [isinstance(v, Ment) or v is None for v in measurements.values()]
+            ):
+                raise ValueError(
+                    f"Values {measurements.values()} are not instances of Ment."
+                )
+
+            for node in self.graph.nodes:
+                if node not in measurements:
+                    measurements[node] = (
+                        self._default_measurement if node in self.outputc else None
+                    )
+
+        self._measurements = measurements
 
     def __repr__(self) -> str:
         """Return the representation of the current MBQC circuit state"""
