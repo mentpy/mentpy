@@ -70,7 +70,7 @@ class PennylaneSimulator(BaseSimulator):
                 if i in self.mbqcircuit.trainable_nodes:
                     angle = angles[self.mbqcircuit.trainable_nodes.index(i)]
                 else:
-                    plane = self.mbqcircuit.planes[i]
+                    plane = self.mbqcircuit[i].plane
                     if plane == "X":
                         angle = 0
                     elif plane == "Y":

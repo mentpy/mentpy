@@ -2,7 +2,7 @@ galois>=0.3.5
 matplotlib>=3.7.1
 networkx>=2.8.8
 numpy>=1.23.5
-pathos
+pathos>=0.3.1
 PennyLane>=0.30.0
 scikit-learn>=1.2.2
 scipy>=1.10.1

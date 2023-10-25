@@ -58,7 +58,7 @@ class MBQCircuit:
         graph: GraphState,
         input_nodes: List[int] = [],
         output_nodes: List[int] = [],
-        measurements: Optional[dict[Ment]] = None,
+        measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
         flow: Optional[Callable] = None,
         partial_order: Optional[callable] = None,
@@ -269,11 +269,6 @@ class MBQCircuit:
         return self._controlled_nodes
 
     @property
-    def planes(self) -> dict:
-        r"""Return the planes of the MBQC circuit."""
-        return self._planes
-
-    @property
     def flow(self) -> Callable:
         r"""Return the flow function of the MBQC circuit."""
         return self._flow
@@ -325,7 +320,6 @@ class MBQCircuit:
     def _update_attributes(self) -> None:
         trainable_nodes = []
         controlled_nodes = []
-        planes = {}
         quantum_outputs = []
         classical_outputs = []
         for nodei, menti in self._measurements.items():
@@ -336,19 +330,16 @@ class MBQCircuit:
                 if menti.is_trainable():
                     trainable_nodes.append(nodei)
 
-                planes[nodei] = menti.plane
                 self._measurements[nodei] = copy.deepcopy(menti)
                 self._measurements[nodei].node_id = nodei
                 if nodei in self._output_nodes:
                     classical_outputs.append(nodei)
             else:
-                planes[nodei] = ""
                 if nodei in self._output_nodes:
                     quantum_outputs.append(nodei)
 
         self._trainable_nodes = trainable_nodes
         self._controlled_nodes = controlled_nodes
-        self._planes = planes
         self._quantum_output_nodes = quantum_outputs
         self._classical_output_nodes = classical_outputs
 
@@ -379,11 +370,9 @@ class MBQCircuit:
                 self._trainable_nodes.append(key)
             elif menti.angle is not None and key in self._trainable_nodes:
                 self._trainable_nodes.remove(key)
-            self._planes[key] = menti.plane
             self._measurements[key] = copy.deepcopy(menti)
             self._measurements[key].node_id = key
         else:
-            self._planes[key] = ""
             if key in self._trainable_nodes:
                 self._trainable_nodes.remove(key)
 

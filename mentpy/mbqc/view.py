@@ -190,7 +190,10 @@ def process_labels(state: MBQCircuit, options: dict):
     if label_option in ("index", "indices"):
         return None  # No modification necessary
     elif label_option in ("plane", "planes"):
-        labels = {node: state.planes[node] for node in state.graph.nodes()}
+        labels = {
+            node: ("" if state[node] is None else state[node].plane)
+            for node in state.graph.nodes()
+        }
         for node in state.controlled_nodes:
             labels[node] = "Ctrl"
         return labels
@@ -205,7 +208,10 @@ def process_labels(state: MBQCircuit, options: dict):
             "XYZ": r"$\nwarrow \nearrow$",
             "": "",
         }
-        labels = {node: plane2arrow[state.planes[node]] for node in state.graph.nodes()}
+        labels = {
+            node: plane2arrow[("" if state[node] is None else state[node].plane)]
+            for node in state.graph.nodes()
+        }
         for node in state.controlled_nodes:
             labels[node] = "Ctrl"
         return labels
