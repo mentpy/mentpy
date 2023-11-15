@@ -1,7 +1,7 @@
-# Copyright (C) [2023] Luis Mantilla
+# Copyright 2023 Luis Mantilla
 #
-# This program is released under the GNU GPL v3.0 or later.
-# See <https://www.gnu.org/licenses/> for details.
+# Licensed under the Apache License, Version 2.0.
+# See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """PennyLane simulator for MBQC circuits."""
 
 from typing import Union, List, Tuple, Optional
@@ -70,7 +70,7 @@ class PennylaneSimulator(BaseSimulator):
                 if i in self.mbqcircuit.trainable_nodes:
                     angle = angles[self.mbqcircuit.trainable_nodes.index(i)]
                 else:
-                    plane = self.mbqcircuit.planes[i]
+                    plane = self.mbqcircuit[i].plane
                     if plane == "X":
                         angle = 0
                     elif plane == "Y":

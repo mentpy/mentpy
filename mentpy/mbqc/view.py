@@ -1,7 +1,7 @@
-# Copyright (C) [2023] Luis Mantilla
+# Copyright 2023 Luis Mantilla
 #
-# This program is released under the GNU GPL v3.0 or later.
-# See <https://www.gnu.org/licenses/> for details.
+# Licensed under the Apache License, Version 2.0.
+# See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module for drawing MBQC circuits."""
 
 from typing import Union
@@ -190,7 +190,10 @@ def process_labels(state: MBQCircuit, options: dict):
     if label_option in ("index", "indices"):
         return None  # No modification necessary
     elif label_option in ("plane", "planes"):
-        labels = {node: state.planes[node] for node in state.graph.nodes()}
+        labels = {
+            node: ("" if state[node] is None else state[node].plane)
+            for node in state.graph.nodes()
+        }
         for node in state.controlled_nodes:
             labels[node] = "Ctrl"
         return labels
@@ -205,7 +208,10 @@ def process_labels(state: MBQCircuit, options: dict):
             "XYZ": r"$\nwarrow \nearrow$",
             "": "",
         }
-        labels = {node: plane2arrow[state.planes[node]] for node in state.graph.nodes()}
+        labels = {
+            node: plane2arrow[("" if state[node] is None else state[node].plane)]
+            for node in state.graph.nodes()
+        }
         for node in state.controlled_nodes:
             labels[node] = "Ctrl"
         return labels

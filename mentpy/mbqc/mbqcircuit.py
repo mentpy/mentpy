@@ -1,7 +1,7 @@
-# Copyright (C) [2023] Luis Mantilla
+# Copyright 2023 Luis Mantilla
 #
-# This program is released under the GNU GPL v3.0 or later.
-# See <https://www.gnu.org/licenses/> for details.
+# Licensed under the Apache License, Version 2.0.
+# See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """The graph_state module"""
 import copy
 from functools import cached_property, reduce
@@ -58,7 +58,7 @@ class MBQCircuit:
         graph: GraphState,
         input_nodes: List[int] = [],
         output_nodes: List[int] = [],
-        measurements: Optional[dict[Ment]] = None,
+        measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
         flow: Optional[Callable] = None,
         partial_order: Optional[callable] = None,
@@ -88,50 +88,9 @@ class MBQCircuit:
 
         self._graph = graph
 
-        # check input and output nodes are in graph. If not, raise error with the node(s) that are not in the graph
-        if not all([v in self.graph.nodes for v in input_nodes]):
-            raise ValueError(
-                f"Input nodes {input_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
-            )
-        if not all([v in self.graph.nodes for v in output_nodes]):
-            raise ValueError(
-                f"Output nodes {output_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
-            )
+        self._setup_nodes(input_nodes, output_nodes)
+        self._setup_measurements(measurements, default_measurement)
 
-        self._input_nodes = input_nodes
-        self._output_nodes = output_nodes
-
-        if not isinstance(default_measurement, Ment):
-            raise ValueError(
-                f"Default measurement {default_measurement} is not an instance of Ment."
-            )
-        self._default_measurement = default_measurement
-
-        if measurements is None:
-            measurements = {node: default_measurement for node in self.outputc}
-            for node in self.output_nodes:
-                measurements[node] = None
-        else:
-            if not all([v in self.graph.nodes for v in measurements.keys()]):
-                nodes_not_in_graph = [
-                    v for v in measurements.keys() if v not in self.graph.nodes
-                ]
-                raise ValueError(f"Nodes {nodes_not_in_graph} are not in the graph.")
-            if not all(
-                [isinstance(v, Ment) or v is None for v in measurements.values()]
-            ):
-                raise ValueError(
-                    f"Values {measurements.values()} are not instances of Ment."
-                )
-
-            # set X Ment in outputc nodes that are not in measurements
-            for node in self.graph.nodes:
-                if node not in measurements:
-                    measurements[node] = (
-                        self._default_measurement if node in self.outputc else None
-                    )
-
-        self._measurements = measurements
         self._flow, self._partial_order = None, None
         self._update_attributes()
 
@@ -156,6 +115,57 @@ class MBQCircuit:
         ]
         self._quantum_output_nodes = quantum_output_nodes
         self._measurement_order = measurement_order
+
+    def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
+        """Setup the input and output nodes of the MBQCircuit"""
+        if not all([v in self.graph.nodes for v in input_nodes]):
+            raise ValueError(
+                f"Input nodes {input_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
+            )
+        if not all([v in self.graph.nodes for v in output_nodes]):
+            raise ValueError(
+                f"Output nodes {output_nodes} are not in the graph. Graph nodes are {self.graph.nodes}"
+            )
+
+        self._input_nodes = input_nodes
+        self._output_nodes = output_nodes
+
+    def _setup_measurements(
+        self, measurements: Dict[int, Ment], default_measurement: Ment
+    ) -> None:
+        """Setup the measurements of the MBQCircuit"""
+        # Type check default_measurement
+        if not isinstance(default_measurement, Ment):
+            raise ValueError(
+                f"Default measurement {default_measurement} is not an instance of Ment."
+            )
+        self._default_measurement = default_measurement
+
+        # Type check measurements
+        if measurements is None:
+            measurements = {node: default_measurement for node in self.outputc}
+            for node in self.output_nodes:
+                measurements[node] = None
+        else:
+            if not all([v in self.graph.nodes for v in measurements.keys()]):
+                nodes_not_in_graph = [
+                    v for v in measurements.keys() if v not in self.graph.nodes
+                ]
+                raise ValueError(f"Nodes {nodes_not_in_graph} are not in the graph.")
+            if not all(
+                [isinstance(v, Ment) or v is None for v in measurements.values()]
+            ):
+                raise ValueError(
+                    f"Values {measurements.values()} are not instances of Ment."
+                )
+
+            for node in self.graph.nodes:
+                if node not in measurements:
+                    measurements[node] = (
+                        self._default_measurement if node in self.outputc else None
+                    )
+
+        self._measurements = measurements
 
     def __repr__(self) -> str:
         """Return the representation of the current MBQC circuit state"""
@@ -269,11 +279,6 @@ class MBQCircuit:
         return self._controlled_nodes
 
     @property
-    def planes(self) -> dict:
-        r"""Return the planes of the MBQC circuit."""
-        return self._planes
-
-    @property
     def flow(self) -> Callable:
         r"""Return the flow function of the MBQC circuit."""
         return self._flow
@@ -325,7 +330,6 @@ class MBQCircuit:
     def _update_attributes(self) -> None:
         trainable_nodes = []
         controlled_nodes = []
-        planes = {}
         quantum_outputs = []
         classical_outputs = []
         for nodei, menti in self._measurements.items():
@@ -336,19 +340,16 @@ class MBQCircuit:
                 if menti.is_trainable():
                     trainable_nodes.append(nodei)
 
-                planes[nodei] = menti.plane
                 self._measurements[nodei] = copy.deepcopy(menti)
                 self._measurements[nodei].node_id = nodei
                 if nodei in self._output_nodes:
                     classical_outputs.append(nodei)
             else:
-                planes[nodei] = ""
                 if nodei in self._output_nodes:
                     quantum_outputs.append(nodei)
 
         self._trainable_nodes = trainable_nodes
         self._controlled_nodes = controlled_nodes
-        self._planes = planes
         self._quantum_output_nodes = quantum_outputs
         self._classical_output_nodes = classical_outputs
 
@@ -379,11 +380,9 @@ class MBQCircuit:
                 self._trainable_nodes.append(key)
             elif menti.angle is not None and key in self._trainable_nodes:
                 self._trainable_nodes.remove(key)
-            self._planes[key] = menti.plane
             self._measurements[key] = copy.deepcopy(menti)
             self._measurements[key].node_id = key
         else:
-            self._planes[key] = ""
             if key in self._trainable_nodes:
                 self._trainable_nodes.remove(key)
 
