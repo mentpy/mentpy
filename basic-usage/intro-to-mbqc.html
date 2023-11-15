@@ -32,7 +32,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.79d3faa9841bcddc6.min.css?v=e88de5f6" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.af531f03affe68837.min.css?v=2410bb73" />
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -721,7 +721,7 @@ resource state.</p>
 <span class="gh">Out[4]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/1d_cluster.png"><img alt="../_images/1d_cluster.png" src="../_images/1d_cluster.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/1d_cluster.png"><img alt="savefig/1d_cluster.png" src="savefig/1d_cluster.png" style="width: 1000px;" /></a>
 <p>This circuit is designed to implement a single qubit gate on the input qubit, with qubits
 measured in a left-to-right sequence. We can use this circuit to implement a teleportation from
 qubit 0 to qubit 4 by measuring qubits <span class="math notranslate nohighlight">\(0\)</span>, <span class="math notranslate nohighlight">\(1\)</span>, <span class="math notranslate nohighlight">\(2\)</span>, and <span class="math notranslate nohighlight">\(3\)</span> in
@@ -748,7 +748,7 @@ If not provided, it will be treated as a trainable parameter.</p>
 <span class="gh">Out[9]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/1d_cluster_measure.png"><img alt="../_images/1d_cluster_measure.png" src="../_images/1d_cluster_measure.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/1d_cluster_measure.png"><img alt="savefig/1d_cluster_measure.png" src="savefig/1d_cluster_measure.png" style="width: 1000px;" /></a>
 <p>We can define the same circuit when creating the <code class="xref py py-obj docutils literal notranslate"><span class="pre">MBQCircuit</span></code> object with the
 <code class="docutils literal notranslate"><span class="pre">measurements</span></code> argument:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [10]: </span><span class="n">measurements</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;XY&#39;</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;XY&#39;</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)}</span>
@@ -759,7 +759,7 @@ If not provided, it will be treated as a trainable parameter.</p>
 <span class="gh">Out[12]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/1d_cluster_measure2.png"><img alt="../_images/1d_cluster_measure2.png" src="../_images/1d_cluster_measure2.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/1d_cluster_measure2.png"><img alt="savefig/1d_cluster_measure2.png" src="savefig/1d_cluster_measure2.png" style="width: 1000px;" /></a>
 <p>The default measurement basis can be specified with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">default_measurement</span></code> kwarg. By default,
 it is set to <span class="math notranslate nohighlight">\(XY\)</span>, but we can change it to any other <code class="xref py py-obj docutils literal notranslate"><span class="pre">Ment</span></code> object. Let’s see an example:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [13]: </span><span class="n">mbcirc</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">MBQCircuit</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">input_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">output_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
@@ -794,7 +794,7 @@ vstack</label></div>
 <span class="gh">Out[18]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/merge_mbqc.png"><img alt="../_images/merge_mbqc.png" src="../_images/merge_mbqc.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/merge_mbqc.png"><img alt="savefig/merge_mbqc.png" src="savefig/merge_mbqc.png" style="width: 1000px;" /></a>
 </div>
 <div class="tabbed-block docutils container">
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [19]: </span><span class="n">new_circ</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">mbcirc</span><span class="p">))</span>
@@ -803,7 +803,7 @@ vstack</label></div>
 <span class="gh">Out[20]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/hstack_mbqc.png"><img alt="../_images/hstack_mbqc.png" src="../_images/hstack_mbqc.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/hstack_mbqc.png"><img alt="savefig/hstack_mbqc.png" src="savefig/hstack_mbqc.png" style="width: 1000px;" /></a>
 </div>
 <div class="tabbed-block docutils container">
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [21]: </span><span class="n">new_circ</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">mbcirc</span><span class="p">))</span>
@@ -812,7 +812,7 @@ vstack</label></div>
 <span class="gh">Out[22]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/vstack_mbqc.png"><img alt="../_images/vstack_mbqc.png" src="../_images/vstack_mbqc.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/vstack_mbqc.png"><img alt="savefig/vstack_mbqc.png" src="savefig/vstack_mbqc.png" style="width: 1000px;" /></a>
 </div>
 </div>
 </div><h2 id="templates">Templates<a class="headerlink" href="#templates" title="Link to this heading">¶</a></h2>
@@ -829,7 +829,7 @@ some common MBQC circuits. For example, we can create a grid cluster state with 
 <span class="gh">Out[26]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/template_merge.png"><img alt="../_images/template_merge.png" src="../_images/template_merge.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="savefig/template_merge.png"><img alt="savefig/template_merge.png" src="savefig/template_merge.png" style="width: 1000px;" /></a>
 <p>Finally, if you want to know the set of gates that the MBQC circuit you have created
 implements, you can use the <code class="xref py py-func docutils literal notranslate"><span class="pre">utils.calculate_lie_algebra()</span></code>. This function returns
 the lie algebra <span class="math notranslate nohighlight">\(\mathfrak{g}\)</span> that the circuit implements, which can be used to calculate the set of

@@ -32,7 +32,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.79d3faa9841bcddc6.min.css?v=e88de5f6" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.af531f03affe68837.min.css?v=2410bb73" />
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -695,10 +695,10 @@ of a 2D dataset and use this map to formulate the kernel:</p>
 <span class="gp">In [12]: </span><span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
 
 <span class="gp">In [13]: </span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="s1">&#39;feature1&#39;</span><span class="p">],</span> <span class="n">X_train</span><span class="p">[</span><span class="s1">&#39;feature2&#39;</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
-<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x7f49ca8a2e90&gt;</span>
+<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x7f3d012419f0&gt;</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/scatter_classical_data.png"><img alt="../_images/scatter_classical_data.png" src="../_images/scatter_classical_data.png" style="width: 500px;" /></a>
+<a class="reference internal image-reference" href="savefig/scatter_classical_data.png"><img alt="savefig/scatter_classical_data.png" src="savefig/scatter_classical_data.png" style="width: 500px;" /></a>
 <p>It is a good practice to normalize the data to avoid issues when embedding as the measurement angles.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [14]: </span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
 
