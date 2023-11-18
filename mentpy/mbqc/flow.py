@@ -277,10 +277,13 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     ΛZ​: The set of all vertices labeled 'Z'.
     """
 
+    # N_Γ(u): Neighbours of `u` in Γ
+    NGammaU = lambda u: set(graph.neighbors(u))
+
     # TODO: are these correct?
-    lam_Xu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'X'}
-    lam_Yu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'Y'}
-    lam_Zu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'Z'}
+    lam_Xu = lambda u: {v for v in NGammaU(u) if basis[v] == 'X'}
+    lam_Yu = lambda u: {v for v in NGammaU(u) if basis[v] == 'Y'}
+    lam_Zu = lambda u: {v for v in NGammaU(u) if basis[v] == 'Z'}
 
     # KA_u; set of possible elements of witness set K
     # KA,u := (A ∪ ΛX_u ∪ ΛY_u ) ∩ I^C
@@ -302,12 +305,10 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     YA_u_indicies = lambda u: [vertex_to_index[v] for v in YA_u(u) if v in vertex_to_index]
     
     # Intersection is a sub-selection
+    # Product is a restriction
     MAu_top = lambda u: gamma[nx.ix_(KA_u_indices(u), PA_u_indices(u))]
     MAu_bottom = lambda u: (gamma + identity_matrix)[nx.ix_(KA_u_indices(u), YA_u_indicies(u))]
     MAu = lambda u: np.array(MAu_top(u), MAu_bottom(u))
-
-    # N_Γ(u): Neighbours of `u` in Γ
-    NGammaU = lambda u: set(graph.neighbors(u))
 
     # TODO: [1 if v in NGammaU(u) else 0 for v in graph.nodes()]
     submatrix_X_Y_top = lambda u: np.array({u}) # TODO: given measurement in the XY basis?
