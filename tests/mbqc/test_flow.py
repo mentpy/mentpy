@@ -13,7 +13,7 @@ from mentpy import MBQCircuit, GraphState
 def gflow_no_cflow_graph():
     """
     Creates a graph with generalized flow but no classical flow.
-    Reference: 10.1088/1367-2630/9/8/250 p11
+    Reference: 10.1088/1367-2630/9/8/250 Fig 2
     """
     graph_state = GraphState()
     graph_state.add_edges_from([(1, 4), (2, 5), (3, 4), (3, 6)])
@@ -23,7 +23,7 @@ def gflow_no_cflow_graph():
 def cflow_graph():
     """
     Creates a graph with classical flow.
-    Reference: 10.1088/1367-2630/9/8/250 p12
+    Reference: 10.1088/1367-2630/9/8/250 Fig 3
     """
     graph_state = GraphState()
     graph_state.add_edges_from([(1, 4), (2, 5), (3, 6)])
@@ -33,7 +33,7 @@ def cflow_graph():
 def open_pflow_no_gflow_graph():
     """
     Creates a graph with open pattern flow but no generalized flow.
-    Reference: 10.1088/1367-2630/9/8/250 p14 Fig 7
+    Reference: 10.1088/1367-2630/9/8/250 Fig 7
     """
     graph_state = GraphState()
     graph_state.add_edges_from([
@@ -51,7 +51,7 @@ def open_pflow_no_gflow_graph():
         (9, 11),
         (10, 12)
     ])
-    circuit = MBQCircuit(graph_state)
+    circuit = MBQCircuit(graph_state, [11, 12])
     return circuit.graph()
 
 def open_no_pflow_no_gflow_graph():

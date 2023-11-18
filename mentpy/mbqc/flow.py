@@ -231,43 +231,106 @@ def find_pflow(
     elif type(basis) != dict:
         raise TypeError("Basis must be a string or a dictionary.")
 
-    lx = set()
-    ly = set()
-    lz = set()
     d = {}
     p = {}
 
-    gamma = nx.adjacency_matrix(graph).toarray()
-
+    lx = set()
+    ly = set()
+    lz = set()
+    # .add(<*>) is in-place
     for v in graph.nodes():
         if v in output_nodes:
             d[v] = 0
         if basis[v] == "X":
-            lx = lx.add(v)
+            lx.add(v)
         elif basis[v] == "Y":
-            ly = ly.add(v)
+            ly.add(v)
         elif basis[v] == "Z":
-            lz = lz.add(v)
+            lz.add(v)
+
+    gamma = nx.adjacency_matrix(graph).toarray()
 
     return pflowaux(graph, gamma, input_nodes, basis, set(), output_nodes, 0, d, p)
 
+def solve_linear_system(submatrix, target_vector):
+    # Using numpy to solve the linear system
+    # This is a placeholder, you need to construct the submatrix and target_vector based on the algorithm
+    solution = np.linalg.solve(submatrix, target_vector)
+    return solution
 
 def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     """Aux function for pflow"""
     C = set()
-    mapping = graph.index_mapping()
+    vertex_to_index = graph.index_mapping()
+
+    """Submatrix Definitions"""
+
+    gamma = gamma
+    identity_matrix = np.eye(len(gamma))
+
+    universal = set(graph.nodes())
+    I_complement = universal - identity_matrix 
+
+    """
+    ΛX​: The set of all vertices labeled 'X' by the basis labeling function λλ.
+    ΛY​: The set of all vertices labeled 'Y'.
+    ΛZ​: The set of all vertices labeled 'Z'.
+    """
+
+    # TODO: are these correct?
+    lam_Xu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'X'}
+    lam_Yu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'Y'}
+    lam_Zu = lambda u: {v for v in graph.neighbors(u) if basis[v] == 'Z'}
+
+    # KA_u; set of possible elements of witness set K
+    # KA,u := (A ∪ ΛX_u ∪ ΛY_u ) ∩ I^C
+    
+    KAu = lambda u: (A | lam_Xu(u) | lam_Yu(u) ) & I_complement  
+
+    # PA,u is the set of vertices in the past/present which should remain corrected afer measuring and correcting u
+    # PA,u := (A ∪ ΛY_u ∪ ΛZ_u )^C
+
+    PAu = lambda u: universal - (A | lam_Yu(u) | lam_Zu(u))
+
+    # YA,u is the set of vertices we have to consider for condition [≺ .Y ], 
+    # YA,u := ΛY_u \ A
+
+    YAu = lambda u: A - lam_Yu(u)
+
+    KA_u_indices = lambda u: [vertex_to_index[v] for v in KA_u(u) if v in vertex_to_index]
+    PA_u_indices = lambda u: [vertex_to_index[v] for v in PA_u(u) if v in vertex_to_index]
+    YA_u_indicies = lambda u: [vertex_to_index[v] for v in YA_u(u) if v in vertex_to_index]
+    
+    # Intersection is a sub-selection
+    MAu_top = lambda u: gamma[nx.ix_(KA_u_indices(u), PA_u_indices(u))]
+    MAu_bottom = (gamma + identity_matrix)[nx.ix_(KA_u_indices(u), YA_u_indicies(u))]
+    MAu = lambda u: np.array(MAu_top(u), MAu_bottom(u))
+
+    # N_Γ(u): Neighbours of `u` in Γ
+    NGammaU = lambda u: set(graph.neighbors(u))
+
+    # TODO: [1 if v in NGammaU(u) else 0 for v in graph.nodes()]
+    submatrix_X_Y_top = lambda u: np.array({u}) # TODO: given measurement in the XY basis?
+    submatrix_X_Y_bot = lambda u: np.zeros(len(graph.nodes()))
+
+    submatrix_X_Z_top = lambda u: np.array(list((NGammaU & PAu(u)) | {u}))
+    submatrix_X_Z_bot = lambda u: np.array(list(((NGammaU(u) & YAu(u)))))
+
+    submatrix_Y_Z_top = lambda u: np.array(list((NGammaU(u) & PAu(u))))
+    submatrix_Y_Z_bot = lambda u: np.array(list((NGammaU(u) & YAu(u))))
+
     for u in set(graph.nodes()) - set(B):
-        submatrix1, submatrix2, submatrix3 = None, None, None
         solution1, solution2, solution3 = None, None, None
+
         if plane[u] in ["XY", "X", "Y"]:
-            submatrix1 = 0  # TODO
-            solution1 = 0  # TODO
+            submatrix_X_Y = np.array([submatrix_X_Y_top(u), submatrix_X_Y_bot(u)])
+            solution1 = solve_linear_system(MAu(u), submatrix_X_Y(u))
         if plane[u] in ["XZ", "X", "Z"]:
-            submatrix2 = 0  # TODO
-            solution2 = 0  # TODO
+            submatrix_X_Z = np.array([submatrix_X_Z_top(u), submatrix_X_Z_bot(u)])
+            solution2 =  solve_linear_system(MAu(u), submatrix_X_Z(u))
         if plane[u] in ["YZ", "Y", "Z"]:
-            submatrix3 = 0  # TODO
-            solution3 = 0  # TODO
+            submatrix_Y_Z = np.array([submatrix_Y_Z_top(u), submatrix_Y_Z_bot(u)])
+            solution3 = solve_linear_system(MAu(u), submatrix_Y_Z(u))
 
         if (
             (solution1 is not None)
@@ -287,7 +350,6 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     else:
         B = B.union(C)
         return pflowaux(graph, gamma, inputs, plane, B, B, k + 1, d, p)
-
 
 ## Finds flow of a graph state. This is deprecated and will be removed in the future.
 
