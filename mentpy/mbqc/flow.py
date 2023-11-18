@@ -303,7 +303,7 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     
     # Intersection is a sub-selection
     MAu_top = lambda u: gamma[nx.ix_(KA_u_indices(u), PA_u_indices(u))]
-    MAu_bottom = (gamma + identity_matrix)[nx.ix_(KA_u_indices(u), YA_u_indicies(u))]
+    MAu_bottom = lambda u: (gamma + identity_matrix)[nx.ix_(KA_u_indices(u), YA_u_indicies(u))]
     MAu = lambda u: np.array(MAu_top(u), MAu_bottom(u))
 
     # N_Γ(u): Neighbours of `u` in Γ
