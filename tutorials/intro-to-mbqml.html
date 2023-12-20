@@ -710,7 +710,7 @@ where the input and target states are related by a given unitary <span class="ma
 <span class="n">NUM_RUNS</span> <span class="o">=</span> <span class="mi">10</span>
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_RUNS</span><span class="p">):</span>
-    <span class="n">random_gate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">random_special_unitary</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">random_gate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">gates</span><span class="o">.</span><span class="n">random_su</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
     <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">generate_random_dataset</span><span class="p">(</span><span class="n">random_gate</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span>
 
     <span class="n">cost_train</span><span class="p">,</span> <span class="n">cost_test</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
@@ -827,7 +827,7 @@ where the input and target states are related by a given unitary <span class="ma
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "search.share", "toc.follow", "toc.sticky"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
     
       
-        <script src="../_static/sphinx_immaterial_theme.1b5b7a2d5891aec19.min.js?v=1e7b0789"></script>
+        <script src="../_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>
         <script id="MathJax-script" src="../_static/mathjax/tex-mml-chtml.js?v=cadf963e"></script>
     
   </body>

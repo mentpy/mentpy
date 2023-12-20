@@ -68,7 +68,7 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     NUM_RUNS = 10
 
     for i in range(NUM_RUNS):
-        random_gate = np.kron(mp.utils.random_special_unitary(1), np.eye(2))
+        random_gate = np.kron(mp.gates.random_su(1), np.eye(2))
         (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(random_gate, 10, test_size = 0.3)
 
         cost_train, cost_test = [], []
