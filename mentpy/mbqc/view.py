@@ -99,6 +99,8 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
     style = options.pop("style")
 
     if pauliop is not None:
+        if len(pauliop) != 1:
+            raise ValueError("pauliop must be a single Pauli operator")
         options["label"] = "pauliop"
 
     transp = options.pop("transparent")
@@ -122,6 +124,8 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
                 fix_wires.append(tuple(wire))
 
     if isinstance(state, GraphState):
+        labels = process_labels(state, options)
+        options["labels"] = labels
         nx.draw(state, ax=ax, **options)
 
     elif isinstance(state, MBQCircuit):
@@ -181,7 +185,7 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
     return fig, ax
 
 
-def process_labels(state: MBQCircuit, options: dict):
+def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
     """Process and return the appropriate labels for the nodes based on the given options."""
 
     label_option = options.pop("label", "index")
@@ -227,11 +231,10 @@ def process_labels(state: MBQCircuit, options: dict):
                 labels[node] = ""
         return labels
     elif label_option == "pauliop":
-        if len(pauliop) != 1:
-            raise ValueError("pauliop must be a single Pauli operator")
-        labels = {
-            node: pauliop.txt[ind] for ind, node in enumerate(state.graph.nodes())
-        }
+        obj_nodes = (
+            state.graph.nodes() if isinstance(state, MBQCircuit) else state.nodes()
+        )
+        labels = {node: pauliop.txt[ind] for ind, node in enumerate(obj_nodes)}
         return labels
     else:
         raise ValueError(
