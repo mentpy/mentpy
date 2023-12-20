@@ -121,7 +121,6 @@ html_theme_options = {
     "site_url": "https://github.com/mentpy/mentpy",
     "repo_url": "https://github.com/mentpy/mentpy",
     "repo_name": "MentPy",
-    "repo_type": "github",
     # "google_analytics": ["UA-XXXXX", "auto"],
     "globaltoc_collapse": True,
     "features": [

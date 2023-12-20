@@ -11,7 +11,12 @@ from .gates import PauliX, PauliY, PauliZ
 
 
 class MentOutcome:
-    """Measurement outcome class."""
+    """Measurement outcome class.
+
+    Group
+    -----
+    operators
+    """
 
     def __init__(self, outcome: Callable[..., bool], node_id=None, cond_nodes=None):
         if isinstance(outcome, (bool, int)):
@@ -130,6 +135,10 @@ class Ment:
         If plane is "XYZ", the input should be a tuple of two angles.
     plane: str
         The plane of the measurement. Can be "XY", "XZ", "YZ", "XYZ", "X", "Y", "Z".
+
+    Group
+    -----
+    operators
     """
 
     def __init__(
