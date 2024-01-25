@@ -129,6 +129,9 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
         nx.draw(state, ax=ax, **options)
 
     elif isinstance(state, MBQCircuit):
+        node_color = options.pop("node_color")
+        if node_color is None:
+            node_color = get_node_colors(state, style=style)
         node_colors = get_node_colors(state, style=style)
         options["node_color"] = [node_colors[node] for node in state.graph.nodes()]
 

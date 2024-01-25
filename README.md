@@ -43,6 +43,8 @@ pip install git+https://github.com/mentpy/mentpy.git
 If you're contributing to `mentpy` and need to install development dependencies, you can do so using:
 
 ```bash
+git clone https://github.com/mentpy/mentpy.git
+cd mentpy
 pip install -e '.[dev]'
 ```
 
