@@ -28,7 +28,6 @@ dependencies = [
 ]
 requires-python = ">=3.9"
 repository = "https://github.com/mentpy/mentpy"
-documentation = "https://docs.mentpy.com"
 
 [project.optional-dependencies]
 dev = [
