@@ -27,6 +27,8 @@ dependencies = [
     "scipy>=1.10.1"
 ]
 requires-python = ">=3.9"
+repository = "https://github.com/mentpy/mentpy"
+documentation = "https://docs.mentpy.com"
 
 [project.optional-dependencies]
 dev = [
@@ -39,6 +41,3 @@ dev = [
     "sphinx_immaterial>=0.11.7"
 ]
 
-repository = "https://github.com/mentpy/mentpy"
-
-documentation = "https://docs.mentpy.com"
