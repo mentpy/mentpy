@@ -27,7 +27,6 @@ dependencies = [
     "scipy>=1.10.1"
 ]
 requires-python = ">=3.9"
-repository = "https://github.com/mentpy/mentpy"
 
 [project.optional-dependencies]
 dev = [
