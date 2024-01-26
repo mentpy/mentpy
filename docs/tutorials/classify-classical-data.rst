@@ -5,6 +5,11 @@ Classifying classical data
    :description: Using MBQC to classify classical data.
    :keywords: mb-qml, mbqc, measurement-based quantum machine learning, qml
 
+.. admonition:: Note
+   :class: warning
+   
+   This tutorial is under construction
+
 **Author(s):** `Luis Mantilla <https://x.com/realmantilla>`_
 
 QML can be used to process classical data. Notably, previous studies have applied quantum models 
