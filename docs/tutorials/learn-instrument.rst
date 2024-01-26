@@ -4,8 +4,12 @@ Learning a quantum instrument
 .. meta::
     :description: Learning a quantum instrument for teleporation
     :keywords: quantum, quantum machine learning, measurement-based quantum computing
+    
+.. admonition:: Note
+   :class: warning
+   
+   This tutorial is under construction
 
-[WIP]
 
 .. code-block:: python
 
