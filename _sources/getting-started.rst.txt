@@ -72,4 +72,4 @@ Additionally, you can build the documentation locally to check for any errors an
 
 This process generates HTML documentation in `docs/_build/html`, which you can open in a web browser to review.
 
-Contributors are encouraged to follow the :doc:`contributing guidelines <contributing>` to submit their enhancements or bug fixes.
+Contributors are encouraged to follow the :doc:`contributing guidelines <CONTRIBUTING>` to submit their enhancements or bug fixes.
