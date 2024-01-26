@@ -12,6 +12,13 @@ from .ment import Ment, MentOutcome
 
 
 class ControlMent(Ment):
+    """Controlled measurement operator.
+
+    Group
+    -----
+    operators
+    """
+
     def __init__(
         self,
         condition: Optional[Union[bool, MentOutcome]] = None,

@@ -52,6 +52,7 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     "preamble": r"""
 \usepackage{amssymb}
+\usepackage{braket}
 """,
 }
 
@@ -103,6 +104,18 @@ object_description_options = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+mathjax_config = {
+    "tex2jax": {
+        "inlineMath": [["\\(", "\\)"]],
+        "displayMath": [["\\[", "\\]"]],
+    },
+}
+mathjax3_config = {
+    "tex": {
+        "inlineMath": [["\\(", "\\)"]],
+        "displayMath": [["\\[", "\\]"]],
+    }
+}
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -121,7 +134,6 @@ html_theme_options = {
     "site_url": "https://github.com/mentpy/mentpy",
     "repo_url": "https://github.com/mentpy/mentpy",
     "repo_name": "MentPy",
-    "repo_type": "github",
     # "google_analytics": ["UA-XXXXX", "auto"],
     "globaltoc_collapse": True,
     "features": [
