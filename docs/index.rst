@@ -112,7 +112,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
    tutorials/intro-to-mbqml.rst
    tutorials/intro-to-mbqml-parallel.rst
    tutorials/classify-classical-data.rst
-   tutorials/povm-fisher.rst
+   tutorials/classify-fisher.rst
 
 .. toctree::
    :caption: API Reference

@@ -157,6 +157,11 @@ def muta(n_wires, n_layers, **kwargs):
     n_layers: int
         The number of layers in the graph state.
 
+    Keyword Args
+    ------------
+    one_column: bool
+        Whether to use only one column of triangles.
+
     Returns
     -------
     The graph state with the MuTA template.
