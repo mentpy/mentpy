@@ -661,6 +661,10 @@
 
 
 <h1 id="classifying-classical-data">Classifying classical data<a class="headerlink" href="#classifying-classical-data" title="Link to this heading">¶</a></h1>
+<div class="warning admonition">
+<p class="admonition-title">Note</p>
+<p>This tutorial is under construction</p>
+</div>
 <p><strong>Author(s):</strong> <a class="reference external" href="https://x.com/realmantilla">Luis Mantilla</a></p>
 <p>QML can be used to process classical data. Notably, previous studies have applied quantum models
 for such tasks, and you can find more about these in <a class="footnote-reference brackets" href="#havlicek2019" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>, <a class="footnote-reference brackets" href="#schuld2019" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, <a class="footnote-reference brackets" href="#abbas2021" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>,
@@ -668,7 +672,7 @@ to name a few. In this tutorial, we’ll focus on using MB-QML for the task of c
 classification. The core idea is to implement an embedding <span class="math notranslate nohighlight">\(x_i \mapsto |\phi(x_i)\rangle\)</span>
 of a 2D dataset and use this map to formulate the kernel:</p>
 <div class="math notranslate nohighlight">
-\[K(x_i, x_j) = |{\braket{\phi(x_i)}{\phi(x_j)}|^2,\]</div>
+\[K(x_i, x_j) = |\braket{\phi(x_i) | \phi(x_j)}|^2,\]</div>
 <p>The data embedding <span class="math notranslate nohighlight">\(\phi\)</span> can be implemented in several ways, and in MB-QML, we can use the measurement angles to encode the data. Let’s begin creating a simple dataset and splitting it into training and test sets.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
@@ -695,7 +699,7 @@ of a 2D dataset and use this map to formulate the kernel:</p>
 <span class="gp">In [12]: </span><span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
 
 <span class="gp">In [13]: </span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="s1">&#39;feature1&#39;</span><span class="p">],</span> <span class="n">X_train</span><span class="p">[</span><span class="s1">&#39;feature2&#39;</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">)</span>
-<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x7f69c14717b0&gt;</span>
+<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x7fd7b446d900&gt;</span>
 </code></pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/scatter_classical_data.png"><img alt="../_images/scatter_classical_data.png" src="../_images/scatter_classical_data.png" style="width: 500px;" /></a>
