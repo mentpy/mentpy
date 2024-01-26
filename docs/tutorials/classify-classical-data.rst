@@ -18,7 +18,7 @@ to name a few. In this tutorial, we'll focus on using MB-QML for the task of cla
 classification. The core idea is to implement an embedding :math:`x_i \mapsto |\phi(x_i)\rangle` 
 of a 2D dataset and use this map to formulate the kernel:
 
-.. math:: K(x_i, x_j) = |{\braket{\phi(x_i)}{\phi(x_j)}|^2,
+.. math:: K(x_i, x_j) = |\braket{\phi(x_i) | \phi(x_j)}|^2,
 
 The data embedding :math:`\phi` can be implemented in several ways, and in MB-QML, we can use the measurement angles to encode the data. Let's begin creating a simple dataset and splitting it into training and test sets.
 

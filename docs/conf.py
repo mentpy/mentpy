@@ -52,6 +52,7 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     "preamble": r"""
 \usepackage{amssymb}
+\usepackage{braket}
 """,
 }
 
