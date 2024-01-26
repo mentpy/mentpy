@@ -32,7 +32,6 @@ Learning a quantum instrument
     plt.savefig('teleportation.png', dpi=500)
 
     wires = [[0,1,2,3,13,14,15,16,17], [4,5,6,7,18,19,20,21,22],[8,9,10,11,12]]
-
     schedule = [0,4,8,5,1,6,2,3,7,13,14,9,15,10,11,16,17,18,19,12,20,21, 22]
 
     psK = mp.PatternSimulator(mgs, backend='numpy-dm', window_size=5, dev_mode = True, wires = wires, schedule = schedule)
