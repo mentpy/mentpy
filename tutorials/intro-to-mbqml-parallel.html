@@ -619,7 +619,7 @@ Similar to the previous tutorial, we first need a MB-QML model to work with.</p>
 <span class="gh">Out[5]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="savefig/muta_mbqml.png"><img alt="savefig/muta_mbqml.png" src="savefig/muta_mbqml.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="../_images/muta_mbqml.png"><img alt="../_images/muta_mbqml.png" src="../_images/muta_mbqml.png" style="width: 1000px;" /></a>
 <p>Then, when we define a loss function, we can use the <code class="xref py py-mod docutils literal notranslate"><span class="pre">pathos</span></code> package to parallelize the computation
 of the infidelity between the target states and the output states.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [6]: </span><span class="kn">from</span> <span class="nn">pathos.multiprocessing</span> <span class="kn">import</span> <span class="n">ProcessingPool</span> <span class="k">as</span> <span class="n">Pool</span>

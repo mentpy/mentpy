@@ -16,6 +16,7 @@ Fisher information classifier
 Here, we will learn now to perform a classification of quantum states according to their Fisher information. First, we generate a dataset of states 
 
 .. code-block:: python
+   
    import os
    import numpy as np
    import pickle
