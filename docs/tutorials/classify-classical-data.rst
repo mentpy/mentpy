@@ -18,6 +18,7 @@ of a 2D dataset and use this map to formulate the kernel:
 The data embedding :math:`\phi` can be implemented in several ways, and in MB-QML, we can use the measurement angles to encode the data. Let's begin creating a simple dataset and splitting it into training and test sets.
 
 .. ipython:: python
+   :okwarning:
 
    import matplotlib.pyplot as plt
    from sklearn import datasets
