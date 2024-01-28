@@ -641,7 +641,7 @@
 <p class="admonition-title">Note</p>
 <p>This tutorial is under construction</p>
 </div>
-<p>In this tutorial we use the object <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.ControlMent</span></code> to learn a quantum instrument for teleportation. In general, a quantum instrument is a map <span class="math notranslate nohighlight">\(\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{\abs{X}})\)</span> that measures a state $rho$ and stores the measurement outcome,</p>
+<p>In this tutorial we use the object <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.ControlMent</span></code> to learn a quantum instrument for teleportation. In general, a quantum instrument is a map <span class="math notranslate nohighlight">\(\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{|X|})\)</span> that measures a state <span class="math notranslate nohighlight">\(\rho\)</span> and stores the measurement outcome,</p>
 <div class="math notranslate nohighlight">
 \[\mathcal{I}(\rho) = \sum_{x\in X} E_x (\rho) \otimes \ket{x}\bra{x},\]</div>
 <p>where <span class="math notranslate nohighlight">\(\left\{E_x\right\}_{x\in X}\)</span> is a collection of completely positive maps such that <span class="math notranslate nohighlight">\(\operatorname{Tr}\left(\sum_{x\in X} E_x(\rho)\right) = \operatorname{Tr}(\rho)\)</span>.</p>
