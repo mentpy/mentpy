@@ -143,7 +143,7 @@ def controlled_z(i, j, n):
     return op1 - op2
 
 
-def IsingXX(phi):
+def ising_xx(phi):
     """
     Compute the matrix representation of the IsingXX gate.
 
