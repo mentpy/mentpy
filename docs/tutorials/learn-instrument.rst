@@ -4,11 +4,19 @@ Learning a quantum instrument
 .. meta::
     :description: Learning a quantum instrument for teleporation
     :keywords: quantum, quantum machine learning, measurement-based quantum computing
-    
+
 .. admonition:: Note
    :class: warning
    
    This tutorial is under construction
+
+
+In this tutorial we use the object :class:`mp.ControlMent` to learn a quantum instrument for teleportation. In general, a quantum instrument is a map :math:`\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{\abs{X}})` that measures a state $\rho$ and stores the measurement outcome,
+
+.. math::
+    \mathcal{I}(\rho) = \sum_{x\in X} E_x (\rho) \otimes \ket{x}\bra{x},
+    
+where :math:`\left\{E_x\right\}_{x\in X}` is a collection of completely positive maps such that :math:`\operatorname{Tr}\left(\sum_{x\in X} E_x(\rho)\right) = \operatorname{Tr}(\rho)`. 
 
 
 .. code-block:: python
@@ -72,6 +80,56 @@ Learning a quantum instrument
         return loss(outputs, statesy)
 
 
+Usually we do not have access to the analytical solution of a learning problem, but in this case, it is possible to find it as it is a small quantum system. In particular, to get an optimal cost value we define the following measurement pattern:
+
+.. code-block:: python
+
+    input_state_random = mp.utils.generate_haar_random_states(1, 1)
+    state_zero = np.array([1, 0])
+    state_zero_product = np.kron(state_zero, state_zero)
+    input_state = np.kron(state_zero_product, input_state_random)
+
+    psK.reset(input_state=input_state)
+    angles = np.zeros(len(mgs.trainable_nodes))
+
+    angles[4] = np.pi / 2
+    angles[10] = np.pi / 2
+    angles[12] = np.pi
+    angles[13] = np.pi
+    angles[14] = 0
+    angles[15] = np.pi
+
+    quantum_state = psK(angles)
+    outcomes = ((psK.outcomes[12] + 1) % 2, (psK.outcomes[17] + 1) % 2)
+    fidelity = mp.calculator.fidelity(quantum_state, np.outer(input_state_random, input_state_random.conj()))
+
+    print(quantum_state, outcomes, fidelity)
+
+    angle_to_text = {
+        0: '0',
+        np.pi / 2: r'$\pi/2$',
+        np.pi: r'$\pi$',
+        3 * np.pi / 2: r'$3\pi/2$'
+    }
+
+    labels = {node: angle_to_text[angle] for node, angle in zip(mgs.trainable_nodes, angles)}
+
+    for node in mgs.nodes:
+        if node not in mgs.trainable_nodes and node in mgs.outputc:
+            labels[node] = '0'
+        elif node not in mgs.quantum_output_nodes and node in mgs.output_nodes:
+            labels[node] = 'Z'
+
+    @savefig teleport_exact_solution.png width=1000px
+    mp.draw(
+        mgs,
+        label='indices',
+        labels=labels,
+        edge_color_control='black',
+        figsize=(12, 4),
+        fix_wires=[(8, '*', '*', '*', '*', 9, 10, 11, 12), (0, 1, 2, 3, 13, 14, 15, 16, 17), (4, 5, 6, 7, "*", "*", "*", "*", 18, 19, 20, 21, 22)]
+    )
+
 Define a callback and train
 
 .. code-block:: python
@@ -110,39 +168,43 @@ Define a callback and train
         runs_test[i] = cost_test
         theta_ops[i] = theta
 
-Plot results
 
-.. code-block:: python
-    
-    plt.style.use('default')
+Finally, we can plot the learning curves
 
-    MAX_NUM_RUNS=10
-    MAX_NUM_STEPS=180
-    num_steps = MAX_NUM_STEPS
+.. admonition:: Code for plotting learning curve
+    :class: codeblock
+    :collapsible:
+        
+    .. code-block:: python
+        
+        plt.style.use('default')
 
-    train_means = [np.mean([runs_train[i][j] for i in range(MAX_NUM_RUNS)]) for j in range(MAX_NUM_STEPS)]
-    train_vars = [np.var([runs_train[i][j] for i in range(MAX_NUM_RUNS)]) for j in range(MAX_NUM_STEPS)]
-    test_means = [np.mean([runs_test[i][j] for i in range(MAX_NUM_RUNS)]) for j in range(MAX_NUM_STEPS)]
-    test_vars = [np.var([runs_test[i][j] for i in range(MAX_NUM_RUNS)]) for j in range(MAX_NUM_STEPS)]
+        MAX_NUM_RUNS = 10
+        MAX_NUM_STEPS = 180
 
-    min_vals1 = np.array(train_means) - np.sqrt(train_vars)
-    min_vals1[min_vals1 < 0] = 0
+        runs_train_array = np.array(list(runs_train.values()))[:, :MAX_NUM_STEPS]
+        runs_test_array = np.array(list(runs_test.values()))[:, :MAX_NUM_STEPS]
 
-    min_vals2 = np.array(test_means) - np.sqrt(test_vars)
-    min_vals2[min_vals2 < 0] = 0
+        train_means = np.mean(runs_train_array, axis=0)
+        train_stds = np.std(runs_train_array, axis=0)
+        test_means = np.mean(runs_test_array, axis=0)
+        test_stds = np.std(runs_test_array, axis=0)
 
-    fig, ax = plt.subplots()
-    ax.plot(train_means, label='Train cost mean', color='blue')
-    ax.fill_between(range(num_steps), min_vals1, 
-                    np.array(train_means) + np.sqrt(train_vars), alpha=0.1, color='blue')
-    ax.plot(test_means, label='Test cost mean', linestyle='--', color='green')
-    ax.fill_between(range(num_steps), min_vals2, 
-                    np.array(test_means) + np.sqrt(test_vars), alpha=0.1, color='green')
+        train_lower = np.maximum(train_means - train_stds, 0)  
+        train_upper = train_means + train_stds
+        test_lower = np.maximum(test_means - test_stds, 0)
+        test_upper = test_means + test_stds
 
+        plt.style.use('default')
+        fig, ax = plt.subplots()
+        ax.plot(train_means, label='Train cost mean', color='blue')
+        ax.fill_between(range(MAX_NUM_STEPS), train_lower, train_upper, alpha=0.1, color='blue')
+        ax.plot(test_means, label='Test cost mean', linestyle='--', color='green')
+        ax.fill_between(range(MAX_NUM_STEPS), test_lower, test_upper, alpha=0.1, color='green')
 
-    ax.legend(loc='lower left')
-
-    plt.xlabel('Steps')
-    plt.ylabel('Cost')
-    plt.title("Learning curve for a quantum instrument")
-    plt.savefig('TeleportLearningCurve3.png', dpi=700)
+        ax.legend(loc='lower left')
+        plt.xlabel('Steps')
+        plt.ylabel('Cost')
+        plt.title("Learning curve for a quantum instrument")
+        plt.savefig('TeleportLearningCurve.png', dpi=700)
+        plt.show()
