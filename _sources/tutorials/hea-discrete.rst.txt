@@ -42,7 +42,7 @@ Let's define our quantum circuit and prepare the training and testing data.
     mp.draw(gs)
 
     ps = mp.PatternSimulator(gs, backend='numpy-dm', window_size=5)
-    mygate = mp.gates.IsingXX(np.pi/4)
+    mygate = mp.gates.ising_xx(np.pi/4)
     mygate = np.kron(mp.gates.TGate, np.eye(2)) @ mygate
     (X_train, y_train), (X_test, y_test) = mp.utils.random_train_test_states_unitary(mygate, 30)
 
@@ -168,7 +168,7 @@ We train our model using the Deep Q-Learning algorithm provided by :mod:`stable_
 We can visualize the training progress by plotting the fidelity of the quantum state over time.
 
 .. admonition:: Code for plotting learning curve
-    :class: info
+    :class: codeblock
     :collapsible:
 
     .. code-block:: python

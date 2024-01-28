@@ -88,7 +88,7 @@ where the input and target states are related by a given unitary :math:`\sigma_i
 Finally, we can average over the runs and plot the results!
 
 .. admonition:: Code for plotting learning curve
-    :class: info
+    :class: codeblock
     :collapsible:
 
     .. code-block:: python
