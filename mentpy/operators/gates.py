@@ -141,3 +141,29 @@ def controlled_z(i, j, n):
         else:
             op2 = np.kron(op2, np.eye(2))
     return op1 - op2
+
+
+def IsingXX(phi):
+    """
+    Compute the matrix representation of the IsingXX gate.
+
+    Args:
+        phi (float): the phase angle
+
+    Returns:
+        numpy.ndarray: the matrix representation of the IsingXX gate
+    """
+    c = np.cos(phi / 2)
+    s = np.sin(phi / 2)
+
+    matrix = np.array(
+        [
+            [c, 0, 0, -1j * s],
+            [0, c, -1j * s, 0],
+            [0, -1j * s, c, 0],
+            [-1j * s, 0, 0, c],
+        ],
+        dtype=complex,
+    )
+
+    return matrix
