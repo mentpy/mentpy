@@ -1,5 +1,5 @@
-Discrete optimization for a hardware efficient ansatz
-=====================================================
+Discrete optimization for HEA
+=============================
 
 .. meta::
     :description: Discrete optimization for a hardware efficient ansatz
