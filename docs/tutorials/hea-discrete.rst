@@ -72,6 +72,9 @@ We define our loss and prediction functions to evaluate the performance of our q
         return loss(outputs, statesy)
 
 
+Optimizing with Deep Q-Learning
+-------------------------------
+
 We create a custom Gym environment for our quantum system. This environment will interact with the reinforcement learning agent.
 
 .. code-block:: python
@@ -152,9 +155,6 @@ We create a custom Gym environment for our quantum system. This environment will
             pass
 
 
-Training with Deep Q-Learning
------------------------------
-
 We train our model using the Deep Q-Learning algorithm provided by :mod:`stable_baselines3`.
 
 .. code-block:: python
@@ -209,7 +209,183 @@ We can visualize the training progress by plotting the fidelity of the quantum s
 
 In the plot, you should observe the cost (1 - fidelity) decreasing over time, indicating that the model is learning to optimize the quantum gate angles.
 
+
+Optimizing with Greedy Search
+-----------------------------
+
+We can also use a greedy search algorithm to find the optimal angles for our quantum circuit. We will use the same environment as before, but we will use a different algorithm to find the optimal angles.
+
+
+.. code-block:: python
+
+    import itertools as it
+
+    class GreedyLayerOptimizer:
+        def __init__(self, layers, discrete_angles, eps=0.05, max_iters=1000000, max_layers=3):
+            self.layers = layers
+            self.discrete_angles = discrete_angles
+            self.eps = eps
+            self.max_iters = max_iters
+            self.max_layers = max_layers
+            self.n_steps = 0
+
+        def optimize(self, cost, angles, num_iters=3, callback=None, verbose=False):
+            self.n_steps = 0
+            done = False
+
+            for i in range(num_iters):
+                if done:
+                    break
+
+                angles = np.random.choice([0, -np.pi/2], len(gs.trainable_nodes))
+                new_angles = angles.copy()
+
+                for n in range(1, self.max_layers + 1):
+                    if verbose:
+                        print(f"Optimizing {n} layers. Max: {self.max_layers}")
+                    new_angles, new_cost = self.layer_opt(cost, new_angles, n, callback, verbose)
+
+                    if self.n_steps >= self.max_iters:
+                        print("Max iterations reached")
+                        done = True
+                        angles = new_angles
+                        break
+                    if new_cost < 0.01:
+                        print("Cost below threshold")
+                        done = True
+                        angles = new_angles
+                        break
+
+                    angles = new_angles
+
+                if verbose:
+                    print(f"Iteration {i + 1} of {num_iters}: {angles} with value {cost(angles)}")
+            return angles
+
+        def layer_opt(self, cost, angles, n, callback=None, verbose=False):
+            new_angles = angles.copy()
+
+            for i in range(len(self.layers) - n + 1):
+                merged_layer = sum(self.layers[i:i + n], [])
+                best_cost = cost(new_angles)
+                best_angles = new_angles.copy()
+
+                for angle_combination in it.product(self.discrete_angles, repeat=len(merged_layer)):
+                    self.n_steps += 1
+                    for layer, angle in zip(merged_layer, angle_combination):
+                        new_angles[layer] = angle
+
+                    curr_cost = cost(new_angles)
+                    if curr_cost < best_cost or np.random.rand() < self.eps:
+                        if verbose:
+                            print(f"New best cost: {curr_cost} < {best_cost}")
+                        best_cost = curr_cost
+                        best_angles = new_angles.copy()
+
+                    if callback is not None:
+                        callback(best_angles, self.n_steps)
+
+                    if best_cost < 0.01:
+                        break
+
+                new_angles = best_angles
+            return new_angles, best_cost
+
+
+We can now train our model using the greedy search algorithm.
+
+.. code-block:: python
+
+    runs_train = {}
+    runs_test = {}
+    steps_runs = {}
+    max_cost_calls = {}
+    thetas_op = {}
+    for i in range(5):
+        theta = np.random.choice([0, -np.pi/2], len(gs.trainable_nodes))
+        global_cost_calls = 0
+
+        cost_train = []
+        cost_test = []
+        step = []
+
+        my_callback = create_callback(X_train, y_train,X_test, y_test)
+        opt = GreedyLayerOptimizer(eps=0, layers =gs.ordered_layers(train_indices=True), discrete_angles = [0, -np.pi/2, -np.pi/4], max_layers=5)
+        theta = opt.optimize(lambda x: cost(x, X_train, y_train), theta, callback = my_callback)
+
+        runs_train[i] = cost_train.copy()
+        runs_test[i] = cost_test.copy()
+        steps_runs[i] = step.copy()
+        thetas_op[i] = theta.copy()
+
+        cost_train.clear()
+        cost_test.clear()
+        step.clear()
+        
+        max_cost_calls[i] = global_cost_calls
+
+
+Finally, we can plot the learning curve for the greedy search algorithm.
+
+.. admonition:: Code for plotting learning curve
+    :class: codeblock
+    :collapsible:
+
+    .. code-block:: python
+
+        import matplotlib.pyplot as plt
+        import matplotlib.lines as mlines
+        import matplotlib.colors as mcolors
+
+        cmap = mcolors.LinearSegmentedColormap.from_list("viridis", plt.get_cmap("viridis").colors)
+
+        num_colors = 5
+        colors = [cmap(i) for i in np.linspace(0, 1, num_colors+1)]
+
+        for i in range(num_colors):
+            color = colors[i]
+            plt.plot(steps_runs[i], runs_train[i], linestyle="-", color=color, marker='o', markevery=0.1, alpha=0.5)
+            plt.plot(steps_runs[i], runs_test[i], color=color, linestyle="--", markevery=0.1, alpha=0.5)
+            plt.plot(steps_runs[i][-1], runs_test[i][-1], marker='o', c='b')
+            plt.plot(steps_runs[i][-1], runs_train[i][-1], marker='*', c='r')
+
+        train_line = mlines.Line2D([], [], color='k', marker='o', markersize=5, label='Train', linestyle="-")
+        test_line = mlines.Line2D([], [], color='k', linestyle="--", markersize=5, label='Test')
+        plt.axvline(x=3**8, color='r', linestyle='--', label='Worst case random search')
+
+        plt.xlabel("Steps", fontsize=15)
+        plt.ylabel("Cost", fontsize=15)
+        plt.title("Greedy Layer Optimizer", fontsize=16)
+
+        worst_case_line = mlines.Line2D([], [], color='r', linestyle='--', label='Worst case random search')
+
+        plt.legend(handles=[train_line, test_line, worst_case_line], fontsize=15)
+        plt.tick_params(axis='both', which='major', labelsize=12)
+        plt.savefig("greedy_layer_optimizer_all.png", dpi=500, bbox_inches='tight')
+
+
+We can get a detailed view of the learning curve of one run of the greedy search algorithm.
+
+.. admonition:: Code for plotting learning curve
+    :class: codeblock
+    :collapsible:
+
+    .. code-block:: python
+
+        i = 1
+        plt.plot(steps_runs[i], runs_train[i], label=f"Train", linestyle="-", color='k', marker='o', markevery=0.1)
+        plt.plot(steps_runs[i], runs_test[i], label=f"Test", color='k', linestyle="--",)
+        plt.plot(steps_runs[i][-1], runs_test[i][-1], marker='o', c='b')
+        plt.plot(steps_runs[i][-1], runs_train[i][-1], marker='*', c='r')
+
+        plt.xlabel("Steps", fontsize=15)
+        plt.ylabel("Cost", fontsize=15)
+        plt.title("Greedy Layer Optimizer", fontsize=16)
+        plt.legend(fontsize=15)
+        plt.tick_params(axis='both', which='major', labelsize=12)
+        plt.savefig("greedy_layer_optimizer.png", dpi=500, bbox_inches='tight')
+
 Conclusion
 ----------
 
-In this tutorial, we demonstrated how to use Deep Q-Learning to optimize the angles of quantum gates in a quantum circuit. By training our model in a custom Gym environment, we can find the parameters that maximize the fidelity of our quantum state, paving the way for more efficient quantum computing.
+In this tutorial, we demonstrated how to use Deep Q-Learning and a Greedy layer optimizer to learn the angles in a measurement pattern to implement a quantum gate. 
