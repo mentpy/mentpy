@@ -105,32 +105,39 @@ Usually we do not have access to the analytical solution of a learning problem, 
 
     print(quantum_state, outcomes, fidelity)
 
-    angle_to_text = {
-        0: '0',
-        np.pi / 2: r'$\pi/2$',
-        np.pi: r'$\pi$',
-        3 * np.pi / 2: r'$3\pi/2$'
-    }
+.. admonition:: Code for plotting the exact solution
+    :class: codeblock
+    :collapsible:
 
-    labels = {node: angle_to_text[angle] for node, angle in zip(mgs.trainable_nodes, angles)}
+    .. code-block:: python
 
-    for node in mgs.nodes:
-        if node not in mgs.trainable_nodes and node in mgs.outputc:
-            labels[node] = '0'
-        elif node not in mgs.quantum_output_nodes and node in mgs.output_nodes:
-            labels[node] = 'Z'
+        angle_to_text = {
+            0: '0',
+            np.pi / 2: r'$\pi/2$',
+            np.pi: r'$\pi$',
+            3 * np.pi / 2: r'$3\pi/2$'
+        }
 
-    @savefig teleport_exact_solution.png width=1000px
-    mp.draw(
-        mgs,
-        label='indices',
-        labels=labels,
-        edge_color_control='black',
-        figsize=(12, 4),
-        fix_wires=[(8, '*', '*', '*', '*', 9, 10, 11, 12), (0, 1, 2, 3, 13, 14, 15, 16, 17), (4, 5, 6, 7, "*", "*", "*", "*", 18, 19, 20, 21, 22)]
-    )
+        labels = {node: angle_to_text[angle] for node, angle in zip(mgs.trainable_nodes, angles)}
 
-Define a callback and train
+        for node in mgs.nodes:
+            if node not in mgs.trainable_nodes and node in mgs.outputc:
+                labels[node] = '0'
+            elif node not in mgs.quantum_output_nodes and node in mgs.output_nodes:
+                labels[node] = 'Z'
+
+        @savefig teleport_exact_solution.png width=1000px
+        mp.draw(
+            mgs,
+            label='indices',
+            labels=labels,
+            edge_color_control='black',
+            figsize=(12, 4),
+            fix_wires=[(8, '*', '*', '*', '*', 9, 10, 11, 12), (0, 1, 2, 3, 13, 14, 15, 16, 17), (4, 5, 6, 7, "*", "*", "*", "*", 18, 19, 20, 21, 22)]
+        )
+
+
+We can now define a callback and train the ansatz
 
 .. code-block:: python
 

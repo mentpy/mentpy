@@ -725,8 +725,10 @@
 <span class="n">fidelity</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">input_state_random</span><span class="p">,</span> <span class="n">input_state_random</span><span class="o">.</span><span class="n">conj</span><span class="p">()))</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">fidelity</span><span class="p">)</span>
-
-<span class="n">angle_to_text</span> <span class="o">=</span> <span class="p">{</span>
+</code></pre></div>
+</div>
+<details class="codeblock admonition">
+<summary class="admonition-title">Code for plotting the exact solution</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">angle_to_text</span> <span class="o">=</span> <span class="p">{</span>
     <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;0&#39;</span><span class="p">,</span>
     <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;$\pi/2$&#39;</span><span class="p">,</span>
     <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;$\pi$&#39;</span><span class="p">,</span>
@@ -752,7 +754,8 @@
 <span class="p">)</span>
 </code></pre></div>
 </div>
-<p>Define a callback and train</p>
+</details>
+<p>We can now define a callback and train the ansatz</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">cost_train</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">cost_test</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">def</span> <span class="nf">create_callback</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
