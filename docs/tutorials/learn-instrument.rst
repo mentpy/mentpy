@@ -11,7 +11,7 @@ Learning a quantum instrument
    This tutorial is under construction
 
 
-In this tutorial we use the object :class:`mp.ControlMent` to learn a quantum instrument for teleportation. In general, a quantum instrument is a map :math:`\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{\abs{X}})` that measures a state $\rho$ and stores the measurement outcome,
+In this tutorial we use the object :class:`mp.ControlMent` to learn a quantum instrument for teleportation. In general, a quantum instrument is a map :math:`\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{|X|})` that measures a state :math:`\rho` and stores the measurement outcome,
 
 .. math::
     \mathcal{I}(\rho) = \sum_{x\in X} E_x (\rho) \otimes \ket{x}\bra{x},
