@@ -565,8 +565,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#training-with-deep-q-learning" class="md-nav__link">
-    <span class="md-ellipsis">Training with Deep Q-<wbr>Learning</span>
+  <a href="#optimizing-with-deep-q-learning" class="md-nav__link">
+    <span class="md-ellipsis">Optimizing with Deep Q-<wbr>Learning</span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimizing-with-greedy-search" class="md-nav__link">
+    <span class="md-ellipsis">Optimizing with Greedy Search</span>
   </a>
   
 </li>
@@ -691,8 +698,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#training-with-deep-q-learning" class="md-nav__link">
-    <span class="md-ellipsis">Training with Deep Q-<wbr>Learning</span>
+  <a href="#optimizing-with-deep-q-learning" class="md-nav__link">
+    <span class="md-ellipsis">Optimizing with Deep Q-<wbr>Learning</span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optimizing-with-greedy-search" class="md-nav__link">
+    <span class="md-ellipsis">Optimizing with Greedy Search</span>
   </a>
   
 </li>
@@ -771,6 +785,7 @@
     <span class="k">return</span> <span class="n">loss</span><span class="p">(</span><span class="n">outputs</span><span class="p">,</span> <span class="n">statesy</span><span class="p">)</span>
 </code></pre></div>
 </div>
+<h2 id="optimizing-with-deep-q-learning">Optimizing with Deep Q-Learning<a class="headerlink" href="#optimizing-with-deep-q-learning" title="Link to this heading">¶</a></h2>
 <p>We create a custom Gym environment for our quantum system. This environment will interact with the reinforcement learning agent.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">QuantumGymEnvironment</span><span class="p">(</span><span class="n">gym</span><span class="o">.</span><span class="n">Env</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">max_iters</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span> <span class="nb">eval</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -848,7 +863,6 @@
         <span class="k">pass</span>
 </code></pre></div>
 </div>
-<h2 id="training-with-deep-q-learning">Training with Deep Q-Learning<a class="headerlink" href="#training-with-deep-q-learning" title="Link to this heading">¶</a></h2>
 <p>We train our model using the Deep Q-Learning algorithm provided by <code class="xref py py-mod docutils literal notranslate"><span class="pre">stable_baselines3</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">training_progress</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;fidelity&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;steps&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;fidelity_test&#39;</span><span class="p">:[]}</span>
 <span class="n">env</span> <span class="o">=</span> <span class="n">QuantumGymEnvironment</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">max_iters</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
@@ -894,8 +908,165 @@
 </div>
 </details>
 <p>In the plot, you should observe the cost (1 - fidelity) decreasing over time, indicating that the model is learning to optimize the quantum gate angles.</p>
+<h2 id="optimizing-with-greedy-search">Optimizing with Greedy Search<a class="headerlink" href="#optimizing-with-greedy-search" title="Link to this heading">¶</a></h2>
+<p>We can also use a greedy search algorithm to find the optimal angles for our quantum circuit. We will use the same environment as before, but we will use a different algorithm to find the optimal angles.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+
+<span class="k">class</span> <span class="nc">GreedyLayerOptimizer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">discrete_angles</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_iters</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">max_layers</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">discrete_angles</span> <span class="o">=</span> <span class="n">discrete_angles</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eps</span> <span class="o">=</span> <span class="n">eps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iters</span> <span class="o">=</span> <span class="n">max_iters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_layers</span> <span class="o">=</span> <span class="n">max_layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">num_iters</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">done</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_iters</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">done</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">))</span>
+            <span class="n">new_angles</span> <span class="o">=</span> <span class="n">angles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_layers</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Optimizing </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> layers. Max: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_layers</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">new_angles</span><span class="p">,</span> <span class="n">new_cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">layer_opt</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="n">new_angles</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iters</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Max iterations reached&quot;</span><span class="p">)</span>
+                    <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">angles</span> <span class="o">=</span> <span class="n">new_angles</span>
+                    <span class="k">break</span>
+                <span class="k">if</span> <span class="n">new_cost</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Cost below threshold&quot;</span><span class="p">)</span>
+                    <span class="n">done</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">angles</span> <span class="o">=</span> <span class="n">new_angles</span>
+                    <span class="k">break</span>
+
+                <span class="n">angles</span> <span class="o">=</span> <span class="n">new_angles</span>
+
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Iteration </span><span class="si">{</span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="n">num_iters</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">angles</span><span class="si">}</span><span class="s2"> with value </span><span class="si">{</span><span class="n">cost</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">angles</span>
+
+    <span class="k">def</span> <span class="nf">layer_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">new_angles</span> <span class="o">=</span> <span class="n">angles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">)</span> <span class="o">-</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">merged_layer</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">n</span><span class="p">],</span> <span class="p">[])</span>
+            <span class="n">best_cost</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">new_angles</span><span class="p">)</span>
+            <span class="n">best_angles</span> <span class="o">=</span> <span class="n">new_angles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">angle_combination</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">discrete_angles</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">merged_layer</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">for</span> <span class="n">layer</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">merged_layer</span><span class="p">,</span> <span class="n">angle_combination</span><span class="p">):</span>
+                    <span class="n">new_angles</span><span class="p">[</span><span class="n">layer</span><span class="p">]</span> <span class="o">=</span> <span class="n">angle</span>
+
+                <span class="n">curr_cost</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">new_angles</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">curr_cost</span> <span class="o">&lt;</span> <span class="n">best_cost</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">eps</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;New best cost: </span><span class="si">{</span><span class="n">curr_cost</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">best_cost</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">best_cost</span> <span class="o">=</span> <span class="n">curr_cost</span>
+                    <span class="n">best_angles</span> <span class="o">=</span> <span class="n">new_angles</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">callback</span><span class="p">(</span><span class="n">best_angles</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_steps</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">best_cost</span> <span class="o">&lt;</span> <span class="mf">0.01</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+            <span class="n">new_angles</span> <span class="o">=</span> <span class="n">best_angles</span>
+        <span class="k">return</span> <span class="n">new_angles</span><span class="p">,</span> <span class="n">best_cost</span>
+</code></pre></div>
+</div>
+<p>We can now train our model using the greedy search algorithm.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">runs_train</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">runs_test</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">steps_runs</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">max_cost_calls</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">thetas_op</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">))</span>
+    <span class="n">global_cost_calls</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">cost_train</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cost_test</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">my_callback</span> <span class="o">=</span> <span class="n">create_callback</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">GreedyLayerOptimizer</span><span class="p">(</span><span class="n">eps</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">layers</span> <span class="o">=</span><span class="n">gs</span><span class="o">.</span><span class="n">ordered_layers</span><span class="p">(</span><span class="n">train_indices</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">discrete_angles</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">],</span> <span class="n">max_layers</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">cost</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">callback</span> <span class="o">=</span> <span class="n">my_callback</span><span class="p">)</span>
+
+    <span class="n">runs_train</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost_train</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost_test</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">thetas_op</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="n">cost_train</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">cost_test</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+    <span class="n">step</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+    <span class="n">max_cost_calls</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">global_cost_calls</span>
+</code></pre></div>
+</div>
+<p>Finally, we can plot the learning curve for the greedy search algorithm.</p>
+<details class="codeblock admonition">
+<summary class="admonition-title">Code for plotting learning curve</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="nn">mlines</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mcolors</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s2">&quot;viridis&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">colors</span><span class="p">)</span>
+
+<span class="n">num_colors</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">cmap</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_colors</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_colors</span><span class="p">):</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">runs_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markevery</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">markevery</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">runs_train</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+<span class="n">train_line</span> <span class="o">=</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Train&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+<span class="n">test_line</span> <span class="o">=</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Test&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">3</span><span class="o">**</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Worst case random search&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Cost&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Greedy Layer Optimizer&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">worst_case_line</span> <span class="o">=</span> <span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Worst case random search&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">train_line</span><span class="p">,</span> <span class="n">test_line</span><span class="p">,</span> <span class="n">worst_case_line</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;greedy_layer_optimizer_all.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</details>
+<p>We can get a detailed view of the learning curve of one run of the greedy search algorithm.</p>
+<details class="codeblock admonition">
+<summary class="admonition-title">Code for plotting learning curve</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">runs_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Train&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markevery</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Test&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">steps_runs</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">runs_train</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Cost&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Greedy Layer Optimizer&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;greedy_layer_optimizer.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+</code></pre></div>
+</div>
+</details>
 <h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
-<p>In this tutorial, we demonstrated how to use Deep Q-Learning to optimize the angles of quantum gates in a quantum circuit. By training our model in a custom Gym environment, we can find the parameters that maximize the fidelity of our quantum state, paving the way for more efficient quantum computing.</p>
+<p>In this tutorial, we demonstrated how to use Deep Q-Learning and a Greedy layer optimizer to learn the angles in a measurement pattern to implement a quantum gate.</p>
 
 
 
