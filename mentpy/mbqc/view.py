@@ -98,6 +98,11 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
 
+    if "labels" not in options:
+        options["labels"] = process_labels(state, options)
+    else:
+        options.pop("pauliop")
+
     if pauliop is not None:
         if len(pauliop) != 1:
             raise ValueError("pauliop must be a single Pauli operator")
@@ -124,8 +129,6 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
                 fix_wires.append(tuple(wire))
 
     if isinstance(state, GraphState):
-        labels = process_labels(state, options)
-        options["labels"] = labels
         nx.draw(state, ax=ax, **options)
 
     elif isinstance(state, MBQCircuit):
@@ -164,9 +167,6 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
         node_pos = nx.spring_layout(
             state.graph, pos=position_xy, fixed=fixed_nodes, k=1 / len(state.graph)
         )
-
-        labels = process_labels(state, options)
-        options["labels"] = labels
 
         nx.draw(state.graph, ax=ax, pos=node_pos, **options)
         if state.flow is not None and show_flow:

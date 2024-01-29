@@ -85,6 +85,38 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         runs_train[i] = cost_train
         runs_test[i] = cost_test
 
+.. admonition:: Code for plotting learning curve
+    :class: codeblock
+    :collapsible:
+
+    .. code-block:: python
+
+        runs_train_array = np.array(list(runs_train.values()))
+        runs_test_array = np.array(list(runs_test.values()))
+
+        train_means = np.mean(runs_train_array, axis=0)
+        train_stds = np.std(runs_train_array, axis=0)
+        test_means = np.mean(runs_test_array, axis=0)
+        test_stds = np.std(runs_test_array, axis=0)
+
+        train_lower = np.maximum(train_means - train_stds, 0) 
+        train_upper = train_means + train_stds
+        test_lower = np.maximum(test_means - test_stds, 0)
+        test_upper = test_means + test_stds
+
+        fig, ax = plt.subplots()
+        ax.plot(train_means, label='Train cost mean', color='blue')
+        ax.fill_between(range(len(train_means)), train_lower, train_upper, alpha=0.1, color='blue')
+        ax.plot(test_means, label='Test cost mean', linestyle='--', color='green')
+        ax.fill_between(range(len(test_means)), test_lower, test_upper, alpha=0.1, color='green')
+
+        ax.legend(fontsize=16)
+        ax.set_xlabel('Steps', fontsize=16)
+        ax.set_ylabel('Cost', fontsize=16)
+        ax.set_title(r"Random local unitary, $U_{Haar} \otimes I$", fontsize=18)
+        ax.tick_params(axis='both', which='major', labelsize=16)
+        plt.show()
+
 Finally, we can average over the runs and plot the results!
 
 References

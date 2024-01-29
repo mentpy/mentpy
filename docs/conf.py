@@ -176,6 +176,14 @@ html_theme_options = {
     "toc_title_is_page_title": True,
 }
 
+sphinx_immaterial_custom_admonitions = [
+    {
+        "name": "codeblock",
+        "color": "#4259b9",
+        "icon": "fontawesome/solid/circle-info",
+    },
+]
+
 # -- Extension configuration -------------------------------------------------
 
 # Create hyperlinks to other documentation
