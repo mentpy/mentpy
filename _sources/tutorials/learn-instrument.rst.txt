@@ -8,7 +8,7 @@ Learning a quantum instrument
 .. admonition:: Note
    :class: warning
    
-   This tutorial is under construction
+   MentPy is under active development. This tutorial might break in future versions.
 
 
 In this tutorial we use the object :class:`mp.ControlMent` to learn a quantum instrument for teleportation. In general, a quantum instrument is a map :math:`\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{|X|})` that measures a state :math:`\rho` and stores the measurement outcome,
@@ -176,9 +176,6 @@ We can now define a loss function, a callback, and train the ansatz to get a sol
         runs_test[i] = cost_test
         theta_ops[i] = theta
 
-
-Finally, we can plot the learning curves
-
 .. admonition:: Code for plotting learning curve
     :class: codeblock
     :collapsible:
@@ -216,3 +213,5 @@ Finally, we can plot the learning curves
         plt.title("Learning curve for a quantum instrument")
         plt.savefig('TeleportLearningCurve.png', dpi=700)
         plt.show()
+
+Finally, we can plot the learning curves for this example.

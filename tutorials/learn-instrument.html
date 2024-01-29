@@ -639,7 +639,7 @@
 <h1 id="learning-a-quantum-instrument">Learning a quantum instrument<a class="headerlink" href="#learning-a-quantum-instrument" title="Link to this heading">¶</a></h1>
 <div class="warning admonition">
 <p class="admonition-title">Note</p>
-<p>This tutorial is under construction</p>
+<p>MentPy is under active development. This tutorial might break in future versions.</p>
 </div>
 <p>In this tutorial we use the object <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.ControlMent</span></code> to learn a quantum instrument for teleportation. In general, a quantum instrument is a map <span class="math notranslate nohighlight">\(\mathcal{I}: \operatorname{End}(\mathcal{H}_1) \rightarrow \operatorname{End}(\mathcal{H}_2) \otimes \operatorname{End}(\mathbb{C}^{|X|})\)</span> that measures a state <span class="math notranslate nohighlight">\(\rho\)</span> and stores the measurement outcome,</p>
 <div class="math notranslate nohighlight">
@@ -724,8 +724,8 @@
 <span class="gp">In [37]: </span><span class="n">fidelity</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">input_state_random</span><span class="p">,</span> <span class="n">input_state_random</span><span class="o">.</span><span class="n">conj</span><span class="p">()))</span>
 
 <span class="gp">In [38]: </span><span class="nb">print</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">fidelity</span><span class="p">)</span>
-<span class="go">[[ 0.18490835+5.63999948e-17j -0.38210666+6.86422038e-02j]</span>
-<span class="go"> [-0.38210666-6.86422038e-02j  0.81509165-5.46223077e-17j]] (1, 1) 1.0000000182501192</span>
+<span class="go">[[0.97985518+5.55111512e-17j 0.0692961 -1.22217247e-01j]</span>
+<span class="go"> [0.0692961 +1.22217247e-01j 0.02014482-8.32667268e-17j]] (0, 1) 1.0</span>
 </code></pre></div>
 </div>
 <details class="codeblock admonition">
@@ -827,7 +827,6 @@
     <span class="n">theta_ops</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta</span>
 </code></pre></div>
 </div>
-<p>Finally, we can plot the learning curves</p>
 <details class="codeblock admonition">
 <summary class="admonition-title">Code for plotting learning curve</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">)</span>
 
@@ -863,6 +862,7 @@
 </code></pre></div>
 </div>
 </details>
+<p>Finally, we can plot the learning curves for this example.</p>
 
 
 

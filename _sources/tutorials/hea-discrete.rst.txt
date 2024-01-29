@@ -8,7 +8,7 @@ Discrete optimization for HEA
 .. admonition:: Note
    :class: warning
    
-   This tutorial is under construction
+   MentPy is under active development. This tutorial might break in future versions.
 
 
 **Author(s):**  `Luis Mantilla <https://x.com/realmantilla>`_

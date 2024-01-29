@@ -85,8 +85,6 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         runs_train[i] = cost_train
         runs_test[i] = cost_test
 
-Finally, we can average over the runs and plot the results!
-
 .. admonition:: Code for plotting learning curve
     :class: codeblock
     :collapsible:
@@ -119,6 +117,7 @@ Finally, we can average over the runs and plot the results!
         ax.tick_params(axis='both', which='major', labelsize=16)
         plt.show()
 
+Finally, we can average over the runs and plot the results!
 
 References
 ----------

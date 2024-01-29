@@ -773,7 +773,6 @@ where the input and target states are related by a given unitary <span class="ma
     <span class="n">runs_test</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost_test</span>
 </code></pre></div>
 </div>
-<p>Finally, we can average over the runs and plot the results!</p>
 <details class="codeblock admonition">
 <summary class="admonition-title">Code for plotting learning curve</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">runs_train_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">runs_train</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 <span class="n">runs_test_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">runs_test</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
@@ -803,6 +802,7 @@ where the input and target states are related by a given unitary <span class="ma
 </code></pre></div>
 </div>
 </details>
+<p>Finally, we can average over the runs and plot the results!</p>
 <h2 id="references">References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h2>
 <aside class="footnote-list brackets">
 <aside class="footnote brackets" id="thesis" role="doc-footnote">
