@@ -65,11 +65,13 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     runs_test = {}
 
     NUM_STEPS = 100
-    NUM_RUNS = 10
+    NUM_RUNS = 20
 
     for i in range(NUM_RUNS):
-        random_gate = np.kron(mp.gates.random_su(1), np.eye(2))
-        (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(random_gate, 10, test_size = 0.3)
+        gate2learn = np.kron(mp.gates.random_su(1), np.eye(2))
+        # Replace with the following line to learn an IsingXX(π/2) gate
+        # gate2learn = mp.gates.ising_xx(np.pi/2)
+        (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(gate2learn, 10, test_size = 0.3)
 
         cost_train, cost_test = [], []
 
