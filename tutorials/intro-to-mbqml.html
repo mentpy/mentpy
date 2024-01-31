@@ -743,8 +743,7 @@ average infidelity between the target states and the output states of the model.
 <span class="gp">   ....: </span>
 </code></pre></div>
 </div>
-<p>Be aware that the loss function is a global operation, which can induce barren plateaus. However,
-we will ignore this issue for now. Having defined a model and a loss function,
+<p>Be aware that the loss function we are using in this example is a global operation, which can induce barren plateaus. We will ignore this issue for now. Having defined a model and a loss function,
 we can now use some data to train our model. We will use the <code class="xref py py-func docutils literal notranslate"><span class="pre">generate_random_dataset()</span></code> function
 to generate a random dataset of states <span class="math notranslate nohighlight">\(\left\{(\rho_i, \sigma_i)_i \right\}_i^{N}\)</span>
 where the input and target states are related by a given unitary <span class="math notranslate nohighlight">\(\sigma_i = U \rho_i U^\dagger\)</span>.</p>
@@ -776,7 +775,12 @@ where the input and target states are related by a given unitary <span class="ma
 </code></pre></div>
 </div>
 <details class="codeblock admonition">
-<summary class="admonition-title">Code for plotting learning curve</summary><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">runs_train_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">runs_train</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+<summary class="admonition-title">Code for plotting learning curve</summary><p>If you do not have seaborn installed, you can either install it by running <cite>pip install –upgrade seaborn</cite> or comment out the seaborn-style lines.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_style</span><span class="p">(</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+
+<span class="n">runs_train_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">runs_train</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 <span class="n">runs_test_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">runs_test</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
 
 <span class="n">train_means</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">runs_train_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -799,6 +803,8 @@ where the input and target states are related by a given unitary <span class="ma
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Steps&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Cost&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Random local unitary, $U_</span><span class="si">{Haar}</span><span class="s2"> \otimes I$&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">)</span>
+<span class="c1"># Title for training an IsingXX(π/2) gate</span>
+<span class="c1"># ax.set_title(r&quot;IsingXX($\pi/2$)&quot;, fontsize=18)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </code></pre></div>

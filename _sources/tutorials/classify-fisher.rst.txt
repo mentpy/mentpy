@@ -29,6 +29,8 @@ Here, we will learn now to perform a classification of quantum states according 
 
 .. code-block:: python
 
+   HH = np.kron(mp.gates.HGate, mp.gates.HGate)
+
    def two_deg_poly(x, coeffs):
       extended_x = np.array([1, x[0], x[1], x[0]**2, x[0]*x[1], x[1]**2])
       return np.sum(extended_x * coeffs)

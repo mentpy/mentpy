@@ -53,8 +53,7 @@ average infidelity between the target states and the output states of the model.
         outputs = prediction(thetas, statesx)
         return loss(outputs, statesy)
 
-Be aware that the loss function is a global operation, which can induce barren plateaus. However,
-we will ignore this issue for now. Having defined a model and a loss function, 
+Be aware that the loss function we are using in this example is a global operation, which can induce barren plateaus. We will ignore this issue for now. Having defined a model and a loss function, 
 we can now use some data to train our model. We will use the :func:`generate_random_dataset` function 
 to generate a random dataset of states :math:`\left\{(\rho_i, \sigma_i)_i \right\}_i^{N}`
 where the input and target states are related by a given unitary :math:`\sigma_i = U \rho_i U^\dagger`.
@@ -91,7 +90,13 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     :class: codeblock
     :collapsible:
 
+    If you do not have seaborn installed, you can either install it by running `pip install --upgrade seaborn` or comment out the seaborn-style lines.
+
     .. code-block:: python
+
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        sns.set_style("white")
 
         runs_train_array = np.array(list(runs_train.values()))
         runs_test_array = np.array(list(runs_test.values()))
@@ -116,6 +121,8 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         ax.set_xlabel('Steps', fontsize=16)
         ax.set_ylabel('Cost', fontsize=16)
         ax.set_title(r"Random local unitary, $U_{Haar} \otimes I$", fontsize=18)
+        # Title for training an IsingXX(π/2) gate
+        # ax.set_title(r"IsingXX($\pi/2$)", fontsize=18)
         ax.tick_params(axis='both', which='major', labelsize=16)
         plt.show()
 
