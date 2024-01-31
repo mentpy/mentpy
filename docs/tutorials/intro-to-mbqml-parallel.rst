@@ -4,8 +4,7 @@ Parallelizing MB-QML protocols
 .. admonition:: Note
    :class: warning
    
-   This tutorial is under construction
-
+   MentPy is under active development. This tutorial might break in future versions.
 
 In this tutorial, we will see how to parallelize the MB-QML protocols in :mod:`mentpy`. 
 Similar to the previous tutorial, we first need a MB-QML model to work with.
@@ -127,3 +126,4 @@ This will significantly speed up the computation of the loss function. Finally, 
         ax.tick_params(axis='both', which='major', labelsize=16)  
         plt.tight_layout()
         plt.savefig('isingxx_noise.png', dpi=500)
+
