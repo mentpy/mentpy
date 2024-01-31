@@ -8,7 +8,7 @@ An introduction to MB-QML
 **Author(s):** `Luis Mantilla <https://x.com/realmantilla>`_
 
 Quantum machine learning (QML) is a field that studies how to use parametrized quantum circuits to 
-learn to identify patterns in quantum data. In measurement-based qunatum machine learning (MB-QML) 
+learn to identify patterns in quantum data. In measurement-based quantum machine learning (MB-QML) 
 [#thesis]_, we use a MBQC circuit with parametrized measurement angles to solve QML problems. 
 
 In :mod:`mentpy`, MB-QML models are defined using the :class:`MBQCircuit` class. We can define a model from scratch
