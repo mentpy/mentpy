@@ -90,7 +90,13 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     :class: codeblock
     :collapsible:
 
+    If you do not have seaborn installed, you can either install it by running `pip install --upgrade seaborn` or comment out the seaborn-style lines.
+
     .. code-block:: python
+
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        sns.set_style("white")
 
         runs_train_array = np.array(list(runs_train.values()))
         runs_test_array = np.array(list(runs_test.values()))
@@ -115,6 +121,8 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         ax.set_xlabel('Steps', fontsize=16)
         ax.set_ylabel('Cost', fontsize=16)
         ax.set_title(r"Random local unitary, $U_{Haar} \otimes I$", fontsize=18)
+        # Title for training an IsingXX(π/2) gate
+        # ax.set_title(r"IsingXX($\pi/2$)", fontsize=18)
         ax.tick_params(axis='both', which='major', labelsize=16)
         plt.show()
 
