@@ -15,20 +15,16 @@ Discrete optimization for HEA
 
 In this tutorial, we will explore how to optimize the angles of a MB-QML circuit using Deep Q-Learning and a greedy-search algorithm.
 
-First, we need to set up our environment. We will use :mod:`gymnasium` for the environment, :mod:`stable_baselines3` for the Deep Q-Learning algorithm.
+First, we need to set up our environment. We will use :mod:`gymnasium` for the environment, :mod:`stable_baselines3` for the Deep Q-Learning algorithm. 
 
-.. code-block:: python
+.. admonition:: Set up the environment
+    :class: dropdown
 
-    import gymnasium as gym
-    from gymnasium import spaces
-    import numpy as np
-    from stable_baselines3 import DQN
-    from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
-    from scipy.linalg import sqrtm
-    import mentpy as mp
-    import matplotlib.pyplot as plt
+    You can install the required packages using pip:
 
-    model_class = DQN  # Can also work with SAC, DDPG, and TD3
+    .. code-block:: bash
+
+        pip install --upgrade gymnasium stable_baselines3
 
 
 Quantum Circuit and loss function
@@ -38,9 +34,12 @@ Let's define our quantum circuit and prepare the training and testing data.
 
 .. code-block:: python
 
-    gs = mp.templates.muta(2, 1, one_column=True)
-    mp.draw(gs)
+    import numpy as np
+    from scipy.linalg import sqrtm
+    import mentpy as mp
+    import matplotlib.pyplot as plt
 
+    gs = mp.templates.muta(2, 1, one_column=True)
     ps = mp.PatternSimulator(gs, backend='numpy-dm', window_size=5)
     mygate = mp.gates.ising_xx(np.pi/4)
     mygate = np.kron(mp.gates.TGate, np.eye(2)) @ mygate
@@ -78,6 +77,13 @@ Optimizing with Deep Q-Learning
 We create a custom Gym environment for our quantum system. This environment will interact with the reinforcement learning agent.
 
 .. code-block:: python
+
+    import gymnasium as gym
+    from gymnasium import spaces
+    from stable_baselines3 import DQN
+    from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
+
+    model_class = DQN  # Can also work with SAC, DDPG, and TD3
 
     class QuantumGymEnvironment(gym.Env):
         def __init__(self, X_train, y_train, X_test, y_test, max_iters=300, threshold=0.99, eval=False):
@@ -159,10 +165,15 @@ We train our model using the Deep Q-Learning algorithm provided by :mod:`stable_
 
 .. code-block:: python
 
-    training_progress = {'fidelity': [], 'steps': [], 'fidelity_test':[]}
-    env = QuantumGymEnvironment(X_train, y_train, X_test, y_test, max_iters=200)
-    model = DQN(MlpPolicy, env, verbose=1)
-    model.learn(total_timesteps=3*(3**8))
+    def train_model(X_train, y_train, X_test, y_test):
+        global training_progress
+        training_progress = {'fidelity': [], 'steps': [], 'fidelity_test': []}
+        
+        env = QuantumGymEnvironment(X_train, y_train, X_test, y_test, max_iters=200)
+        model = DQN("MlpPolicy", env, verbose=1)
+        model.learn(total_timesteps=3*(3**8))
+        
+        return training_progress
 
 
 We can visualize the training progress by plotting the fidelity of the quantum state over time.
@@ -176,38 +187,44 @@ We can visualize the training progress by plotting the fidelity of the quantum s
         import matplotlib.pyplot as plt
         import matplotlib.lines as mlines
         import matplotlib.colors as mcolors
+        import numpy as np
 
-        plt.plot(training_progress['steps'][1:3**8], 1 - np.array(training_progress['fidelity'][1:3**8]), linestyle="-", color='r', marker='o', markevery=0.1, label='Train', alpha=0.5)
-        plt.plot(training_progress['steps'][1:3**8], 1 - np.array(training_progress['fidelity_test'][1:3**8]), linestyle="--", color='r', label='Test', alpha=0.5)
+        def plot_progress(training_progresses):
+            colors = ['r', 'b', 'g', 'y']
+            for i, training_progress in enumerate(training_progresses):
+                color = colors[i % len(colors)]
+                plt.plot(training_progress['steps'][1:3**8], 1 - np.array(training_progress['fidelity'][1:3**8]), linestyle="-", color=color, marker='o', markevery=0.1, label=f'Train {i+1}', alpha=0.5)
+                plt.plot(training_progress['steps'][1:3**8], 1 - np.array(training_progress['fidelity_test'][1:3**8]), linestyle="--", color=color, label=f'Test {i+1}', alpha=0.5)
+            
+            train_line = mlines.Line2D([], [], color='k', marker='o', markersize=5, label='Train', linestyle="-")
+            test_line = mlines.Line2D([], [], color='k', linestyle="--", markersize=5, label='Test')
+            worst_case_line = mlines.Line2D([], [], color='r', linestyle='--', label='Worst case random search')
 
-        plt.plot([i -  training_progress2['steps'][0] for i in training_progress2['steps']], 1 - np.array(training_progress2['fidelity']), linestyle="-", color='b', marker='o', markevery=0.1, label='Train', alpha=0.5)
-        plt.plot(training_progress2['steps'], 1 - np.array(training_progress2['fidelity_test']), linestyle="--", color='b', label='Test', alpha=0.5)
-
-        plt.plot(training_progress3['steps'], 1 - np.array(training_progress3['fidelity']), linestyle="-", color='g', marker='o', markevery=0.1, label='Train', alpha=0.5)
-        plt.plot(training_progress3['steps'], 1 - np.array(training_progress3['fidelity_test']), linestyle="--", color='g', label='Test', alpha=0.5)
-
-        plt.plot(training_progress4['steps'], 1 - np.array(training_progress4['fidelity']), linestyle="-", color='y', marker='o', markevery=0.1, label='Train', alpha=0.5)
-        plt.plot(training_progress4['steps'], 1 - np.array(training_progress4['fidelity_test']), linestyle="--", color='y', label='Test', alpha=0.5)
-
-        plt.axvline(x=3**8, color='r', linestyle='--', label='Worst case random search')
-        plt.xlabel("Steps", fontsize=15)
-        plt.ylabel("Cost", fontsize=15)
-        plt.title('Deep Q Learning', fontsize=16)
-
-        plt.ylim(0, 3**8 + 500)
-        train_line = mlines.Line2D([], [], color='k', marker='o', markersize=5, label='Train', linestyle="-")
-        test_line = mlines.Line2D([], [], color='k', linestyle="--", markersize=5, label='Test')
-
-        worst_case_line = mlines.Line2D([], [], color='r', linestyle='--', label='Worst case random search')
-
-        plt.legend(handles=[train_line, test_line, worst_case_line], fontsize=15)
-        plt.tick_params(axis='both', which='major', labelsize=12)
-        plt.ylim(0, 1)
-        plt.savefig("DQN_DISCRETE.png", dpi=500, bbox_inches="tight")
-        plt.show()
+            plt.axvline(x=3**8, color='r', linestyle='--', label='Worst case random search')
+            plt.xlabel("Steps", fontsize=15)
+            plt.ylabel("Cost", fontsize=15)
+            plt.title('Deep Q Learning', fontsize=16)
+            plt.ylim(0, 1)
+            plt.legend(handles=[train_line, test_line, worst_case_line], fontsize=15)
+            plt.tick_params(axis='both', which='major', labelsize=12)
+            plt.savefig("DQN_optimization.png", dpi=500, bbox_inches="tight")
+            plt.show()
 
 
-In the plot, you should observe the cost (1 - fidelity) decreasing over time, indicating that the model is learning to optimize the quantum gate angles.
+
+.. code-block:: python
+
+    num_runs = 4 
+    all_training_progress = []
+
+    for i in range(num_runs):
+        training_progress = train_model(X_train, y_train, X_test, y_test)
+        all_training_progress.append(training_progress)
+
+    plot_progress(all_training_progress)
+
+
+In the plot, you should observe the cost :math:`1-\frac{1}{n} \sum_i^n F(\rho_{i}, \sigma_i)` decreasing over time, indicating that the model is learning to optimize the quantum gate angles.
 
 
 Optimizing with Greedy Search

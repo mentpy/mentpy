@@ -117,7 +117,7 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         ax.tick_params(axis='both', which='major', labelsize=16)
         plt.show()
 
-Finally, we can average over the runs and plot the results!
+Finally, we can average over the runs and plot the results! In our next tutorial, we wil see how to parallelize the training process and study the robustness of the model to noise.
 
 References
 ----------
