@@ -53,8 +53,7 @@ average infidelity between the target states and the output states of the model.
         outputs = prediction(thetas, statesx)
         return loss(outputs, statesy)
 
-Be aware that the loss function is a global operation, which can induce barren plateaus. However,
-we will ignore this issue for now. Having defined a model and a loss function, 
+Be aware that the loss function we are using in this example is a global operation, which can induce barren plateaus. We will ignore this issue for now. Having defined a model and a loss function, 
 we can now use some data to train our model. We will use the :func:`generate_random_dataset` function 
 to generate a random dataset of states :math:`\left\{(\rho_i, \sigma_i)_i \right\}_i^{N}`
 where the input and target states are related by a given unitary :math:`\sigma_i = U \rho_i U^\dagger`.
