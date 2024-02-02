@@ -303,7 +303,7 @@ def spturb(n_qubits: int, n_layers: int, periodic=False, **kwargs) -> MBQCircuit
     return spt_ansatz
 
 
-def from_pauli(pauli_op: PauliOp):
+def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
     """Returns a graph state that can implement :math:`U=e^{-i\theta P}`"""
 
     if len(pauli_op) != 1:

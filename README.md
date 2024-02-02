@@ -80,7 +80,15 @@ The documentation for `mentpy` can be found <a href="https://mentpy.readthedocs.
 
 We welcome contributions to `mentpy`! Please see our [contributing guidelines](./CONTRIBUTING.md) for more information.
 
-## License
+## How to cite
 
-`mentpy` is licensed under the [Apache License 2.0](./LICENSE).
+If you use `mentpy` in your research, please cite it as follows:
 
+```
+@software{Mantilla_Mentpy_2023,
+    title = {{MentPy: A python package for simulating and training QML models in the MBQC framework.}},
+    author = {Mantilla, Luis},
+    year = {2023},
+    url = {https://github.com/mentpy/mentpy},
+}
+```
