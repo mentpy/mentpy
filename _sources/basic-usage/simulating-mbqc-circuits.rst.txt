@@ -22,8 +22,7 @@ This can be useful if you want to run a circuit on real hardware.
 .. admonition:: Note
    :class: warning
    
-   Currently, ``mentpy`` does not support running circuits on real hardware. This feature
-    will be added in the future.
+   Currently, ``mentpy`` does not support running circuits on real hardware. This feature will be added in the future.
 
 Running the circuit
 -------------------
