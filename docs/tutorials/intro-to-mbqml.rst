@@ -8,7 +8,7 @@ An introduction to MB-QML
 **Author(s):** `Luis Mantilla <https://x.com/realmantilla>`_
 
 Quantum machine learning (QML) is a field that studies how to use parametrized quantum circuits to 
-learn to identify patterns in quantum data. In measurement-based qunatum machine learning (MB-QML) 
+learn to identify patterns in quantum data. In measurement-based quantum machine learning (MB-QML) 
 [#thesis]_, we use a MBQC circuit with parametrized measurement angles to solve QML problems. 
 
 In :mod:`mentpy`, MB-QML models are defined using the :class:`MBQCircuit` class. We can define a model from scratch
@@ -53,8 +53,7 @@ average infidelity between the target states and the output states of the model.
         outputs = prediction(thetas, statesx)
         return loss(outputs, statesy)
 
-Be aware that the loss function is a global operation, which can induce barren plateaus. However,
-we will ignore this issue for now. Having defined a model and a loss function, 
+Be aware that the loss function we are using in this example is a global operation, which can induce barren plateaus. We will ignore this issue for now. Having defined a model and a loss function, 
 we can now use some data to train our model. We will use the :func:`generate_random_dataset` function 
 to generate a random dataset of states :math:`\left\{(\rho_i, \sigma_i)_i \right\}_i^{N}`
 where the input and target states are related by a given unitary :math:`\sigma_i = U \rho_i U^\dagger`.
@@ -65,11 +64,13 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     runs_test = {}
 
     NUM_STEPS = 100
-    NUM_RUNS = 10
+    NUM_RUNS = 20
 
     for i in range(NUM_RUNS):
-        random_gate = np.kron(mp.gates.random_su(1), np.eye(2))
-        (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(random_gate, 10, test_size = 0.3)
+        gate2learn = np.kron(mp.gates.random_su(1), np.eye(2))
+        # Replace with the following line to learn an IsingXX(π/2) gate
+        # gate2learn = mp.gates.ising_xx(np.pi/2)
+        (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(gate2learn, 10, test_size = 0.3)
 
         cost_train, cost_test = [], []
 
@@ -89,7 +90,13 @@ where the input and target states are related by a given unitary :math:`\sigma_i
     :class: codeblock
     :collapsible:
 
+    If you do not have seaborn installed, you can either install it by running `pip install --upgrade seaborn` or comment out the seaborn-style lines.
+
     .. code-block:: python
+
+        import matplotlib.pyplot as plt
+        import seaborn as sns
+        sns.set_style("white")
 
         runs_train_array = np.array(list(runs_train.values()))
         runs_test_array = np.array(list(runs_test.values()))
@@ -114,10 +121,12 @@ where the input and target states are related by a given unitary :math:`\sigma_i
         ax.set_xlabel('Steps', fontsize=16)
         ax.set_ylabel('Cost', fontsize=16)
         ax.set_title(r"Random local unitary, $U_{Haar} \otimes I$", fontsize=18)
+        # Title for training an IsingXX(π/2) gate
+        # ax.set_title(r"IsingXX($\pi/2$)", fontsize=18)
         ax.tick_params(axis='both', which='major', labelsize=16)
         plt.show()
 
-Finally, we can average over the runs and plot the results!
+Finally, we can average over the runs and plot the results! In our next tutorial, we wil see how to parallelize the training process and study the robustness of the model to noise.
 
 References
 ----------

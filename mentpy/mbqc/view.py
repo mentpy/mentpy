@@ -4,7 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module for drawing MBQC circuits."""
 
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,7 +79,9 @@ def get_options(kwargs) -> dict:
     return default_options
 
 
-def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
+def draw(
+    state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs
+) -> Tuple[plt.Figure, plt.Axes]:
     """Draws mbqc circuit with flow.
 
     TODO: Add support for graphs without flow, but with gflow
@@ -98,15 +100,15 @@ def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
 
-    if "labels" not in options:
-        options["labels"] = process_labels(state, options)
-    else:
-        options.pop("pauliop")
-
     if pauliop is not None:
         if len(pauliop) != 1:
             raise ValueError("pauliop must be a single Pauli operator")
         options["label"] = "pauliop"
+
+    if "labels" not in options:
+        options["labels"] = process_labels(state, options)
+    else:
+        options.pop("pauliop")
 
     transp = options.pop("transparent")
     fig, ax = plt.subplots(figsize=options.pop("figsize"))

@@ -147,7 +147,7 @@ def grid_cluster(n, m, periodic=False, **kwargs) -> MBQCircuit:
     return gs
 
 
-def muta(n_wires, n_layers, **kwargs):
+def muta(n_wires, n_layers, **kwargs) -> MBQCircuit:
     """This is the Multiple Triangle Ansatz (MuTA) template.
 
     Args
@@ -221,8 +221,12 @@ def muta(n_wires, n_layers, **kwargs):
     return bigger_graph
 
 
-def spturb(n_qubits: int, n_layers: int, periodic=False, **kwargs):
-    """This is the Symmetry Protected Topological Perturbator Ansatz (SPTurb) template.
+def spturb(n_qubits: int, n_layers: int, periodic=False, **kwargs) -> MBQCircuit:
+    """
+    .. warning::
+        This template will be deprecated. Use the :from_pauli: template instead.
+
+    This is the Symmetry Protected Topological Perturbator Ansatz (SPTurb) template.
 
     Args
     ----
@@ -299,7 +303,7 @@ def spturb(n_qubits: int, n_layers: int, periodic=False, **kwargs):
     return spt_ansatz
 
 
-def from_pauli(pauli_op: PauliOp):
+def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
     """Returns a graph state that can implement :math:`U=e^{-i\theta P}`"""
 
     if len(pauli_op) != 1:
