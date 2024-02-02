@@ -10,7 +10,7 @@ The :obj:`mentpy` library requires Python 3.9 or above. It can be installed from
 
 .. code-block:: console
 
-   $ python3 -m pip install mentpy
+   python3 -m pip install mentpy
 
 Install from Source
 -------------------
@@ -19,10 +19,9 @@ To install from source, you can ``git clone`` the repository and then use ``pip`
 
 .. code-block:: console
 
-   $ git clone https://github.com/mentpy/mentpy
-   $ cd mentpy
-   # This will install the package in editable mode along with its dependencies
-   $ python3 -m pip install -e .
+   git clone https://github.com/mentpy/mentpy
+   cd mentpy
+   python3 -m pip install -e .
 
 Now, you can verify the installation by importing the :obj:`mentpy` package and checking its version.
 
@@ -36,19 +35,12 @@ Development Installation
 
 Developers who wish to contribute to :obj:`mentpy` or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.
 
-First, clone the repository:
-
 .. code-block:: console
 
-   $ git clone https://github.com/mentpy/mentpy
-   $ cd mentpy
+   git clone https://github.com/mentpy/mentpy
+   cd mentpy
+   python3 -m pip install -e '.[dev]'
 
-Install the project along with its regular and development dependencies:
-
-.. code-block:: console
-
-   # This will install the package in editable mode along with its regular and development dependencies
-   $ python3 -m pip install -e '.[dev]'
 
 This command installs :obj:`mentpy` in an "editable" mode and also installs additional development dependencies specified under `[dev-dependencies]` in `pyproject.toml`. Now, you are set up to make changes, run tests, and build documentation.
 
@@ -59,7 +51,7 @@ Before submitting changes, you can run the test suite to ensure everything is fu
 
 .. code-block:: console
 
-   $ pytest
+   pytest
 
 If you're adding new features or fixing any bugs, it's a good idea to include new tests that cover your changes.
 
@@ -67,8 +59,8 @@ Additionally, you can build the documentation locally to check for any errors an
 
 .. code-block:: console
 
-   $ cd docs
-   $ make html
+   cd docs
+   make html
 
 This process generates HTML documentation in `docs/_build/html`, which you can open in a web browser to review.
 
