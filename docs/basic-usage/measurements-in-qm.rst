@@ -5,12 +5,8 @@ Single qubit measurements
    :description: Measurements in quantum mechanics using python
    :keywords: mbqc, measurement-based quantum computation, quantum computing
 
-.. admonition:: Note
-   :class: warning
-   
-   This tutorial is under construction
 
-In MentPy, measurements are represented by the :obj:`mp.Ment` class.
+At the code of measurement-based quantum computation (MBQC) are single-qubit measurements. In MentPy, measurements are represented by the :obj:`mp.Ment` class.
 
 .. ipython:: python
 
@@ -33,3 +29,5 @@ We can get the POVM elements of a measurement with the :meth:`get_povm` method
     p0, p1 = m2.get_povm()
     print(p0)
     print(p1)
+
+This object will be used as the basic building block for MBQC circuits.

@@ -4,7 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module for drawing MBQC circuits."""
 
-from typing import Union
+from typing import Union, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -79,7 +79,9 @@ def get_options(kwargs) -> dict:
     return default_options
 
 
-def draw(state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs):
+def draw(
+    state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs
+) -> Tuple[plt.Figure, plt.Axes]:
     """Draws mbqc circuit with flow.
 
     TODO: Add support for graphs without flow, but with gflow
