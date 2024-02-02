@@ -100,15 +100,15 @@ def draw(
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
 
-    if "labels" not in options:
-        options["labels"] = process_labels(state, options)
-    else:
-        options.pop("pauliop")
-
     if pauliop is not None:
         if len(pauliop) != 1:
             raise ValueError("pauliop must be a single Pauli operator")
         options["label"] = "pauliop"
+
+    if "labels" not in options:
+        options["labels"] = process_labels(state, options)
+    else:
+        options.pop("pauliop")
 
     transp = options.pop("transparent")
     fig, ax = plt.subplots(figsize=options.pop("figsize"))
