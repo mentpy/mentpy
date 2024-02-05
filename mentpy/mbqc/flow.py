@@ -18,7 +18,6 @@ import galois
 
 GF = galois.GF(2)
 
-
 class Flow:
     """This class deals with the flow of a given graph state"""
 
@@ -266,10 +265,10 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
     """Submatrix Definitions"""
 
     gamma = gamma
-    identity_matrix = np.eye(len(gamma))
+    input_qubits = inputs
 
     universal = set(graph.nodes())
-    I_complement = universal - identity_matrix 
+    I_complement = universal - inputs
 
     """
     ΛX​: The set of all vertices labeled 'X' by the basis labeling function λλ.
@@ -353,8 +352,6 @@ def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
         return pflowaux(graph, gamma, inputs, plane, B, B, k + 1, d, p)
 
 ## Finds flow of a graph state. This is deprecated and will be removed in the future.
-
-
 def find_flow(graph: GraphState, input_nodes, output_nodes, sanity_check=True):
     r"""Finds the generalized flow of graph state if allowed.
 
