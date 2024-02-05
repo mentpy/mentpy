@@ -12,6 +12,7 @@ import networkx as nx
 
 from mentpy.mbqc import GraphState
 from mentpy.calculator import linalg2
+from mentpy import Ment
 
 import galois
 
@@ -318,7 +319,10 @@ def _generate_membership_vector(graph: nx.Graph, nodes=[]) -> np.ndarray:
         membership_vector[node_idx, 0] = 1
     return membership_vector
 
-def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.measure()):
+# TODO: change Lam to a measurement function
+def find_pflow(mbqc: MBQCircuit, gamma: GraphState, input_nodes, output_nodes, basis=Ment(plane="XY")):
+    
+    lam = lambda u: mbqc.measurements()[u].plane
 
     universe = gamma.nodes() # TODO: should be "V"?
     complement = lambda c: universe - c
@@ -331,9 +335,9 @@ def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.meas
 
     # measurement tests
     lam_p_u = lambda P, u: { v for v in O_C(output_nodes) if v != u and lam(v) == P }
-    lam_x_u = lambda u: lam_p_u(Measurement.X, u)
-    lam_y_u = lambda u: lam_p_u(Measurement.Y, u)
-    lam_z_u = lambda u: lam_p_u(Measurement.Z, u)
+    lam_x_u = lambda u: lam_p_u("X", u)
+    lam_y_u = lambda u: lam_p_u("Y", u)
+    lam_z_u = lambda u: lam_p_u("Z", u)
 
     # Set of possible elements of the witness set K
     K_a_u = lambda A, u: (A | lam_x_u(u) | lam_y_u(u)) & I_C(input_nodes)
@@ -377,7 +381,7 @@ def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.meas
             M_a_u_bot_mat = _adjacency_set_to_matrix(M_a_u_bot_set, gamma.nodes())
 
             # 2. Solutions matrix S_lam_tilde 
-            if lam(u) in { Measurement.X, Measurement.Y, Measurement.XY }:
+            if lam(u) in { "X", "Y", "XY" }:
                 # Top of the matrix is the one-hot vector for {u}
                 # Bottom of the matrix is zeros
                 # The matrix must fill out to be in the column space for
@@ -385,7 +389,7 @@ def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.meas
                 S_lam_tilde_top_mat = _generate_membership_vector(gamma, S_lam_tilde_top_set)
                 S_lam_tilde_bot_set = {}
                 S_lam_tilde_bot_mat = _generate_membership_vector(gamma, S_lam_tilde_bot_set)
-            elif lam(u) in { Measurement.X, Measurement.Z, Measurement.XZ }:
+            elif lam(u) in { "X", "Z", "XZ" }:
                 # Top of the matrix is:
                 # (NGamma(u) & P_a_u(u)) | {u}
                 # Bottom of the matrix is:
@@ -394,7 +398,7 @@ def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.meas
                 S_lam_tilde_top_mat = generate_membership_vector(gamma, S_lam_tilde_top_set)
                 S_lam_tilde_bot_set = (set(gamma.neighbors(u)) & Y_a_u(u))
                 S_lam_tilde_bot_mat = generate_membership_vector(gamma, S_lam_tilde_bot_set)
-            elif lam(u) in { Measurement.Y, Measurement.Z, Measurement.YZ }:
+            elif lam(u) in { "Y", "Z", "YZ" }:
                 # Top of the matrix is:
                 # (NGamma(u) & P_a_u(u))
                 # Bottom of the matrix is:
@@ -448,11 +452,11 @@ def find_pflow(V, gamma, input_nodes, output_nodes, lam = lambda node: node.meas
     for v in V:
         if v in output_nodes:
             d[v] = 0
-        if lam(v) == Measurement.X:
+        if lam(v) == "X":
             L_x.update({v})
-        elif lam(v) == Measurement.Y:
+        elif lam(v) == "Y":
             L_y.update({v})
-        elif lam(v) == Measurement.Z:
+        elif lam(v) == "Z":
             L_z.update({v})
             
     return PauliFlowAux(V, gamma, input_nodes, lam, set(), output_nodes, 0)
