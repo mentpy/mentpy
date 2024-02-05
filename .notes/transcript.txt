@@ -1,0 +1,363 @@
+Welcome to ChatGPT shell
+
+  Type help and press RET for details.
+
+  Like this package? Consider ✨sponsoring✨
+
+
+<shell-maker-failed-command>
+ChatGPT(4-1106-preview/General)> 
+<shell-maker-interrupted-command>
+
+
+ChatGPT(4-1106-preview/Programming)> how to create networkx graph
+<shell-maker-end-of-prompt>
+```python
+import networkx as nx
+
+# Create an empty graph
+G = nx.Graph()
+
+# Add nodes
+G.add_node(1)
+G.add_nodes_from([2, 3])
+
+# Add edges
+G.add_edge(1, 2)
+G.add_edges_from([(2, 3), (1, 3)])
+
+# Graph is ready to be used
+```
+
+ChatGPT(4-1106-preview/Programming)> how to inspect the graph?
+<shell-maker-end-of-prompt>
+```python
+# Get number of nodes and edges
+num_nodes = G.number_of_nodes()
+num_edges = G.number_of_edges()
+
+# List all nodes
+nodes = list(G.nodes)
+
+# List all edges
+edges = list(G.edges)
+
+# Adjacency list
+adjacency_list = {node: list(G.neighbors(node)) for node in G.nodes}
+```
+
+ChatGPT(4-1106-preview/Programming)> get neighbours of node
+<shell-maker-end-of-prompt>
+```python
+node = 1  # Replace with the desired node
+neighbors = list(G.neighbors(node))
+```
+
+ChatGPT(4-1106-preview/Programming)> get neighbours of node
+<shell-maker-end-of-prompt>
+To provide the code snippet for getting the neighbors of a specific node, please replace `N` with the actual node identifier.
+
+```python
+# Replace N with the node identifier
+neighbors_of_node_N = list(G.neighbors(N))
+```
+
+ChatGPT(4-1106-preview/Programming)> How is the formula of a cone distinct from the formula of a circle?
+<shell-maker-end-of-prompt>
+The formulas for a cone and a circle measure different properties and are used in distinct geometric contexts.
+
+- **Circle Formula**: 
+  - Area: `A = πr^2` (where `r` is the radius)
+  - Circumference: `C = 2πr`
+
+- **Cone Formula**: 
+  - Lateral Surface Area (without base): `LSA = πrl` (where `r` is the radius and `l` is the slant height)
+  - Total Surface Area (with base): `TSA = πr(l + r)`
+  - Volume: `V = (1/3)πr^2h` (where `h` is the height of the cone)
+
+
+ChatGPT(4-1106-preview/Programming)> isn't the formula of the points that lie on a cone z = +/- \sqrt{x^2 + y^2} similar to the formula of the points that lie on the circle c^2 = x^2 + y^2?
+<shell-maker-end-of-prompt>
+The equation \( z = \pm\sqrt{x^2 + y^2} \) describes a three-dimensional double cone (one cone above the z-plane and one below) with its vertex at the origin (0,0,0) and its axis along the z-axis. This equation shows that the distance from the z-axis to a point (x, y, z) on the surface of the cone is \( \sqrt{x^2 + y^2} \), which is equivalent to the distance from the center to a point on the edge of a circle with radius \( z \) in the plane perpendicular to the z-axis.
+
+The equation \( c^2 = x^2 + y^2 \) represents a circle in two dimensions with radius \( c \) and centered at the origin (0,0). For any point (x, y) on the circle, the distance from the origin is \( \sqrt{x^2 + y^2} = c \).
+
+Both equations involve the pythagorean theorem but in different dimensions and contexts:
+
+- The circle's equation describes a two-dimensional shape.
+- The cone's equation describes a three-dimensional surface.
+
+ChatGPT(4-1106-preview/Programming)> How should I think about distinguishing the two?
+<shell-maker-end-of-prompt>
+To distinguish the equations of a cone and a circle, consider the dimensions they represent and the geometric shapes they describe:
+
+- **Circle**:
+  - **Dimension**: 2D
+  - **Equation**: \( x^2 + y^2 = r^2 \)
+  - Describes a round shape in a plane where every point on the circle is equidistant \( r \) from the center.
+
+- **Cone**:
+  - **Dimension**: 3D
+  - **Equation**: \( z^2 = x^2 + y^2 \) (This describes a right circular cone with the vertex at the origin, symmetric about the z-axis.)
+  - Describes a solid or a surface that narrows from a flat base to a point (the apex or vertex).
+
+Remember:
+
+- A circle is flat with a constant radius—only \( x \) and \( y \) are part of its equation.
+- A cone extends into the third dimension, with \( z \) determining its height and the radius changing with \( z \).
+
+ChatGPT(4-1106-preview/Programming)> emacs modes which rely heavily on org-id
+<shell-maker-end-of-prompt>
+Modes that rely heavily on `org-id` are typically related to Org mode in Emacs, which use `org-id` to uniquely identify Org entities like headlines, tasks, or blocks, ensuring stable links even when the content moves around. 
+
+Here are a few instances:
+
+- **Org Agenda**: For linking back to tasks from an agenda view.
+- **Org Capture**: For template expansion and linking to original context.
+- **Org Refile**: For identifying targets when refiling entries.
+- **Org Mobile**: For syncing between Emacs and mobile applications, using IDs to match entries.
+- **Org Export**: When exporting Org documents, IDs can be used for internal links.
+- **Org Babel**: For linking to specific source code blocks.
+- **Org Drill**: For spaced repetition learning, IDs can track individual pieces of information.
+
+These are not separate modes but functionalities within Org mode where `org-id` plays a critical part.
+
+ChatGPT(4-1106-preview/Programming)> what others? including say org-roam
+<shell-maker-end-of-prompt>
+Including `org-roam` and other Org-related packages, here are additional modes and functionalities that make significant use of `org-id`:
+
+- **Org Roam**: A note-taking and knowledge management system that uses `org-id` to link between different "roam" notes or files.
+- **Org Roam Bibtex**: An extension to `org-roam` that integrates with `bibtex-completion` for managing bibliographic references, uses `org-id` to ensure consistent note linkage.
+- **Org Brain**: A concept mapping tool for Org Mode, which relies on `org-id` to keep track of relationships between ideas.
+- **Org Journal**: While mainly date-based, it can use `org-id` for linking to specific entries.
+- **Org Clock**: For clocking time on tasks, can use `org-id` to link back to the task from clock reports.
+- **Org Noter**: For annotating documents, it can use `org-id` to identify and link back to specific notes or highlights.
+
+Each one relies on the unique identification capabilities provided by `org-id` to maintain the integrity and consistency of links within and across Org files as the content evolves. This is crucial in systems like `org-roam`, where the network of knowledge is built upon reliable links between notes.
+
+ChatGPT(4-1106-preview/Programming)> what modes change org-id's strategy for generation unique identifiers?
+<shell-maker-end-of-prompt>
+`org-id` has a customizable strategy for generating unique identifiers, which is determined by the variable `org-id-method`. By default, `org-id` doesn't have modes that change this strategy dynamically. Instead, users set the method in their Emacs configuration.
+
+Here are some commonly used configurations for `org-id-method`:
+
+- `uuidgen`: Use an external UUID generator program.
+- `uuid`: Use Emacs' built-in `org-id-uuid` function.
+- `ts`: Use a timestamp to ensure uniqueness.
+
+If you need different strategies for different modes or contexts, you would typically manage that manually in your Emacs configuration using Emacs Lisp, setting `org-id-method` as needed for the specific use case.
+
+For instance, you could have a custom setup that changes `org-id-method` in a `let` binding or uses hooks to set the `org-id-method` variable when entering a specific mode, although such usage is not typical or provided by default in Org-mode packages.
+
+ChatGPT(4-1106-preview/Programming)> what modes use custom ID formats which could be changed to org-id?
+<shell-maker-end-of-prompt>
+Some modes use custom ID formats or their own systems for unique identifiers, which theoretically could be adapted to use `org-id`. These are not "modes" in the strict sense, but rather functionalities or integrations within the Org ecosystem or related packages that have their own ID schemes:
+
+- **Org Roam**: Uses its own ID format for note files, typically a timestamp or a UUID, which could be replaced with `org-id`.
+- **Deft**: A note-taking system that doesn't rely on IDs per se but uses note filenames for identification; hypothetically could be integrated with `org-id` for internal links.
+- **Org-ref**: Manages citations and bibliography links with custom identifiers, which could utilize `org-id`.
+- **Org-caldav**: Sync Org files with a CalDAV server; uses unique IDs for calendar entries and tasks that could be aligned with `org-id`.
+- **Org-brain**: Visually represents connections between ideas in Org Mode and uses its own ID scheme, which could be converted to use `org-id`.
+
+Switching these systems to utilize `org-id` would involve customization or development effort to replace their current identification schemes with `org-id`, making sure to maintain functionality such as uniqueness, persistence, and compatibility with `org-id` linking and retrieval mechanisms.
+
+ChatGPT(4-1106-preview/Programming)> what are some non-programming uses of org-babel or dynamic blocks?
+<shell-maker-end-of-prompt>
+### Non-programming uses of Org-Babel:
+
+- **Data Analysis and Visualization**: Use Babel to execute statistical analysis with languages like R or Python and then embed the results or graphs directly into an Org document.
+- **Document Automation**: Dynamically generate portions of reports, invoices, or other structured documents using shell scripts or other languages to process data.
+- **Literature Review**: Execute scripts that pull in the latest research or data from databases, perform bibliographic management, or format citations.
+- **Notebooks for Research**: Reproducible research documents where the methodology is explained step by step with computations directly embedded.
+- **Spreadsheets**: Perform calculations in a table using Emacs Calc or external programs.
+- **Org-mode Presentations**: Create presentations that dynamically generate content, including data-driven graphs or diagrams.
+
+### Non-programming uses of Dynamic Blocks:
+
+- **Agenda Blocks**: Embed current tasks, calendar items, or custom agenda views.
+- **Clock Tables**: Summarize time-tracking information for project management or billing.
+- **Property Inheritance**: Collect and display properties from headings.
+- **Table Transformations**: Process existing Org tables using Emacs Calc or filters.
+- **Diary Integration**: Integrate personal diary entries with Org schedules.
+- **Random Notes**: Display a random note or quote from a collection for inspiration or reminders.
+- **Progress Tracking**: Update progress bars or status summaries for goals or habits.
+- **Contact Management**: Display dynamically filtered lists of contacts based on certain criteria.
+
+Both Org-Babel and Dynamic Blocks extend the functionality of Org-mode beyond simple document structuring to enable interactive and automatically updating content, useful in a wide range of non-programming contexts.
+
+ChatGPT(4-1106-preview/Programming)> grammatically, are lines horizontal, or are the slopes of lines?
+<shell-maker-end-of-prompt>
+Grammatically, lines themselves can be described as horizontal if they run left to right and have a slope of zero—meaning, they are parallel to the horizon. The "slope" is a numerical measure of the steepness of a line and is a characteristic of the line; it is not itself horizontal or vertical but can take on values that characterize the line as such. A slope of zero corresponds to a horizontal line. A line is not defined by its slope alone but by a combination of its slope and position.
+
+ChatGPT(4-1106-preview/Programming)> combine org-contact and org-drill
+<shell-maker-end-of-prompt>
+Combining `org-contact` and `org-drill` involves setting up an Org file that uses `org-contact` for managing contact information and embedding `org-drill` items within contact entries to enable spaced repetition learning for remembering details about your contacts.
+
+Here's a basic example to integrate them:
+
+```emacs-lisp
+(require 'org-contact)
+(require 'org-drill)
+
+(setq org-contact-file "~/path/to/contacts.org")
+
+;; Example contact entry with org-drill
+;; :PROPERTIES:
+;; :EMAIL:    [email protected]
+;; :PHONE:    +1234567890
+;; :NICKNAME: John
+;; :END:
+;; 
+;; * Contact :John: :drill:
+;; ** What is John's email? :drill:
+;;   :PROPERTIES:
+;;   :DRILL_CARD_TYPE: hide1cloze
+;;   :END:
+;;   John's email is [email protected] []
+;;
+;; ** What is John's phone number? :drill:
+;;   :PROPERTIES:
+;;   :DRILL_CARD_TYPE: hide1cloze
+;;   :END:
+;;   John's phone number is +1234567890 []
+
+;; Commands to interact with org-contact and org-drill:
+;; M-x org-contact: Collect and manage contacts.
+;; M-x org-drill: Start a drill session for memorization.
+```
+
+Ensure you have Org Contact and Org Drill configured in your Emacs setup:
+- Load `org-contact` into your Org setup following its instructions.
+- Load `org-drill` and familiarize yourself with its drill item types, like `hide1cloze` shown in the example.
+
+When using `org-drill` within your contacts file, use tags and properties appropriately:
+- Tag drill items with `:drill:` to make them recognizable for `org-drill`.
+- Use properties like `:DRILL_CARD_TYPE:` to define how the information should be presented during the drill.
+
+Use the `org-drill` command to start a drill session, and it will present contact-related questions as part of your drills. Remember to regularly review your drills with `org-drill` to enhance memory of contact details.
+
+ChatGPT(4-1106-preview/Programming)> does org-contact have a default capture template?
+<shell-maker-end-of-prompt>
+Yes, `org-contact` does come with a default capture template that you can use to quickly add new contact entries. Here's an example of what the default capture template might look like:
+
+```emacs-lisp
+(setq org-contacts-template-name "* %(org-contacts-template-name)
+:PROPERTIES:
+:EMAIL: %(org-contacts-template-email)
+:PHONE: 
+:BIRTHDAY: 
+:NOTE: 
+:END:")
+```
+
+To use this template, you will need to ensure `org-capture` is set up correctly and that `org-contacts` is configured to include the path to your contacts file. You can customize the template to include additional fields as per your requirements. After setting the template, when you run `org-capture` to create a new contact, it will prompt you to fill in the fields specified in the template.
+
+ChatGPT(4-1106-preview/Programming)> i mean to use org-drill to remind myself to contact my friends at recurring intervals
+<shell-maker-end-of-prompt>
+To use `org-drill` to remind yourself to contact friends at recurring intervals, you'll integrate the drill functionality with reminders. You'd create a custom drill item for each friend, specifying when you want to be reminded to contact them.
+
+Here's a simple way to set up a reminder in your Org file. You should already have `org-drill` set up for this to work.
+
+```org
+* Contact John
+:PROPERTIES:
+:DRILL_CARD_TYPE: twosided
+:LAST_INTERVAL: 7
+:END:
+- ** Reminder to contact John ** :drill:
+  Remember to call or email John every week.
+- ** Last contacted **
+  [2023-04-01 Sat]
+```
+
+In this example, the `:LAST_INTERVAL:` property is set to 7, which means `org-drill` will schedule the next rehearsal approximately one week after the last.
+
+During a drill session (using `M-x org-drill`), when this item appears, if you have already contacted John, you can mark the drill as "Easy" to push the next reminder further into the future. If you haven't contacted him yet, choose a different status to reschedule the reminder sooner.
+
+Remember, `org-drill` is for spaced repetition learning, so using it for reminders is more of a workaround. If you're looking for more traditional recurring reminders, consider using `org-agenda` with scheduled or deadline dates. Here is a non-drill example that would work with `org-agenda`:
+
+```org
+* TODO Call John
+SCHEDULED: <2023-04-08 Sat ++1w>
+```
+
+In this `org-agenda` example, `++1w` indicates that the task should be scheduled one week after you mark it complete. It's a recurring reminder independent of `org-drill` that might be more in line with what you're looking to achieve.
+
+ChatGPT(4-1106-preview/Programming)> would org-habit conflict with org-drill?
+<shell-maker-end-of-prompt>
+`org-habit` and `org-drill` are two different extensions designed for different purposes within Org Mode, and they would not inherently conflict with each other when used within the same Org file or Emacs setup. Here's why:
+
+- **`org-habit`**: Specifically designed for tracking and visualizing habitual tasks within the Org Agenda views. It creates visual cues for habit strength and consistency over time.
+
+- **`org-drill`**: Intended for spaced repetition learning. It's used to remember information by testing the user at increasing intervals of time.
+
+Both extensions can coexist because they operate on different properties and tags within the Org file. They can each look for their specific properties or tags that don't interfere with each other. An entry tracked by `org-habit` will not be processed by `org-drill` unless it is explicitly tagged for `org-drill`.
+
+However, if you want both habit tracking and memorization for the same piece of information, you would need to carefully set up your entries so that they make sense from both a habit-tracking and a spaced repetition perspective, which may involve a more complex configuration with careful consideration of the properties and scheduling required by each system.
+
+ChatGPT(4-1106-preview/Programming)> what happens to the SCHEDULED or DEADLINE properties if I use both?
+<shell-maker-end-of-prompt>
+If you use both `SCHEDULED` and `DEADLINE` in the same heading for a task in Org Mode, they serve different yet complementary roles:
+
+- **`SCHEDULED`**: Marks when you plan to start working on a task. It is a hint to yourself to begin the task on a particular day. The task will appear in the agenda on this date.
+
+- **`DEADLINE`**: Indicates when a task is due. Non-repetitive deadlines cause the task to be flagged in the agenda once the date is approaching (as determined by `org-deadline-warning-days`). The warning days serve as a lead time to complete the task.
+
+Both properties can coexist in a single outline node (task). The agenda views will reflect both the scheduled start date and the deadline, allowing you to track the task's intended start time and its due date separately.
+
+Here's an example of a task with both a `SCHEDULED` date and a `DEADLINE`:
+
+```org
+* TODO Write the annual report
+SCHEDULED: <2023-04-15 Sat>
+DEADLINE: <2023-04-20 Thu>
+```
+
+In the agenda view:
+- This task will first appear on April 15th, urging you to start working on it.
+- It will continue to show up daily as a scheduled task.
+- Additionally, starting the number of days before the deadline specified by `org-deadline-warning-days`, it will also flag the task as an approaching deadline.
+
+`org-habit` and `org-drill` leverage similar properties, such as `SCHEDULED` and `DEADLINE`, but interpret them according to their own purposes, like habit consistency and spaced repetition learning. As long as a heading isn't tagged for `org-drill`, `org-habit` behavior will be standard for `SCHEDULED` and `DEADLINE`.
+
+```org
+* TODO Review flashcards
+:PROPERTIES:
+:DRILL_CARD_TYPE: twosided
+:END:
+DEADLINE: <2023-04-20 Thu>
+```
+
+In this `org-drill` example, the deadline serves only as a fixed date marker (like for regular Org-mode tasks) and does not influence the `org-drill` scheduling algorithm, which is based on spaced repetition intervals. If this were a habit, `org-habit` would use the `SCHEDULED` property to track habit consistency, separate from `DEADLINE`.
+
+ChatGPT(4-1106-preview/Programming)> currently org-drill uses "SCHEDULED"
+<shell-maker-end-of-prompt>
+If `org-drill` is using `SCHEDULED` properties, the scheduling for drill items is based on its own spaced repetition intervals and stored within the `:DRILL_LAST_INTERVAL:` property among others. `SCHEDULED` in drill items serves a similar purpose to its use in tasks and habits:
+
+- When `org-drill` presents an item for review, and you mark it as remembered or forgotten, `org-drill` reschedules the item based on its algorithms, updating the `SCHEDULED` property to reflect the next review date. 
+
+- `DEADLINE` properties are typically not used by `org-drill` since the system is about spaced repetition based on performance during review, not set deadlines. 
+
+Using `SCHEDULED` with `org-drill`, in principle, should not conflict with `org-habit`, as `org-habit` generates visual cues in the agenda based on `SCHEDULED` combined with repeaters (like `.+1d` for daily habits). 
+
+However, it's important to note that having an `org-habit` scheduled repetition on a drill entry isn't a typical use case for `org-drill`, and there might be unexpected behaviors in agenda views if both spaced repetition intervals and habit-style scheduling are present on the same item.
+
+For clarity, here's how a scheduled repetition might look in a drill item:
+
+```org
+* Question about friend's birthday :drill:
+:PROPERTIES:
+:DRILL_CARD_TYPE: twosided
+:DRILL_LAST_REVIEWED: [2023-04-15 Sat 12:00]
+:DRILL_LAST_INTERVAL: 5
+:DRILL_EASE: 2.5
+:END:
+SCHEDULED: <2023-04-20 Thu>
+
+Question: When is my friend's birthday?
+Answer: [2023-05-24 Wed]
+```
+
+After reviewing the item, based on your performance, `org-drill` would automatically update the `SCHEDULED` date to reflect the next study time as per the space repetition algorithm's calculations. If you want reminders independent of the spaced repetition learning system, you'd be better off using `org-habit` or standard Org agenda scheduling and deadlines.
+
+ChatGPT(4-1106-preview/Programming)> 

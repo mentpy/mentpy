@@ -12,12 +12,12 @@ import networkx as nx
 
 from mentpy.mbqc import GraphState
 from mentpy.calculator import linalg2
+from mentpy import Ment
 
 import galois
 
 
 GF = galois.GF(2)
-
 
 class Flow:
     """This class deals with the flow of a given graph state"""
@@ -231,67 +231,237 @@ def find_pflow(
     elif type(basis) != dict:
         raise TypeError("Basis must be a string or a dictionary.")
 
-    lx = set()
-    ly = set()
-    lz = set()
     d = {}
     p = {}
 
-    gamma = nx.adjacency_matrix(graph).toarray()
-
+    lx = set()
+    ly = set()
+    lz = set()
+    # .add(<*>) is in-place
     for v in graph.nodes():
         if v in output_nodes:
             d[v] = 0
         if basis[v] == "X":
-            lx = lx.add(v)
+            lx.add(v)
         elif basis[v] == "Y":
-            ly = ly.add(v)
+            ly.add(v)
         elif basis[v] == "Z":
-            lz = lz.add(v)
+            lz.add(v)
+
+    gamma = nx.adjacency_matrix(graph).toarray()
 
     return pflowaux(graph, gamma, input_nodes, basis, set(), output_nodes, 0, d, p)
 
+def solve_linear_system(submatrix, target_vector):
+    # Using numpy to solve the linear system
+    # This is a placeholder, you need to construct the submatrix and target_vector based on the algorithm
+    solution = np.linalg.solve(submatrix, target_vector)
+    return solution
 
-def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
-    """Aux function for pflow"""
-    C = set()
-    mapping = graph.index_mapping()
-    for u in set(graph.nodes()) - set(B):
-        submatrix1, submatrix2, submatrix3 = None, None, None
-        solution1, solution2, solution3 = None, None, None
-        if plane[u] in ["XY", "X", "Y"]:
-            submatrix1 = 0  # TODO
-            solution1 = 0  # TODO
-        if plane[u] in ["XZ", "X", "Z"]:
-            submatrix2 = 0  # TODO
-            solution2 = 0  # TODO
-        if plane[u] in ["YZ", "Y", "Z"]:
-            submatrix3 = 0  # TODO
-            solution3 = 0  # TODO
+def _adjacency_set_to_matrix(adj_set, universe):
+    """
+    Given a list of adjacencies and a universe of elements, construct the corresponding adjacency matrix.
+    """
+    print(adj_set, universe)
+    graph = nx.Graph()
+    graph.add_nodes_from(universe)
+    graph.add_edges_from(adj_set)
+    return nx.to_numpy_array(graph, dtype=int, nodelist=(universe))
 
-        if (
-            (solution1 is not None)
-            or (solution2 is not None)
-            or (solution3 is not None)
-        ):
-            C.add(u)
-            sol = solution1 or solution2 or solution3
-            p[u] = sol
-            d[u] = k
+def _idx_to_node(graph: nx.Graph, n: int):
+    """
+    Given an index n, find the node within the graph it corresponds to.
 
-    if len(C) == 0 and k > 0:
-        if set(B) == set(graph.nodes()):
-            return True, p, d
+    Parameters
+    ----------
+    graph : networkx.Graph
+        The graph from which to find the node corresponding to index n.
+
+    n : int
+        The index for which to find the corresponding node.
+
+    Returns
+    -------
+    node
+        The corresponding node in the graph for the given index n.
+    """
+    # Ensure n is within the valid range of node indices
+    assert 0 <= n < len(graph), "Index out of bounds."
+
+    # Directly return the node corresponding to the index 
+    return (graph.nodes())[n]
+
+def _generate_membership_vector(graph: nx.Graph, nodes=[]) -> np.ndarray:
+    """
+    Returns a column vector representing the membership of a set of elements in the graph.
+    The empty set is supported as an argument to return a vector with no membership.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        The input graph from which the membership vector is to be generated.
+
+    nodes : iterable, optional
+        An iterable of nodes for which the membership vector is to be generated. Default is an empty list, representing no membership.
+
+    Returns
+    -------
+    np.ndarray
+        A column vector with '1' at indices corresponding to the nodes and '0' elsewhere. If an empty set (or list) is provided, it returns a vector with '0's.
+    """
+    # Get a sorted list of all nodes to maintain consistent indexing
+    graph_nodes = list(graph.nodes())
+    # Initialize a column vector with '0's 
+    membership_vector = np.zeros((len(graph_nodes), 1), dtype=int)
+    # Set '1' at the index of each node present in the nodes set, if any
+    for node in nodes:
+        node_idx = graph_nodes.index(node)
+        membership_vector[node_idx, 0] = 1
+    return membership_vector
+
+# TODO: change Lam to a measurement function
+def find_pflow(mbqc: MBQCircuit, gamma: GraphState, input_nodes, output_nodes, basis=Ment(plane="XY")):
+    
+    lam = lambda u: mbqc.measurements()[u].plane
+
+    universe = gamma.nodes() # TODO: should be "V"?
+    complement = lambda c: universe - c
+
+    I_C = lambda input_nodes: complement(input_nodes)
+    O_C = lambda output_nodes: complement(output_nodes)
+    NGamma = lambda gamma, u: set(gamma.neighbors(u))
+
+    # Supplementary constructs for the P-Flow algorithm:
+
+    # measurement tests
+    lam_p_u = lambda P, u: { v for v in O_C(output_nodes) if v != u and lam(v) == P }
+    lam_x_u = lambda u: lam_p_u("X", u)
+    lam_y_u = lambda u: lam_p_u("Y", u)
+    lam_z_u = lambda u: lam_p_u("Z", u)
+
+    # Set of possible elements of the witness set K
+    K_a_u = lambda A, u: (A | lam_x_u(u) | lam_y_u(u)) & I_C(input_nodes)
+
+    # Set of verticies in the past/present which should remain corrected after measuring u
+    P_a_u = lambda A, u: universe - (A | lam_y_u(u) | lam_z_u(u))
+
+    # Set of verticies for condition: ∀v <= u.u 6 = v ∧ λ (v) = Y ⇒ (v ∈ p(u) ⇔ v ∈ Odd(p(u)))
+    Y_a_u = lambda A, u: lam_y_u(u) - A
+
+    # nodes with X/Y/Z measurement alone
+    L_x, L_y, L_z = set(), set(), set()
+
+    p = {}  # node_to_correction_set_map
+    d = {}  # node_to_depth_map
+    
+    def PauliFlowAux(V, gamma, I, lam, A={}, B=output_nodes, k=0):
+        """
+        Construct the solutions matrix for M_a_u * X^K = S_lam_tilde
+        Strategy:
+        - encode all matricies with dimension N x N qubits (but without full rank)
+        - use 1/0 to encode membership/non-membership of nodes
+        - solve top and bottom systems separately, then combine the solutions
+        """
+        # accumulator for the solution set of correctibles at the given depth
+        C = set()
+        for u in complement(B): 
+            # 1. Constraint matrix M_a_u
+
+            # Top section:
+            # First, get the adjacency list as a set of tuples, then constrain those tuples by those that are both in the witness set
+            # and connected to a node that should remain corrected after measurement.
+            # Then from the set of nodes within this set, fill the sparse matrix reflecting the top
+            # linear system of equations.
+            M_a_u_top_set = set(gamma.edges()) & set(zip(K_a_u(A, u), P_a_u(A, u)))
+            M_a_u_top_mat = _adjacency_set_to_matrix(M_a_u_top_set, gamma.nodes())
+            
+            # Bottom section
+            # The 
+            M_a_u_bot_set = (set(gamma.edges()) | set(create_identity_graph(gamma).edges())) & set(zip(K_a_u(A, u), Y_a_u(A, u)))
+            M_a_u_bot_mat = _adjacency_set_to_matrix(M_a_u_bot_set, gamma.nodes())
+
+            # 2. Solutions matrix S_lam_tilde 
+            if lam(u) in { "X", "Y", "XY" }:
+                # Top of the matrix is the one-hot vector for {u}
+                # Bottom of the matrix is zeros
+                # The matrix must fill out to be in the column space for
+                S_lam_tilde_top_set = {u}
+                S_lam_tilde_top_mat = _generate_membership_vector(gamma, S_lam_tilde_top_set)
+                S_lam_tilde_bot_set = {}
+                S_lam_tilde_bot_mat = _generate_membership_vector(gamma, S_lam_tilde_bot_set)
+            elif lam(u) in { "X", "Z", "XZ" }:
+                # Top of the matrix is:
+                # (NGamma(u) & P_a_u(u)) | {u}
+                # Bottom of the matrix is:
+                # (NGamma(u) & Y_a_u(u)
+                S_lam_tilde_top_set = (set(gamma.neighbors(u)) & P_a_u(u)) | {u}
+                S_lam_tilde_top_mat = generate_membership_vector(gamma, S_lam_tilde_top_set)
+                S_lam_tilde_bot_set = (set(gamma.neighbors(u)) & Y_a_u(u))
+                S_lam_tilde_bot_mat = generate_membership_vector(gamma, S_lam_tilde_bot_set)
+            elif lam(u) in { "Y", "Z", "YZ" }:
+                # Top of the matrix is:
+                # (NGamma(u) & P_a_u(u))
+                # Bottom of the matrix is:
+                # (NGamma(u) & Y_a_u(u)
+                S_lam_tilde_top_set = (set(gamma.neighbors(u)) & P_a_u(A, u))
+                S_lam_tilde_top_mat = generate_membership_vector(gamma, S_lam_tilde_top_set)
+                S_lam_tilde_bot_set = (set(gamma.neighbors(u)) & Y_a_u(A, u))
+                S_lam_tilde_bot_mat = generate_membership_vector(gamma, S_lam_tilde_bot_set)
+
+            # 3. Unknown matrix X_K
+            # Solve the top system
+
+            # TODO: HACK: the system is considered singular! do I need to correct something here!
+            X_K_top, residuals_top, rank_top, s_top = np.linalg.lstsq(M_a_u_top_mat, S_lam_tilde_top_mat, rcond=None)
+
+            # Solve the bottom system
+            X_K_bot, residuals_bot, rank_bot, s_bot = np.linalg.lstsq(M_a_u_bot_mat, S_lam_tilde_bot_mat, rcond=None)
+
+            # To ensure the solutions concur, multiply them together. As the solutions vectors represent the presence of an element in a set,
+            # the matrix product should eliminate any 1s which represent presence in one set with 0s that represent absence in another set.
+            
+            # The product that satisfies this definition is the Hadamard product.
+            # Since the numpy product is polymorphic it should work like this automatically.
+            X_K = (X_K_top * X_K_bot).flatten()
+
+            # The result should be a 1 x N vector
+            assert X_K.ndim == 1, "Vector is not 1-dimensional"
+            assert X_K.shape[0] > 0, "N must be greater than 0"
+            assert np.all(np.isin(X_K, [0, 1])), "Vector contains values other than 0 and 1"
+
+            # if a solution K_0 is found for any of K_XY, K_XZ, K_YZ, then do this
+            # the system has solutions if X_K has any candidate members, as encoded as a binary vector
+            is_not_zero_vector = np.any(X_K)
+            has_solutions = is_not_zero_vector
+            if has_solutions:
+                # convert the vector back into the set of nodes that it represents
+                K_0 = {_idx_to_node(V, i) for i, val in enumerate(X_K) if val != 0}
+                C.update(K_0)
+                p[u] = K_0  # accumulate solutions for each node
+                d[u] = k    # accumulate the depth for each node
+        # if there are no for the given node solutions but the resource is explored beyond the input depth
+        if not C and k > 0:
+            if B == V:
+                return (True, p, d)
+            else:
+                return (False, dict(), dict())
         else:
-            return False, set(), set()
-    else:
-        B = B.union(C)
-        return pflowaux(graph, gamma, inputs, plane, B, B, k + 1, d, p)
+            B_prime = B | C
+            return PauliFlowAux(V, gamma, I, lam, B_prime, B_prime, k + 1)
 
+    for v in V:
+        if v in output_nodes:
+            d[v] = 0
+        if lam(v) == "X":
+            L_x.update({v})
+        elif lam(v) == "Y":
+            L_y.update({v})
+        elif lam(v) == "Z":
+            L_z.update({v})
+            
+    return PauliFlowAux(V, gamma, input_nodes, lam, set(), output_nodes, 0)
 
 ## Finds flow of a graph state. This is deprecated and will be removed in the future.
-
-
 def find_flow(graph: GraphState, input_nodes, output_nodes, sanity_check=True):
     r"""Finds the generalized flow of graph state if allowed.
 
