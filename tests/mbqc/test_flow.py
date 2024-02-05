@@ -5,11 +5,20 @@
 """Tests for the flow module."""
 
 import pytest
-from mentpy.mbqc import flow, find_cflow, find_pflow, find_gflow
+from mentpy.mbqc import find_cflow, find_gflow, find_pflow
 from mentpy import MBQCircuit, GraphState
+from mentpy import Ment
 
 # Test case functions
 
+@pytest.fixture
+def line_state():
+    graph_state = GraphState()
+    graph_state.add_edges_from([(1, 2), (2, 3), (3, 4), (4, 5)])
+    circuit = MBQCircuit(graph_state, input_nodes=[1], output_nodes=[5])
+    return circuit
+
+@pytest.fixture
 def gflow_no_cflow_graph():
     """
     Creates a graph with generalized flow but no classical flow.
@@ -20,6 +29,7 @@ def gflow_no_cflow_graph():
     circuit = MBQCircuit(graph_state)
     return circuit.graph()
 
+@pytest.fixture
 def cflow_graph():
     """
     Creates a graph with classical flow.
@@ -30,6 +40,7 @@ def cflow_graph():
     circuit = MBQCircuit(graph_state)
     return circuit.graph()
 
+@pytest.fixture
 def open_pflow_no_gflow_graph():
     """
     Creates a graph with open pattern flow but no generalized flow.
@@ -51,9 +62,10 @@ def open_pflow_no_gflow_graph():
         (9, 11),
         (10, 12)
     ])
-    circuit = MBQCircuit(graph_state, [11, 12])
-    return circuit.graph()
+    circuit = MBQCircuit(graph_state, input_nodes=[1, 2], output_nodes=[11, 12], default_measurement=Ment("X"))
+    return circuit
 
+@pytest.fixture
 def open_no_pflow_no_gflow_graph():
     """
     Creates a graph without pattern flow or generalized flow.
@@ -78,33 +90,24 @@ def open_no_pflow_no_gflow_graph():
         (10, 11),
         (11, 13)
     ])
-    circuit = MBQCircuit(graph_state)
-    return circuit.graph()
+    circuit = MBQCircuit(graph_state, input_nodes=[1, 2], output_nodes=[12, 13])
+    return circuit
 
 # Test functions
 
-def test_cflow():
+def test_cflow(cflow_graph, gflow_no_cflow_graph):
     """Tests the classical flow detection."""
-    classical_flow_graph = cflow_graph()
-    gen_flow_no_class_flow_graph = gflow_no_cflow_graph()
-    
-    assert find_cflow(classical_flow_graph)[0] == True
-    assert find_cflow(gen_flow_no_class_flow_graph)[0] == False
+    assert find_cflow(cflow_graph)[0] == True
+    assert find_cflow(gflow_no_cflow_graph)[0] == False
 
-def test_gflow():
+def test_gflow(gflow_no_cflow_graph, open_pflow_no_gflow_graph, open_no_pflow_no_gflow_graph):
     """Tests the generalized flow detection."""
-    gen_flow_graph = gflow_no_cflow_graph()
-    open_pf_no_gen_flow_graph = open_pflow_no_gflow_graph()
-    open_no_pf_no_gen_flow_graph = open_no_pflow_no_gflow_graph()
+    assert find_gflow(gflow_no_cflow_graph)[0] == True
+    assert find_gflow(open_pflow_no_gflow_graph.graph())[0] == False
+    assert find_gflow(open_no_pflow_no_gflow_graph.graph())[0] == False
 
-    assert find_gflow(gen_flow_graph)[0] == True
-    assert find_gflow(open_pf_no_gen_flow_graph)[0] == False
-    assert find_gflow(open_no_pf_no_gen_flow_graph)[0] == False
-
-def test_pflow():
+def test_pflow(line_state, open_pflow_no_gflow_graph, open_no_pflow_no_gflow_graph):
     """Tests the pattern flow detection."""
-    open_pf_no_gen_flow_graph = open_pflow_no_gflow_graph()
-    open_no_pf_no_gen_flow_graph = open_no_pflow_no_gflow_graph()
-
-    assert find_pflow(open_pf_no_gen_flow_graph)[0] == True
-    assert find_pflow(open_no_pf_no_gen_flow_graph)[0] == True
+    assert find_pflow(line_state.graph(), line_state.input_nodes, line_state.output_nodes, testing=True)[0] == True
+    assert find_pflow(open_pflow_no_gflow_graph.graph(), open_pflow_no_gflow_graph.input_nodes, open_pflow_no_gflow_graph.output_nodes, testing=True)[0] == True
+    assert find_pflow(open_no_pflow_no_gflow_graph.graph(), open_no_pflow_no_gflow_graph.input_nodes, open_no_pflow_no_gflow_graph.output_nodes, testing=True)[0] == False
