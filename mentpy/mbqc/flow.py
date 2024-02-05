@@ -218,39 +218,39 @@ def gflowaux(graph: GraphState, gamma, inputs, outputs, k, g, l) -> object:
 ## This section implements PauliFlow. Currently not working.
 
 
-def find_pflow(
-    graph: GraphState, input_nodes, output_nodes, basis="XY", testing=False
-) -> object:
-    """Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf"""
+# def find_pflow(
+#     graph: GraphState, input_nodes, output_nodes, basis="XY", testing=False
+# ) -> object:
+#     """Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf"""
 
-    if not testing:
-        raise NotImplementedError("This algorithm is not yet implemented.")
+#     if not testing:
+#         raise NotImplementedError("This algorithm is not yet implemented.")
 
-    if type(basis) == str:
-        basis = {v: basis for v in graph.nodes()}
-    elif type(basis) != dict:
-        raise TypeError("Basis must be a string or a dictionary.")
+#     if type(basis) == str:
+#         basis = {v: basis for v in graph.nodes()}
+#     elif type(basis) != dict:
+#         raise TypeError("Basis must be a string or a dictionary.")
 
-    d = {}
-    p = {}
+#     d = {}
+#     p = {}
 
-    lx = set()
-    ly = set()
-    lz = set()
-    # .add(<*>) is in-place
-    for v in graph.nodes():
-        if v in output_nodes:
-            d[v] = 0
-        if basis[v] == "X":
-            lx.add(v)
-        elif basis[v] == "Y":
-            ly.add(v)
-        elif basis[v] == "Z":
-            lz.add(v)
+#     lx = set()
+#     ly = set()
+#     lz = set()
+#     # .add(<*>) is in-place
+#     for v in graph.nodes():
+#         if v in output_nodes:
+#             d[v] = 0
+#         if basis[v] == "X":
+#             lx.add(v)
+#         elif basis[v] == "Y":
+#             ly.add(v)
+#         elif basis[v] == "Z":
+#             lz.add(v)
 
-    gamma = nx.adjacency_matrix(graph).toarray()
+#     gamma = nx.adjacency_matrix(graph).toarray()
 
-    return pflowaux(graph, gamma, input_nodes, basis, set(), output_nodes, 0, d, p)
+#     return pflowaux(graph, gamma, input_nodes, basis, set(), output_nodes, 0, d, p)
 
 def solve_linear_system(submatrix, target_vector):
     # Using numpy to solve the linear system

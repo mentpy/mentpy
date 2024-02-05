@@ -97,17 +97,17 @@ def open_no_pflow_no_gflow_graph():
 
 def test_cflow(cflow_graph, gflow_no_cflow_graph):
     """Tests the classical flow detection."""
-    assert find_cflow(cflow_graph)[0] == True
-    assert find_cflow(gflow_no_cflow_graph)[0] == False
+    assert find_cflow(cflow_graph.graph())[0] == True
+    assert find_cflow(gflow_no_cflow_graph.graph())[0] == False
 
 def test_gflow(gflow_no_cflow_graph, open_pflow_no_gflow_graph, open_no_pflow_no_gflow_graph):
     """Tests the generalized flow detection."""
-    assert find_gflow(gflow_no_cflow_graph)[0] == True
+    assert find_gflow(gflow_no_cflow_graph.graph())[0] == True
     assert find_gflow(open_pflow_no_gflow_graph.graph())[0] == False
     assert find_gflow(open_no_pflow_no_gflow_graph.graph())[0] == False
 
 def test_pflow(line_state, open_pflow_no_gflow_graph, open_no_pflow_no_gflow_graph):
     """Tests the pattern flow detection."""
-    assert find_pflow(line_state.graph(), line_state.input_nodes, line_state.output_nodes, testing=True)[0] == True
-    assert find_pflow(open_pflow_no_gflow_graph.graph(), open_pflow_no_gflow_graph.input_nodes, open_pflow_no_gflow_graph.output_nodes, testing=True)[0] == True
-    assert find_pflow(open_no_pflow_no_gflow_graph.graph(), open_no_pflow_no_gflow_graph.input_nodes, open_no_pflow_no_gflow_graph.output_nodes, testing=True)[0] == False
+    assert find_pflow(line_state, line_state.graph(), line_state.input_nodes, line_state.output_nodes, testing=True)[0] == True
+    assert find_pflow(open_pflow_no_gflow_graph, open_pflow_no_gflow_graph.graph(), open_pflow_no_gflow_graph.input_nodes, open_pflow_no_gflow_graph.output_nodes, testing=True)[0] == True
+    assert find_pflow(open_pflow_no_gflow_graph, open_no_pflow_no_gflow_graph.graph(), open_no_pflow_no_gflow_graph.input_nodes, open_no_pflow_no_gflow_graph.output_nodes, testing=True)[0] == False
