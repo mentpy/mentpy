@@ -731,14 +731,14 @@
 <h2 id="install-using-pip">Install using <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-using-pip" title="Link to this heading">¶</a></h2>
 <p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library requires Python 3.9 or above. It can be installed from
 <a class="reference external" href="https://pypi.org/project/mentpy/">PyPI</a> using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span class="go">python3 -m pip install mentpy</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>mentpy
 </code></pre></div>
 </div>
 <h2 id="install-from-source">Install from Source<a class="headerlink" href="#install-from-source" title="Link to this heading">¶</a></h2>
 <p>To install from source, you can <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> the repository and then use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to handle the installation. This method will also ensure that all necessary dependencies as specified in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> are installed.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span class="go">git clone https://github.com/mentpy/mentpy</span>
-<span class="go">cd mentpy</span>
-<span class="go">python3 -m pip install -e .</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mentpy/mentpy
+<span class="nb">cd</span><span class="w"> </span>mentpy
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </code></pre></div>
 </div>
 <p>Now, you can verify the installation by importing the <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> package and checking its version.</p>
@@ -750,21 +750,21 @@
 </div>
 <h2 id="development-installation">Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading">¶</a></h2>
 <p>Developers who wish to contribute to <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span class="go">git clone https://github.com/mentpy/mentpy</span>
-<span class="go">cd mentpy</span>
-<span class="go">python3 -m pip install -e &#39;.[dev]&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mentpy/mentpy
+<span class="nb">cd</span><span class="w"> </span>mentpy
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[dev]&#39;</span>
 </code></pre></div>
 </div>
 <p>This command installs <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> in an “editable” mode and also installs additional development dependencies specified under <cite>[dev-dependencies]</cite> in <cite>pyproject.toml</cite>. Now, you are set up to make changes, run tests, and build documentation.</p>
 <h2 id="testing-and-development">Testing and Development<a class="headerlink" href="#testing-and-development" title="Link to this heading">¶</a></h2>
 <p>Before submitting changes, you can run the test suite to ensure everything is functioning correctly:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span class="go">pytest</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>pytest
 </code></pre></div>
 </div>
 <p>If you’re adding new features or fixing any bugs, it’s a good idea to include new tests that cover your changes.</p>
 <p>Additionally, you can build the documentation locally to check for any errors and see how it looks before pushing changes:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><code><span class="go">cd docs</span>
-<span class="go">make html</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>docs
+make<span class="w"> </span>html
 </code></pre></div>
 </div>
 <p>This process generates HTML documentation in <cite>docs/_build/html</cite>, which you can open in a web browser to review.</p>
