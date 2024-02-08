@@ -71,6 +71,7 @@ def get_options(kwargs) -> dict:
         "show_flow": True,
         "pauliop": None,
         "style": "default",
+        "position": None,
     }
 
     # Update default options with any provided by the user
@@ -99,6 +100,7 @@ def draw(
     pauliop = options.get("pauliop", None)
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
+    position = options.pop("position")
 
     if pauliop is not None:
         if len(pauliop) != 1:
@@ -131,7 +133,7 @@ def draw(
                 fix_wires.append(tuple(wire))
 
     if isinstance(state, GraphState):
-        nx.draw(state, ax=ax, **options)
+        nx.draw(state, position, ax=ax, **options)
 
     elif isinstance(state, MBQCircuit):
         node_color = options.pop("node_color")

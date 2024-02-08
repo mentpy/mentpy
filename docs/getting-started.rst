@@ -8,7 +8,7 @@ Install using ``pip``
 The :obj:`mentpy` library requires Python 3.9 or above. It can be installed from 
 `PyPI <https://pypi.org/project/mentpy/>`_ using ``pip``.
 
-.. code-block:: console
+.. code-block:: bash
 
    python3 -m pip install mentpy
 
@@ -17,7 +17,7 @@ Install from Source
 
 To install from source, you can ``git clone`` the repository and then use ``pip`` to handle the installation. This method will also ensure that all necessary dependencies as specified in ``pyproject.toml`` are installed.
 
-.. code-block:: console
+.. code-block:: bash
 
    git clone https://github.com/mentpy/mentpy
    cd mentpy
@@ -35,7 +35,7 @@ Development Installation
 
 Developers who wish to contribute to :obj:`mentpy` or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.
 
-.. code-block:: console
+.. code-block:: bash
 
    git clone https://github.com/mentpy/mentpy
    cd mentpy
@@ -49,7 +49,7 @@ Testing and Development
 
 Before submitting changes, you can run the test suite to ensure everything is functioning correctly:
 
-.. code-block:: console
+.. code-block:: bash
 
    pytest
 
@@ -57,7 +57,7 @@ If you're adding new features or fixing any bugs, it's a good idea to include ne
 
 Additionally, you can build the documentation locally to check for any errors and see how it looks before pushing changes:
 
-.. code-block:: console
+.. code-block:: bash
 
    cd docs
    make html

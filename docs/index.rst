@@ -64,7 +64,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
 
          @software{Mantilla_Mentpy_2023,
             title = {{MentPy: A python package for simulating and training QML models in the MBQC framework.}},
-            author = {Mantilla, Luis},
+            author = {Mantilla Calderón, Luis},
             year = {2023},
             url = {https://github.com/mentpy/mentpy},
          }
@@ -73,20 +73,20 @@ If you find MentPy useful in your research, please consider citing us 🙂
 
       .. code-block:: text
 
-         L. Mantilla, MentPy: A python package for simulating and training QML models in the MBQC framework, (2023). https://github.com/mentpy/mentpy
+         L. Mantilla Calderón, MentPy: A python package for simulating and training QML models in the MBQC framework, (2023). https://github.com/mentpy/mentpy
      
 
    .. md-tab-item:: APA
 
       .. code-block:: text
 
-         Mantilla, L. (2023). MentPy: A python package for simulating and training QML models in the MBQC framework. Retrieved from https://github.com/mentpy/mentpy
+         Mantilla Calderón, L. (2023). MentPy: A python package for simulating and training QML models in the MBQC framework. Retrieved from https://github.com/mentpy/mentpy
    
    .. md-tab-item:: MLA
 
       .. code-block:: text
 
-         Mantilla, Luis. MentPy: A python package for simulating and training QML models in the MBQC framework. 2023. Web. https://github.com/mentpy/mentpy
+         Mantilla Calderón, Luis. MentPy: A python package for simulating and training QML models in the MBQC framework. 2023. Web. https://github.com/mentpy/mentpy
 
 
 
