@@ -4,6 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module to store common linear algebra functions."""
 import numpy as np
+import galois
 
 
 __all__ = ["solve"]
@@ -13,6 +14,10 @@ def solve(A, b):
     """
     Solve a linear system of equations Ax = b for x.
     """
+    GF = galois.GF(2)
+    A = GF(A.astype(int))
+    b = GF(b.astype(int))
+
     rows, cols = A.shape
     augmented_matrix = np.hstack((A, b.reshape(-1, 1)))
 
@@ -47,4 +52,4 @@ def solve(A, b):
             augmented_matrix[row, col + 1 : cols] * x[col + 1 : cols]
         )
 
-    return x
+    return GF(x)

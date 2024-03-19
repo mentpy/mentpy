@@ -215,78 +215,174 @@ def gflowaux(graph: GraphState, gamma, inputs, outputs, k, g, l) -> object:
         return gflowaux(graph, gamma, inputs, outputs | C, k + 1, g, l)
 
 
-## This section implements PauliFlow. Currently not working.
+## This section implements PauliFlow. It runs in time O(n^5)
 
 
-def find_pflow(
-    graph: GraphState, input_nodes, output_nodes, basis="XY", testing=False
-) -> object:
-    """Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf"""
+def find_pflow(V, Γ, I, O, λ, graph):
+    """
+    Find a p-flow in a given graph. Assumes that graph has nodes labeled with
+    numbers from 0 to n-1, where n is the number of nodes in the graph.
 
-    if not testing:
-        raise NotImplementedError("This algorithm is not yet implemented.")
+    Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf
+    """
 
-    if type(basis) == str:
-        basis = {v: basis for v in graph.nodes()}
-    elif type(basis) != dict:
-        raise TypeError("Basis must be a string or a dictionary.")
-
-    lx = set()
-    ly = set()
-    lz = set()
+    # LX, LY, LZ track vertices based on their labels X, Y, and Z.
+    LX, LY, LZ = set(), set(), set()
     d = {}
-    p = {}
 
-    gamma = nx.adjacency_matrix(graph).toarray()
-
-    for v in graph.nodes():
-        if v in output_nodes:
+    # Assign initial depths and categorize vertices by their labels.
+    for v in V:
+        if v in O:
             d[v] = 0
-        if basis[v] == "X":
-            lx = lx.add(v)
-        elif basis[v] == "Y":
-            ly = ly.add(v)
-        elif basis[v] == "Z":
-            lz = lz.add(v)
+        if λ[v] == "X":
+            LX.add(v)
+        elif λ[v] == "Y":
+            LY.add(v)
+        elif λ[v] == "Z":
+            LZ.add(v)
 
-    return pflowaux(graph, gamma, input_nodes, basis, set(), output_nodes, 0, d, p)
+    # The initial call to the auxiliary function with starting parameters.
+    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, set(), O, d, 0, graph)
 
 
-def pflowaux(graph: GraphState, gamma, inputs, plane, A, B, k, d, p) -> object:
-    """Aux function for pflow"""
-    C = set()
-    mapping = graph.index_mapping()
-    for u in set(graph.nodes()) - set(B):
-        submatrix1, submatrix2, submatrix3 = None, None, None
-        solution1, solution2, solution3 = None, None, None
-        if plane[u] in ["XY", "X", "Y"]:
-            submatrix1 = 0  # TODO
-            solution1 = 0  # TODO
-        if plane[u] in ["XZ", "X", "Z"]:
-            submatrix2 = 0  # TODO
-            solution2 = 0  # TODO
-        if plane[u] in ["YZ", "Y", "Z"]:
-            submatrix3 = 0  # TODO
-            solution3 = 0  # TODO
+def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
+    solution = None
+    KAu = get_KAu(Γ, A, u, V, I, B, λ)
+    PAu = get_PAu(Γ, A, u, V, I, B, λ)
+    YAu = get_YAu(Γ, A, u, V, I, B, λ)
 
-        if (
-            (solution1 is not None)
-            or (solution2 is not None)
-            or (solution3 is not None)
-        ):
+    solution_executed = False
+
+    if len(KAu) != 0 and len(PAu) != 0:
+        MAu1 = get_MAu1(Γ, KAu, PAu)
+        SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
+
+        try:
+            solution1 = linalg2.solve(MAu1.T, SLambda1).reshape(-1, 1)
+            solution_executed = True
+        except Exception as e:
+            print("Exception when solving with PAu:", e)
+
+    if len(KAu) != 0 and len(YAu) != 0:
+        MAu2 = get_MAu2(Γ, KAu, YAu)
+        SLambda2 = get_SLambda2(plane, u, V, I, B, λ, graph, A, KAu, YAu)
+        try:
+            solution2 = linalg2.solve(MAu2.T, SLambda2).reshape(-1, 1)
+            solution_executed = True
+        except Exception as e:
+            print("Exception when solving with YAu:", e)
+
+    if solution_executed:
+        solution = np.zeros((len(V), 1), dtype=int)
+
+        if "solution1" in locals():
+            solution[KAu] = solution1
+
+        if "solution2" in locals():
+            for idx, val in np.ndenumerate(solution2):
+                i = YAu[idx[0]]
+                solution[i] = max(solution[i], val)
+
+    return solution
+
+
+def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph):
+    # Process each vertex at the current depth.
+    C, p = set(), {}
+    for u in set(V) - B:
+        solution = None
+
+        if λ[u] in {"XY", "X", "Y"}:
+            solution = solve_constraints(
+                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XY"
+            )
+
+        if λ[u] in {"XZ", "X", "Z"} and solution is None:
+            solution = solve_constraints(
+                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XZ"
+            )
+
+        if λ[u] in {"YZ", "Y", "Z"} and solution is None:
+            solution = solve_constraints(
+                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "YZ"
+            )
+
+        if solution is not None:
             C.add(u)
-            sol = solution1 or solution2 or solution3
-            p[u] = sol
+            p[u] = solution
             d[u] = k
 
-    if len(C) == 0 and k > 0:
-        if set(B) == set(graph.nodes()):
+    if C == set() and k > 0:
+        if set(B) == set(V):
             return True, p, d
         else:
-            return False, set(), set()
-    else:
-        B = B.union(C)
-        return pflowaux(graph, gamma, inputs, plane, B, B, k + 1, d, p)
+            return False, {}, {}
+
+    # Update B and recursively process the next depth.
+    B |= C
+    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, B, B, d, k + 1, graph)
+
+
+def get_MAu1(Gamma, KAu, PAu):
+    return Gamma[np.ix_(KAu, PAu)]
+
+
+def get_MAu2(Gamma, KAu, YAu):
+    return (Gamma + np.eye(Gamma.shape[0]))[np.ix_(KAu, YAu)]
+
+
+def get_SLambda1(plane, u, V, I, O, planes, graph, Gamma, A, KAu, PAu):
+    sl = set()
+    if plane == "XY":
+        sl = {u}
+    elif plane == "XZ":
+        neighbors = set(graph.neighbors(u))
+        PAu = get_PAu(Gamma, A, u, V, I, O, planes)
+        sl = (neighbors & PAu) | {u}
+    elif plane == "YZ":
+        neighbors = set(graph.neighbors(u))
+        PAu = get_PAu(Gamma, A, u, V, I, O, planes)
+        sl = neighbors & PAu
+
+    vec_sl = np.zeros((len(V), 1), dtype=int)
+    vec_sl[list(sl)] = 1
+    vec_sl = vec_sl[PAu]
+    return vec_sl
+
+
+def get_SLambda2(plane, u, V, I, O, planes, graph, Gamma, A, KAu, YAu):
+    sl = set()
+    if plane == "XY":
+        sl = set()
+    elif plane in {"XZ", "YZ"}:
+        neighbors = set(graph.neighbors(u))
+        YAu = get_YAu(Gamma, A, u, V, I, O, planes)
+        sl = neighbors & YAu
+
+    vec_sl = np.zeros((len(V), 1), dtype=int)
+
+    vec_sl[list(sl)] = 1
+    vec_sl = vec_sl[YAu]
+    return vec_sl
+
+
+def get_KAu(Gamma, A, u, V, I, O, planes):
+    p = A | LambdaPu("X", u, V, O, planes) | LambdaPu("Y", u, V, O, planes)
+    return list(p & (V - I))
+
+
+def get_PAu(Gamma, A, u, V, I, O, planes):
+    p = A | LambdaPu("Y", u, V, O, planes) | LambdaPu("Z", u, V, O, planes)
+    return list(V - p)
+
+
+def get_YAu(Gamma, A, u, V, I, O, planes):
+    p = LambdaPu("Y", u, V, O, planes)
+    return list(p - A)
+
+
+def LambdaPu(plane, u, V, O, planes):
+    return {v for v in V - O if v != u and planes[v] == plane}
 
 
 ## Finds flow of a graph state. This is deprecated and will be removed in the future.
