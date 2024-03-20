@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from mentpy.operators import Ment, ControlMent, PauliOp
 from mentpy.mbqc.states.graphstate import GraphState
-from mentpy.mbqc.flow import find_cflow, find_flow, check_if_flow, Flow
+from mentpy.mbqc.flow import find_cflow, check_if_cflow, Flow
 
 __all__ = ["MBQCircuit", "merge", "hstack", "vstack"]
 
@@ -98,10 +98,15 @@ class MBQCircuit:
             flow, partial_order, depth, layers = find_cflow(
                 graph, input_nodes, output_nodes
             )
-            self.gflow = Flow(graph, input_nodes, output_nodes)
+            self.gflow = Flow(
+                graph,
+                input_nodes,
+                output_nodes,
+                {v: m.plane for v, m in self.measurements.items() if m is not None},
+            )
 
         elif (flow is not None) and (partial_order is not None):
-            check_if_flow(graph, input_nodes, output_nodes, flow, partial_order)
+            check_if_cflow(graph, input_nodes, output_nodes, flow, partial_order)
 
         self._flow = flow
         self._partial_order = partial_order

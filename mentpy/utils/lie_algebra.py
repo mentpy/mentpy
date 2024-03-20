@@ -89,6 +89,36 @@ def calculate_gens_lie_algebra(state: MBQCircuit):
     return remove_repeated_ops(output_ops)
 
 
+def _generate_products(liealg_gens, start=0, current_product=None):
+    """
+    Generate all possible products of the generators of a Lie algebra.
+    """
+    if current_product is None:
+        current_product = PauliOp("I" * liealg_gens[0].number_of_qubits)
+
+    if current_product != 1:
+        yield current_product
+
+    for i in range(start, len(liealg_gens)):
+        # Generate the next product and proceed recursively
+        next_product = current_product * liealg_gens[i]
+        yield from _generate_products(liealg_gens, i + 1, next_product)
+
+
+def calculate_possible_rotations(state: MBQCircuit):
+    """Calculates the possible rotations of a given state
+
+    Args:
+        state (MBQCircuit): The state for which to calculate the possible rotations
+
+    Returns:
+        PauliOp: The possible rotations achievable by the state
+    """
+    liealg_gens = calculate_gens_lie_algebra(state)
+    possible_rotations = PauliOp(list(_generate_products(liealg_gens)))
+    return possible_rotations
+
+
 # def lie_algebra_completion_old(generators: PauliOp, max_iter: int = 1000):
 #     """Completes a given set of Pauli operators to a basis of the Lie algebra"""
 #     lieAlg = copy.deepcopy(generators)

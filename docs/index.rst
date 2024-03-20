@@ -47,9 +47,8 @@ If you would like to contribute to this project, please feel free to open an iss
 Acknowledgements
 ----------------
 
-This library was first developed by Luis Mantilla for his master's thesis
-at the University of British Columbia. Luis would like to thank his M.Sc. 
-supervisors, Dr. Dmytro Bondarenko, Dr. Polina Feldmann, and Dr. Robert Raussendorf.
+Luis would like to thank his M.Sc. supervisors, Dr. Dmytro Bondarenko, Dr. Polina Feldmann, and Dr. Robert Raussendorf 
+for their guidance during the development of this library.
 
 
 Citation
