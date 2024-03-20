@@ -10,13 +10,13 @@ import galois
 __all__ = ["solve"]
 
 
-def solve(A, b):
+def solve(A, b, check_solution=False):
     """
     Solve a linear system of equations Ax = b for x.
     """
     GF = galois.GF(2)
-    A = GF(A.astype(int))
-    b = GF(b.astype(int))
+    A = GF(A.astype(np.uint8))
+    b = GF(b.astype(np.uint8))
 
     rows, cols = A.shape
     augmented_matrix = np.hstack((A, b.reshape(-1, 1)))
@@ -52,4 +52,10 @@ def solve(A, b):
             augmented_matrix[row, col + 1 : cols] * x[col + 1 : cols]
         )
 
-    return GF(x)
+    x = GF(x)
+    if check_solution:
+        x = x.reshape(-1, 1)
+        if not np.linalg.norm(A @ x - b) < 1e-9:
+            raise ValueError("Solution not found")
+
+    return x

@@ -258,19 +258,23 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
         SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
 
         try:
-            solution1 = linalg2.solve(MAu1.T, SLambda1).reshape(-1, 1)
+            solution1 = linalg2.solve(MAu1.T, SLambda1, check_solution=True).reshape(
+                -1, 1
+            )
             solution_executed = True
         except Exception as e:
-            print("Exception when solving with PAu:", e)
+            pass
 
     if len(KAu) != 0 and len(YAu) != 0:
         MAu2 = get_MAu2(Γ, KAu, YAu)
         SLambda2 = get_SLambda2(plane, u, V, I, B, λ, graph, A, KAu, YAu)
         try:
-            solution2 = linalg2.solve(MAu2.T, SLambda2).reshape(-1, 1)
+            solution2 = linalg2.solve(MAu2.T, SLambda2, check_solution=True).reshape(
+                -1, 1
+            )
             solution_executed = True
         except Exception as e:
-            print("Exception when solving with YAu:", e)
+            pass
 
     if solution_executed:
         solution = np.zeros((len(V), 1), dtype=int)
@@ -319,8 +323,8 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph):
             return False, {}, {}
 
     # Update B and recursively process the next depth.
-    B |= C
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, B, B, d, k + 1, graph)
+    Bprime = B | C
+    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph)
 
 
 def get_MAu1(Gamma, KAu, PAu):
