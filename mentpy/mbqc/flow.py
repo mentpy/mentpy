@@ -74,10 +74,11 @@ class Flow:
             )
 
         if flow_function is None and self.planes is not None:
-            flow_function, depth, layers = find_pflow(
+            condition, flow_function, layers = find_pflow(
                 self.graph, self.input_nodes, self.output_nodes, self.planes
             )
-            partial_order = None
+            partial_order = lambda u, v: layers[u] > layers[v]
+            depth = max(layers.values())
 
         self.func = flow_function
         self.partial_order = partial_order
