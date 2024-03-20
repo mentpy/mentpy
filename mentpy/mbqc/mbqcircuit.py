@@ -32,6 +32,8 @@ class MBQCircuit:
         The output nodes of the MBQC circuit.
     measurements: dict
         The measurements of the MBQC circuit. The keys are the nodes and the values are the measurements.
+    default_measurement: mp.Ment
+        The default measurement of the MBQC circuit if no `measurements` are given.
 
     Examples
     --------
@@ -60,8 +62,14 @@ class MBQCircuit:
         output_nodes: List[int] = [],
         measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
+        relabel_indices: bool = True,
     ) -> None:
         """Initializes a graph state"""
+
+        if relabel_indices:
+            graph, input_nodes, output_nodes, measurements = self._relabel_graph(
+                graph, input_nodes, output_nodes, measurements
+            )
 
         self._graph = graph
         self._setup_nodes(input_nodes, output_nodes)
@@ -91,6 +99,34 @@ class MBQCircuit:
 
         self._quantum_output_nodes = quantum_output_nodes
         self._measurement_order = None
+
+    def _relabel_graph(
+        self,
+        graph: nx.Graph,
+        input_nodes: List[int],
+        output_nodes: List[int],
+        measurements: Optional[Dict[int, "Ment"]],
+    ) -> Tuple[nx.Graph, List[int], List[int], Optional[Dict[int, "Ment"]]]:
+        """Relabels the graph nodes and updates related node indices.
+
+        Args:
+            graph (nx.Graph): The original graph.
+            input_nodes (List[int]): Original input node indices.
+            output_nodes (List[int]): Original output node indices.
+            measurements (Optional[Dict[int, 'Ment']]): Original node measurements.
+
+        Returns:
+            tuple: A tuple containing the relabeled graph, input nodes, output nodes, and measurements.
+        """
+        N = graph.number_of_nodes()
+        mapping = dict(zip(sorted(graph.nodes), range(N)))
+        graph = nx.relabel_nodes(graph, mapping)
+        input_nodes = [mapping[i] for i in input_nodes]
+        output_nodes = [mapping[i] for i in output_nodes]
+        if measurements is not None:
+            measurements = {mapping[k]: v for k, v in measurements.items()}
+
+        return graph, input_nodes, output_nodes, measurements
 
     def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
         """Setup the input and output nodes of the MBQCircuit"""
