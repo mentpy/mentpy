@@ -60,66 +60,37 @@ class MBQCircuit:
         output_nodes: List[int] = [],
         measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
-        flow: Optional[Callable] = None,
-        partial_order: Optional[callable] = None,
-        measurement_order: Optional[List[int]] = None,
-        relabel_indices: bool = True,
     ) -> None:
         """Initializes a graph state"""
-        # TODO: Remove measurement_order and gflow from the constructor
-
-        if relabel_indices:
-            N = graph.number_of_nodes()
-            mapping = dict(zip(sorted(graph.nodes), range(N)))
-            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
-            graph = nx.relabel_nodes(graph, mapping)
-            input_nodes = [mapping[i] for i in input_nodes]
-            output_nodes = [mapping[i] for i in output_nodes]
-            if flow is not None:
-                flow = lambda x: mapping[flow(inv_mapping[x])]
-            if partial_order is not None:
-                partial_order = lambda x, y: partial_order(
-                    inv_mapping[x], inv_mapping[y]
-                )
-            if measurement_order is not None:
-                measurement_order = [mapping[i] for i in measurement_order]
-            if measurements is not None:
-                measurements = {mapping[k]: v for k, v in measurements.items()}
 
         self._graph = graph
-
         self._setup_nodes(input_nodes, output_nodes)
         self._setup_measurements(measurements, default_measurement)
-
-        self._flow, self._partial_order = None, None
         self._update_attributes()
 
-        if (flow is None) or (partial_order is None):
-            flow, partial_order, depth, layers = find_cflow(
-                graph, input_nodes, output_nodes
+        # create flow
+        self.gflow = Flow(
+            graph,
+            input_nodes,
+            output_nodes,
+            {v: m.plane for v, m in self.measurements.items() if m is not None},
+        )
+        self.gflow.initialize_flow()
+
+        # Temporary fix for controlled nodes
+        if self.partial_order is not None and self.controlled_nodes != []:
+            old_partial_order = self._partial_order
+            self._partial_order = _create_new_partial_order(
+                self.controlled_nodes, self.measurements, old_partial_order
             )
-            self.gflow = Flow(
-                graph,
-                input_nodes,
-                output_nodes,
-                {v: m.plane for v, m in self.measurements.items() if m is not None},
-            )
 
-        elif (flow is not None) and (partial_order is not None):
-            check_if_cflow(graph, input_nodes, output_nodes, flow, partial_order)
-
-        self._flow = flow
-        self._partial_order = partial_order
-
-        if measurement_order is None and flow is not None:
-            measurement_order = self.calculate_order()
-
-        # in case we measure an output node
+        # In case we measure an output node
         quantum_output_nodes = [
             node for node, i in self.measurements.items() if i is None
         ]
+
         self._quantum_output_nodes = quantum_output_nodes
-        self._measurement_order = measurement_order
+        self._measurement_order = None
 
     def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
         """Setup the input and output nodes of the MBQCircuit"""
@@ -286,12 +257,12 @@ class MBQCircuit:
     @property
     def flow(self) -> Callable:
         r"""Return the flow function of the MBQC circuit."""
-        return self._flow
+        return self.gflow.func
 
     @property
     def partial_order(self) -> Callable:
         r"""Return the partial order function of the MBQC circuit."""
-        return self._partial_order
+        return self.gflow.partial_order
 
     @property
     def depth(self) -> int:
@@ -301,6 +272,11 @@ class MBQCircuit:
     @property
     def measurement_order(self) -> List[int]:
         r"""Return the measurement order of the MBQC circuit."""
+        if self.gflow.flow_initialized is False:
+            self.gflow.initialize_flow()
+        if self._measurement_order is None:
+            self._measurement_order = self.calculate_order()
+
         return self._measurement_order
 
     @measurement_order.setter
@@ -337,6 +313,7 @@ class MBQCircuit:
         controlled_nodes = []
         quantum_outputs = []
         classical_outputs = []
+
         for nodei, menti in self._measurements.items():
             if menti is not None:
                 if isinstance(menti, ControlMent):
@@ -372,12 +349,6 @@ class MBQCircuit:
         #     self._partial_order = partial_order
         #     self._depth = depth
 
-        if self._partial_order is not None:
-            old_partial_order = self._partial_order
-            self._partial_order = _create_new_partial_order(
-                self.controlled_nodes, self.measurements, old_partial_order
-            )
-
     def _update_attributes_key(self, key) -> None:
         menti = self._measurements[key]
         if menti is not None:
@@ -398,7 +369,7 @@ class MBQCircuit:
 
         for indi, i in enumerate(list(self.graph.nodes())):
             for indj, j in enumerate(list(self.graph.nodes())):
-                if self.partial_order(i, j):
+                if self.gflow.partial_order(i, j):
                     mat[indi, indj] = 1
 
         sum_mat = np.sum(mat, axis=1)

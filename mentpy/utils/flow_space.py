@@ -88,6 +88,7 @@ class FlowSpace:
             mbqc_graph = MBQCircuit(
                 graph, input_nodes=self.input_nodes, output_nodes=self.output_nodes
             )
+            mbqc_graph.gflow.initialize_flow()
             layers = mbqc_graph.gflow.layers
 
             if layers is not None:
