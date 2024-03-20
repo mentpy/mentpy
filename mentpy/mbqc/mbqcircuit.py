@@ -77,13 +77,13 @@ class MBQCircuit:
         self._update_attributes()
 
         # create flow
-        self.gflow = Flow(
+        self._flow = Flow(
             graph,
             input_nodes,
             output_nodes,
             {v: m.plane for v, m in self.measurements.items() if m is not None},
         )
-        self.gflow.initialize_flow()
+        self._flow.initialize_flow()
 
         # Temporary fix for controlled nodes
         if self.partial_order is not None and self.controlled_nodes != []:
@@ -188,12 +188,12 @@ class MBQCircuit:
         return len(self.graph)
 
     def __getattr__(self, name):
-        # If the attribute is not found in the MBQCircuit, try to find it in the graph or gflow
+        # If the attribute is not found in the MBQCircuit, try to find it in the graph or flow
         try:
             return getattr(self.graph, name)
         except AttributeError:
             try:
-                return getattr(self.gflow, name)
+                return getattr(self._flow, name)
             except AttributeError:
                 raise AttributeError(f"Attribute {name} not found in MBQCircuit.")
 
@@ -290,25 +290,25 @@ class MBQCircuit:
         return self._controlled_nodes
 
     @property
-    def flow(self) -> Callable:
+    def flow(self) -> Flow:
         r"""Return the flow function of the MBQC circuit."""
-        return self.gflow.func
+        return self._flow
 
     @property
     def partial_order(self) -> Callable:
         r"""Return the partial order function of the MBQC circuit."""
-        return self.gflow.partial_order
+        return self._flow.partial_order
 
     @property
     def depth(self) -> int:
         r"""Return the depth of the MBQC circuit."""
-        return self.gflow.depth
+        return self._flow.depth
 
     @property
     def measurement_order(self) -> List[int]:
         r"""Return the measurement order of the MBQC circuit."""
-        if self.gflow.flow_initialized is False:
-            self.gflow.initialize_flow()
+        if self._flow.flow_initialized is False:
+            self._flow.initialize_flow()
         if self._measurement_order is None:
             self._measurement_order = self.calculate_order()
 
@@ -333,15 +333,15 @@ class MBQCircuit:
 
     def ordered_layers(self, train_indices=False) -> List[List[int]]:
         r"""Returns the layers of the MBQC circuit."""
-        if self.gflow.func is None:
+        if self._flow.func is None:
             return None
         if train_indices:
             # return the nested layers in Flow.layers but with the trainable_nodes indices
             return [
                 [self.trainable_nodes.index(node) for node in layer]
-                for layer in self.gflow.layers[:-1]
+                for layer in self._flow.layers[:-1]
             ]
-        return self.gflow.layers
+        return self._flow.layers
 
     def _update_attributes(self) -> None:
         trainable_nodes = []
@@ -404,7 +404,7 @@ class MBQCircuit:
 
         for indi, i in enumerate(list(self.graph.nodes())):
             for indj, j in enumerate(list(self.graph.nodes())):
-                if self.gflow.partial_order(i, j):
+                if self._flow.partial_order(i, j):
                     mat[indi, indj] = 1
 
         sum_mat = np.sum(mat, axis=1)
@@ -450,8 +450,6 @@ class MBQCircuit:
                 new_graph,
                 self.input_nodes,
                 self.output_nodes,
-                self.flow,
-                self.partial_order,
             )
         except Exception as e:
             raise ValueError(f"Cannot add edges {edges}.\n" + str(e))

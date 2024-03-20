@@ -26,9 +26,10 @@ class Flow:
         self.output_nodes = output_nodes
         self.planes = planes
         self.flow_initialized = False
+        self.name = "Flow"
 
     def __repr__(self):
-        return f"Flow(n={self.graph.number_of_nodes()})"
+        return f"{self.name}(n={self.graph.number_of_nodes()})"
 
     def __call__(self, node):
         self.initialize_flow()
@@ -61,11 +62,13 @@ class Flow:
         flow_function, partial_order, depth, layers = find_cflow(
             self.graph, self.input_nodes, self.output_nodes
         )
+        name = "cFlow"
 
         if flow_function is None:
             flow_function, partial_order, depth, layers = find_gflow(
                 self.graph, self.input_nodes, self.output_nodes
             )
+            name = "gFlow"
 
         if flow_function is None and self.planes is not None:
             condition, flow_function, layers = find_pflow(
@@ -73,15 +76,18 @@ class Flow:
             )
             partial_order = lambda u, v: layers[u] > layers[v]
             depth = None if len(layers) == 0 else max(layers.values())
+            name = "pFlow"
 
         if flow_function is None:
             warnings.warn(
                 "No flow found. The flow function will return None for all nodes."
             )
+            name = "No Flow "
 
         self.func = flow_function
         self.partial_order = partial_order
         self.depth = depth
+        self.name = name
         self._initialize_layers(layers)
 
     def adapt_angles(self, angles, outcomes):

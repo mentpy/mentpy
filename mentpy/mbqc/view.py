@@ -92,7 +92,6 @@ def draw(
     -----
     states
     """
-
     options = get_options(kwargs)
 
     show_controls = options.pop("show_controls")
@@ -120,6 +119,8 @@ def draw(
         ax.patch.set_alpha(0)
 
     if fix_wires is None and isinstance(state, MBQCircuit):
+        if state.flow.name.lower() != "cflow":
+            raise ValueError("Only cflow is supported at the moment")
         if state.flow is not None:
             fix_wires = []
             for inp in state.input_nodes:
