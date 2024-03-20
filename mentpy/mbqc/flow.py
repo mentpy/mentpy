@@ -3,42 +3,56 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """This is the Flow module. It deals with the flow of a given graph state"""
-from typing import Any, List
+from typing import List
 import warnings
 
 import math
 import numpy as np
 import networkx as nx
 
-from mentpy.mbqc import GraphState
 from mentpy.calculator import linalg2
-
-import galois
-
-
-GF = galois.GF(2)
 
 
 class Flow:
     """This class deals with the flow of a given graph state"""
 
-    def __init__(self, graph: GraphState, input_nodes, output_nodes):
+    def __init__(self, graph, input_nodes, output_nodes, planes=None):
+        """
+        Initializes the flow of a given graph state.
+        Assumes that graph has nodes labeled with numbers from 0 to n-1, where n is the number of nodes in the graph.
+        """
+
+        if len(input_nodes) != len(output_nodes):
+            raise ValueError(
+                f"Cannot find a flow. Input ({len(input_nodes)}) and output ({len(output_nodes)}) nodes have different size."
+            )
+
         self.graph = graph
         self.input_nodes = input_nodes
         self.output_nodes = output_nodes
-        flow_function, partial_order, depth, layers = self.find_flow()
-        self.func = flow_function
-        self.partial_order = partial_order
-        self.depth = depth
-        self.layers_dict = layers
-        if layers is not None:
-            ord_layers = [
+        self.planes = planes
+        self.flow_initialized = False
+
+    def __repr__(self):
+        return f"Flow(n={self.graph.number_of_nodes()})"
+
+    def __call__(self, node):
+        self.initialize_flow()
+        return self.func(node) if self.func else None
+
+    def initialize_flow(self):
+        """Lazily initializes the flow properties when needed."""
+        if not self.flow_initialized:
+            self._find_flow()
+            self.flow_initialized = True
+
+    def _initialize_layers(self, layers):
+        """Initializes layers and measurement order based on the provided layers dict."""
+        if layers:
+            self.layers = [
                 [n for n, l in layers.items() if l == j]
                 for j in range(max(layers.values()) + 1)
-            ]
-            self.layers = ord_layers[::-1]
-
-            # This can be optimized!!
+            ][::-1]
             order = [item for sublist in self.layers for item in sublist]
             for i in self.input_nodes[::-1]:
                 order.remove(i)
@@ -48,23 +62,27 @@ class Flow:
             self.layers = None
             self.measurement_order = None
 
-    def __repr__(self):
-        return f"Flow(n={self.graph.number_of_nodes()})"
+    def _find_flow(self):
+        """Attempts to find various types of flow, prioritizing causal flow, then generalized, then pflow."""
+        flow_function, partial_order, depth, layers = find_cflow(
+            self.graph, self.input_nodes, self.output_nodes
+        )
 
-    def __call__(self, node):
-        return self.func(node)
+        if flow_function is None:
+            flow_function, partial_order, depth, layers = find_gflow(
+                self.graph, self.input_nodes, self.output_nodes
+            )
 
-    def find_flow(self):
-        # include gflow and pflow
-        flow_stuff = find_cflow(self.graph, self.input_nodes, self.output_nodes)
-        if flow_stuff[0] is None:
-            flow_stuff = find_gflow(self.graph, self.input_nodes, self.output_nodes)
-            if flow_stuff[0] is None:
-                # TODO: implement pflow
-                # flow_stuff = find_pflow(self.graph, self.input_nodes, self.output_nodes)
-                pass
+        if flow_function is None and self.planes is not None:
+            flow_function, layers, depth = find_pflow(
+                self.graph, self.input_nodes, self.output_nodes, self.planes
+            )
+            partial_order = None
 
-        return flow_stuff
+        self.func = flow_function
+        self.partial_order = partial_order
+        self.depth = depth
+        self._initialize_layers(layers)
 
     def adapt_angles(self, angles, outcomes):
         raise NotImplementedError
@@ -73,17 +91,11 @@ class Flow:
         raise NotImplementedError
 
 
-### This section implements causal flow -- Runs in time O(min(m, kn))
+# Implementation of Causal Flow. Time complexity: O(min(m, kn))
 
 
-def find_cflow(graph: GraphState, input_nodes, output_nodes) -> object:
-    """Finds the causal flow of a ``MBQCGraph`` if it exists.
-    Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
-    """
-    if len(input_nodes) != len(output_nodes):
-        raise ValueError(
-            f"Cannot find flow or gflow. Input ({len(input_nodes)}) and output ({len(output_nodes)}) nodes have different size."
-        )
+def find_cflow(graph, input_nodes, output_nodes) -> object:
+    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf."""
 
     l = {}
     g = {}
@@ -111,7 +123,7 @@ def find_cflow(graph: GraphState, input_nodes, output_nodes) -> object:
     return lambda x: flow[x], lambda u, v: ln[u] > ln[v], max(flow.values()), ln
 
 
-def causal_flow_aux(graph: GraphState, inputs, outputs, C, past, k, g, l) -> object:
+def causal_flow_aux(graph, inputs, outputs, C, past, k, g, l) -> object:
     """Aux function for causal_flow"""
     V = set(graph.nodes())
     C_prime = set()
@@ -149,10 +161,33 @@ def causal_flow_aux(graph: GraphState, inputs, outputs, C, past, k, g, l) -> obj
         )
 
 
-### This section implements generalized flow -- Runs in time O(n^4)
+def check_if_cflow(
+    graph, input_nodes: List, output_nodes: List, flow, partial_order
+) -> bool:
+    """Checks if flow satisfies conditions on state."""
+    conds = True
+    for i in [v for v in graph.nodes() if v not in output_nodes]:
+        nfi = list(graph.neighbors(flow(i)))
+        c1 = i in nfi
+        c2 = partial_order(i, flow(i))
+        c3 = math.prod([partial_order(i, k) for k in set(nfi) - {i}])
+        conds = conds * c1 * c2 * c3
+        if not c1:
+            print(f"Condition 1 failed for node {i}. {i} not in {nfi}")
+        if not c2:
+            print(f"Condition 2 failed for node {i}. {i} ≮ {flow(i)}")
+        if not c3:
+            print(f"Condition 3 failed for node {i}.")
+            for k in set(nfi) - {i}:
+                if not partial_order(i, k):
+                    print(f"{i} ≮ {k}")
+    return conds
 
 
-def find_gflow(graph: GraphState, input_nodes, output_nodes) -> object:
+# Implementation of gFlow. Time complexity: O(n^4)
+
+
+def find_gflow(graph, input_nodes, output_nodes) -> object:
     """Finds the generalized flow of a ``MBQCGraph`` if it exists.
     Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
     """
@@ -175,35 +210,32 @@ def find_gflow(graph: GraphState, input_nodes, output_nodes) -> object:
     )
 
     if result == False:
-        warnings.warn("No gflow exists for this graph.", UserWarning, stacklevel=2)
+        warnings.warn("No gFlow exists for this graph.", UserWarning, stacklevel=2)
         return None, None, None, None
 
     return lambda x: gn[x], lambda u, v: ln[u] > ln[v], max(ln.values()), ln
 
 
-def gflowaux(graph: GraphState, gamma, inputs, outputs, k, g, l) -> object:
-    """Aux function for gflow"""
+def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
+    """Aux function for gFlow"""
 
-    mapping = graph.index_mapping()
     V = set(graph.nodes())
     C = set()
     vmol = list(V - outputs)
     for u in vmol:
         submatrix = np.zeros((len(vmol), len(outputs - inputs)), dtype=int)
-        for i, v in enumerate(vmol):
-            for j, w in enumerate(outputs - inputs):
-                submatrix[i, j] = gamma[mapping[v], mapping[w]]
+        submatrix = gamma[np.ix_(vmol, list(outputs - inputs))]
 
         b = np.zeros((len(vmol), 1), dtype=int)
         b[vmol.index(u)] = 1
-        submatrix = GF(submatrix)
-        b = GF(b)
-        solution = GF(linalg2.solve(submatrix, b)).reshape(-1, 1)
 
-        if np.linalg.norm(submatrix @ solution - b) <= 1e-5:
+        try:
+            solution = linalg2.solve(submatrix, b, check_solution=True).reshape(-1, 1)
             l[u] = k
             C.add(u)
             g[u] = solution
+        except Exception as e:
+            pass
 
     if len(C) == 0:
         if set(outputs) == V:
@@ -215,34 +247,31 @@ def gflowaux(graph: GraphState, gamma, inputs, outputs, k, g, l) -> object:
         return gflowaux(graph, gamma, inputs, outputs | C, k + 1, g, l)
 
 
-## This section implements PauliFlow. It runs in time O(n^5)
+# Implementation of PauliFlow. Time complexity: O(n^5)
 
 
-def find_pflow(V, Γ, I, O, λ, graph):
+def find_pflow(graph, I, O, λ):
     """
-    Find a p-flow in a given graph. Assumes that graph has nodes labeled with
-    numbers from 0 to n-1, where n is the number of nodes in the graph.
-
-    Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf
+    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf
     """
+    V = set(graph.nodes())
+    Γ = nx.adjacency_matrix(graph).toarray()
 
-    # LX, LY, LZ track vertices based on their labels X, Y, and Z.
     LX, LY, LZ = set(), set(), set()
     d = {}
 
-    # Assign initial depths and categorize vertices by their labels.
     for v in V:
         if v in O:
             d[v] = 0
-        if λ[v] == "X":
+        elif λ[v] == "X":
             LX.add(v)
         elif λ[v] == "Y":
             LY.add(v)
         elif λ[v] == "Z":
             LZ.add(v)
 
-    # The initial call to the auxiliary function with starting parameters.
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, set(), O, d, 0, graph)
+    p = {}
+    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, set(), O, d, 0, graph, p)
 
 
 def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
@@ -267,7 +296,7 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
 
     if len(KAu) != 0 and len(YAu) != 0:
         MAu2 = get_MAu2(Γ, KAu, YAu)
-        SLambda2 = get_SLambda2(plane, u, V, I, B, λ, graph, A, KAu, YAu)
+        SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
         try:
             solution2 = linalg2.solve(MAu2.T, SLambda2, check_solution=True).reshape(
                 -1, 1
@@ -290,9 +319,8 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
     return solution
 
 
-def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph):
-    # Process each vertex at the current depth.
-    C, p = set(), {}
+def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
+    C = set()
     for u in set(V) - B:
         solution = None
 
@@ -322,9 +350,8 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph):
         else:
             return False, {}, {}
 
-    # Update B and recursively process the next depth.
     Bprime = B | C
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph)
+    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
 
 
 def get_MAu1(Gamma, KAu, PAu):
@@ -342,11 +369,11 @@ def get_SLambda1(plane, u, V, I, O, planes, graph, Gamma, A, KAu, PAu):
     elif plane == "XZ":
         neighbors = set(graph.neighbors(u))
         PAu = get_PAu(Gamma, A, u, V, I, O, planes)
-        sl = (neighbors & PAu) | {u}
+        sl = (neighbors & set(PAu)) | {u}
     elif plane == "YZ":
         neighbors = set(graph.neighbors(u))
         PAu = get_PAu(Gamma, A, u, V, I, O, planes)
-        sl = neighbors & PAu
+        sl = neighbors & set(PAu)
 
     vec_sl = np.zeros((len(V), 1), dtype=int)
     vec_sl[list(sl)] = 1
@@ -361,7 +388,7 @@ def get_SLambda2(plane, u, V, I, O, planes, graph, Gamma, A, KAu, YAu):
     elif plane in {"XZ", "YZ"}:
         neighbors = set(graph.neighbors(u))
         YAu = get_YAu(Gamma, A, u, V, I, O, planes)
-        sl = neighbors & YAu
+        sl = neighbors & set(YAu)
 
     vec_sl = np.zeros((len(V), 1), dtype=int)
 
@@ -389,299 +416,55 @@ def LambdaPu(plane, u, V, O, planes):
     return {v for v in V - O if v != u and planes[v] == plane}
 
 
-## Finds flow of a graph state. This is deprecated and will be removed in the future.
+if __name__ == "__main__":
+    import mentpy as mp
 
-
-def find_flow(graph: GraphState, input_nodes, output_nodes, sanity_check=True):
-    r"""Finds the generalized flow of graph state if allowed.
-
-    Implementation of https://arxiv.org/pdf/quant-ph/0603072.pdf.
-
-    Returns
-    -------
-    The flow function ``flow`` and the partial order function.
-
-    Group
-    -----
-    states
-    """
-    # raise deprecated warning
-    warnings.warn(
-        "The function find_flow is deprecated. Use find_cflow instead.",
-        DeprecationWarning,
-        stacklevel=2,
+    gs = mp.GraphState()
+    gs.add_edges_from(
+        [
+            (0, 5),
+            (1, 5),
+            (1, 6),
+            (2, 6),
+            (2, 7),
+            (3, 7),
+            (3, 8),
+            (4, 8),
+            (0, 9),
+            (2, 9),
+            (1, 10),
+            (3, 10),
+            (2, 11),
+            (4, 11),
+            (0, 12),
+            (3, 12),
+            (1, 13),
+            (4, 13),
+            (0, 14),
+            (4, 14),
+        ]
     )
 
-    n_input, n_output = len(input_nodes), len(output_nodes)
-    inp = input_nodes
-    outp = output_nodes
-    if n_input != n_output:
-        raise ValueError(
-            f"Cannot find flow or gflow. Input ({n_input}) and output ({n_output}) nodes have different size."
-        )
+    position = {
+        0: (0, 0),
+        1: (1, 0),
+        2: (2, 0),
+        3: (3, 0),
+        4: (4, 0),
+        5: (0.5, 0.5),
+        6: (1.5, 0.5),
+        7: (2.5, 0.5),
+        8: (3.5, 0.5),
+        9: (1, 1.5),
+        10: (2, 1.5),
+        11: (3, 1.5),
+        12: (1.5, 2.5),
+        13: (2.5, 2.5),
+        14: (2, 4),
+    }
 
-    update_labels = False
-    # check if labels of graph are integers going from 0 to n-1 and if not, create a mapping
-    if not all([i in graph.nodes for i in range(len(graph))]):
-        mapping = {v: i for i, v in enumerate(graph.nodes)}
-        inverse_mapping = {i: v for i, v in enumerate(graph.nodes)}
-        # create a copy of the object state
-        old_state = graph
-        new_graph = nx.relabel_nodes(graph.copy(), mapping)
-        inp, outp = [mapping[v] for v in input_nodes], [
-            mapping[v] for v in output_nodes
-        ]
+    cond, p, d = find_pflow(
+        gs, set([0, 1, 2, 3, 4]), set([0, 1, 2, 3, 4]), {v: "YZ" for v in gs.nodes}
+    )
 
-        graph = GraphState(new_graph)
-        update_labels = True
-
-    tau = _build_path_cover(graph, inp, outp)
-    if tau:
-        f, P, L = _get_chain_decomposition(graph, inp, outp, tau)
-        sigma = _compute_suprema(graph, inp, outp, f, P, L)
-
-        if sigma is not None:
-            int_flow = _flow_from_array(graph, inp, outp, f)
-            vertex2index = {v: index for index, v in enumerate(inp)}
-
-            def int_partial_order(x, y):
-                return sigma[vertex2index[int(P[y])], int(x)] <= L[y]
-
-            # if labels were updated, update them back
-            if update_labels:
-                graph = old_state
-                flow = lambda v: inverse_mapping[int_flow(mapping[v])]
-                partial_order = lambda x, y: int_partial_order(mapping[x], mapping[y])
-            else:
-                flow = int_flow
-                partial_order = int_partial_order
-
-            state_flow = (flow, partial_order)
-            if sanity_check:
-                if not check_if_flow(graph, inp, outp, flow, partial_order):
-                    raise RuntimeError(
-                        "Sanity check found that flow does not satisfy flow conditions."
-                    )
-            return state_flow
-
-        else:
-            warnings.warn(
-                "The given state does not have a flow.", UserWarning, stacklevel=2
-            )
-            return None, None
-    else:
-        warnings.warn(
-            "Could not find a flow for the given state.", UserWarning, stacklevel=2
-        )
-        return None, None
-
-
-def _flow_from_array(graph: GraphState, input_nodes, output_nodes, f: List):
-    """Create a flow function from a given array f"""
-
-    def flow(v):
-        if v in [v for v in graph.nodes() if v not in output_nodes]:
-            return int(f[v])
-        else:
-            raise UserWarning(f"The node {v} is not in domain of the flow.")
-
-    return flow
-
-
-def _get_chain_decomposition(
-    graph: GraphState, input_nodes, output_nodes, C: nx.DiGraph
-):
-    """Gets the chain decomposition"""
-    P = np.zeros(len(graph))
-    L = np.zeros(len(graph))
-    f = {v: 0 for v in set(graph) - set(output_nodes)}
-    for i in input_nodes:
-        v, l = i, 0
-        while v not in output_nodes:
-            f[v] = int(next(C.successors(v)))
-            P[v] = i
-            L[v] = l
-            v = int(f[v])
-            l += 1
-        P[v], L[v] = i, l
-    return (f, P, L)
-
-
-def _compute_suprema(graph: GraphState, input_nodes, output_nodes, f, P, L):
-    """Compute suprema
-
-    status: 0 if none, 1 if pending, 2 if fixed.
-    """
-    (sup, status) = _init_status(graph, input_nodes, output_nodes, P, L)
-    for v in set(graph.nodes()) - set(output_nodes):
-        if status[v] == 0:
-            (sup, status) = _traverse_infl_walk(
-                graph, input_nodes, output_nodes, f, sup, status, v
-            )
-
-        if status[v] == 1:
-            return None
-
-    return sup
-
-
-def _traverse_infl_walk(
-    graph: GraphState, input_nodes, output_nodes, f, sup, status, v
-):
-    """Compute the suprema by traversing influencing walks
-
-    status: 0 if none, 1 if pending, 2 if fixed.
-    """
-    status[v] = 1
-    vertex2index = {v: index for index, v in enumerate(input_nodes)}
-
-    for w in list(graph.neighbors(f[v])) + [f[v]]:
-        if w != v:
-            if status[w] == 0:
-                (sup, status) = _traverse_infl_walk(
-                    graph, input_nodes, output_nodes, f, sup, status, w
-                )
-            if status[w] == 1:
-                return (sup, status)
-            else:
-                for i in input_nodes:
-                    if sup[vertex2index[i], v] > sup[vertex2index[i], w]:
-                        sup[vertex2index[i], v] = sup[vertex2index[i], w]
-    status[v] = 2
-    return sup, status
-
-
-def _init_status(graph: GraphState, input_nodes: List, output_nodes: List, P, L):
-    """Initialize the supremum function
-
-    status: 0 if none, 1 if pending, 2 if fixed.
-    """
-    sup = np.zeros((len(input_nodes), len(graph.nodes())))
-    vertex2index = {v: index for index, v in enumerate(input_nodes)}
-    status = np.zeros(len(graph.nodes()))
-    for v in graph.nodes():
-        for i in input_nodes:
-            if i == P[v]:
-                sup[vertex2index[i], v] = L[v]
-            else:
-                sup[vertex2index[i], v] = len(graph.nodes())
-
-        status[v] = 2 if v in output_nodes else 0
-
-    return sup, status
-
-
-def _build_path_cover(graph: GraphState, input_nodes: List, output_nodes: List):
-    """Builds a path cover
-
-    status: 0 if 'fail', 1 if 'success'
-    """
-    fam = nx.DiGraph()
-    visited = np.zeros(graph.number_of_nodes())
-    iter = 0
-    for i in input_nodes:
-        iter += 1
-        (fam, visited, status) = _augmented_search(
-            graph, input_nodes, output_nodes, fam, iter, visited, i
-        )
-        if not status:
-            return status
-
-    if not len(set(graph.nodes) - set(fam.nodes())):
-        return fam
-
-    return 0
-
-
-def _augmented_search(
-    graph: GraphState,
-    input_nodes: List,
-    output_nodes: List,
-    fam: nx.DiGraph,
-    iter: int,
-    visited,
-    v,
-):
-    """Does an augmented search
-
-    status: 0 if 'fail', 1 if 'success'
-    """
-    visited[v] = iter
-    if v in output_nodes:
-        return (fam, visited, 1)
-    if (
-        (v in fam.nodes())
-        and (v not in input_nodes)
-        and (visited[next(fam.predecessors(v))] < iter)
-    ):
-        (fam, visited, status) = _augmented_search(
-            graph,
-            input_nodes,
-            output_nodes,
-            fam,
-            iter,
-            visited,
-            next(fam.predecessors(v)),
-        )
-        if status:
-            try:
-                fam = fam.remove_edge(next(fam.predecessors(v)), v)
-                return (fam, visited, 1)
-            except:
-                return (fam, visited, 0)
-
-    for w in graph.neighbors(v):
-        try:
-            if (
-                (visited[w] < iter)
-                and (w not in input_nodes)
-                and (not fam.has_edge(v, w))
-            ):
-                if w not in fam.nodes():
-                    (fam, visited, status) = _augmented_search(
-                        graph, input_nodes, output_nodes, fam, iter, visited, w
-                    )
-                    if status:
-                        fam.add_edge(v, w)
-                        return (fam, visited, 1)
-                elif visited[next(fam.predecessors(w))] < iter:
-                    (fam, visited, status) = _augmented_search(
-                        graph,
-                        input_nodes,
-                        output_nodes,
-                        fam,
-                        iter,
-                        visited,
-                        next(fam.predecessors(w)),
-                    )
-                    if status:
-                        fam.remove_edge(next(fam.predecessors(w)), w)
-                        fam.add_edge(v, w)
-                        return (fam, visited, 1)
-        except:
-            return (fam, visited, 0)
-
-    return (fam, visited, 0)
-
-
-def check_if_flow(
-    graph: GraphState, input_nodes: List, output_nodes: List, flow, partial_order
-) -> bool:
-    """Checks if flow satisfies conditions on state."""
-    conds = True
-    for i in [v for v in graph.nodes() if v not in output_nodes]:
-        nfi = list(graph.neighbors(flow(i)))
-        c1 = i in nfi
-        c2 = partial_order(i, flow(i))
-        c3 = math.prod([partial_order(i, k) for k in set(nfi) - {i}])
-        conds = conds * c1 * c2 * c3
-        if not c1:
-            print(f"Condition 1 failed for node {i}. {i} not in {nfi}")
-        if not c2:
-            print(f"Condition 2 failed for node {i}. {i} ≮ {flow(i)}")
-        if not c3:
-            print(f"Condition 3 failed for node {i}.")
-            for k in set(nfi) - {i}:
-                if not partial_order(i, k):
-                    print(f"{i} ≮ {k}")
-    return conds
+    print(cond, p, d)
