@@ -78,7 +78,12 @@ class Flow:
                 self.graph, self.input_nodes, self.output_nodes, self.planes
             )
             partial_order = lambda u, v: layers[u] > layers[v]
-            depth = max(layers.values())
+            depth = None if len(layers) == 0 else max(layers.values())
+
+        if flow_function is None:
+            warnings.warn(
+                "No flow found. The flow function will return None for all nodes."
+            )
 
         self.func = flow_function
         self.partial_order = partial_order
@@ -211,7 +216,6 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     )
 
     if result == False:
-        warnings.warn("No gFlow exists for this graph.", UserWarning, stacklevel=2)
         return None, None, None, None
 
     return lambda x: gn[x], lambda u, v: ln[u] > ln[v], max(ln.values()), ln
@@ -259,6 +263,7 @@ def find_pflow(graph, I, O, λ):
     """
     V = set(graph.nodes())
     Γ = nx.adjacency_matrix(graph).toarray()
+    I, O = set(I), set(O)
 
     LX, LY, LZ = set(), set(), set()
     d = {}
@@ -351,7 +356,7 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
         if set(B) == set(V):
             return True, lambda x: p[x], d
         else:
-            return False, {}, {}
+            return False, None, {}
 
     Bprime = B | C
     return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)

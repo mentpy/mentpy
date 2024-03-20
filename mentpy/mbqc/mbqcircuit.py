@@ -98,7 +98,12 @@ class MBQCircuit:
             flow, partial_order, depth, layers = find_cflow(
                 graph, input_nodes, output_nodes
             )
-            self.gflow = Flow(graph, input_nodes, output_nodes)
+            self.gflow = Flow(
+                graph,
+                input_nodes,
+                output_nodes,
+                {v: m.plane for v, m in self.measurements.items() if m is not None},
+            )
 
         elif (flow is not None) and (partial_order is not None):
             check_if_cflow(graph, input_nodes, output_nodes, flow, partial_order)
