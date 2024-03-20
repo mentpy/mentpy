@@ -6,23 +6,61 @@
 
 import pytest
 
-from mentpy.mbqc import templates
+import mentpy as mp
 from mentpy.mbqc import flow
 
 
 def test_cflow():
-    gs = templates.linear_cluster(5).graph
+    """Test the cflow function."""
+    gs = mp.templates.linear_cluster(5).graph
     cond, _, _, _ = flow.find_cflow(gs, set([0]), set([4]))
     assert cond
 
 
 def test_gflow():
-    gs = templates.linear_cluster(5).graph
+    """Test the gflow function."""
+    gs = mp.templates.linear_cluster(5).graph
     cond, _, _, _ = flow.find_gflow(gs, set([0]), set([4]))
     assert cond
 
 
-def test_Pflow():
-    gs = templates.linear_cluster(5).graph
+def test_pflow():
+    """Test the pflow function."""
+    gs = mp.templates.linear_cluster(5).graph
     cond, p, d = flow.find_pflow(gs, set([0]), set([4]), {v: "XY" for v in gs.nodes})
     assert cond
+
+    gs = mp.GraphState()
+    gs.add_edges_from([(0, 1), (1, 2), (1, 3), (3, 4)])
+    circ = mp.MBQCircuit(
+        gs,
+        input_nodes=[0],
+        output_nodes=[2],
+        measurements={
+            0: mp.Ment("XY"),
+            1: mp.Ment("X"),
+            3: mp.Ment("XY"),
+            4: mp.Ment("X"),
+        },
+    )
+    circ.gflow.initialize_flow()
+
+    assert circ.gflow.depth == 1
+
+    gs = mp.GraphState()
+    gs.add_edges_from([(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)])
+    circ = mp.MBQCircuit(
+        gs,
+        input_nodes=[0],
+        output_nodes=[3, 6],
+        measurements={
+            0: mp.Ment("XY"),
+            1: mp.Ment("XY"),
+            2: mp.Ment("Y"),
+            4: mp.Ment("YZ"),
+            5: mp.Ment("XY"),
+        },
+    )
+
+    circ.gflow.initialize_flow()
+    assert circ.gflow.depth == 6

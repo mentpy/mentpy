@@ -21,12 +21,6 @@ class Flow:
         Initializes the flow of a given graph state.
         Assumes that graph has nodes labeled with numbers from 0 to n-1, where n is the number of nodes in the graph.
         """
-
-        if len(input_nodes) != len(output_nodes):
-            raise ValueError(
-                f"Cannot find a flow. Input ({len(input_nodes)}) and output ({len(output_nodes)}) nodes have different size."
-            )
-
         self.graph = graph
         self.input_nodes = input_nodes
         self.output_nodes = output_nodes
