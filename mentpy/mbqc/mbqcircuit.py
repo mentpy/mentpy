@@ -5,16 +5,16 @@
 """The graph_state module"""
 import copy
 from functools import cached_property, reduce
-from typing import Optional, List, Tuple, Callable, Union, Any, Dict
+from typing import Optional, List, Tuple, Callable, Dict
 
 import numpy as np
 import scipy as scp
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from mentpy.operators import Ment, ControlMent, PauliOp
+from mentpy.operators import Ment, ControlMent
 from mentpy.mbqc.states.graphstate import GraphState
-from mentpy.mbqc.flow import find_cflow, check_if_cflow, Flow
+from mentpy.mbqc.flow import Flow
 
 __all__ = ["MBQCircuit", "merge", "hstack", "vstack"]
 
@@ -187,9 +187,8 @@ class MBQCircuit:
         """Return the number of nodes in the MBQCircuit"""
         return len(self.graph)
 
-    # if an attribute is not found, look for it in the graph
     def __getattr__(self, name):
-        # try getting the attribute in graph, if not there, look in gflow
+        # If the attribute is not found in the MBQCircuit, try to find it in the graph or gflow
         try:
             return getattr(self.graph, name)
         except AttributeError:
