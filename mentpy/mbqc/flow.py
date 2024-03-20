@@ -74,7 +74,7 @@ class Flow:
             )
 
         if flow_function is None and self.planes is not None:
-            flow_function, layers, depth = find_pflow(
+            flow_function, depth, layers = find_pflow(
                 self.graph, self.input_nodes, self.output_nodes, self.planes
             )
             partial_order = None
@@ -233,7 +233,9 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
             solution = linalg2.solve(submatrix, b, check_solution=True).reshape(-1, 1)
             l[u] = k
             C.add(u)
-            g[u] = solution
+            sol_extended = np.zeros((len(V), 1), dtype=int)
+            sol_extended[list(outputs - inputs)] = solution
+            g[u] = sol_extended
         except Exception as e:
             pass
 
@@ -346,7 +348,7 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
 
     if C == set() and k > 0:
         if set(B) == set(V):
-            return True, p, d
+            return True, lambda x: p[x], d
         else:
             return False, {}, {}
 
