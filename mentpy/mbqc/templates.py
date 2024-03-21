@@ -10,7 +10,15 @@ It has several common ansatzes that can be used for MBQC algorithms
 from typing import List
 from mentpy.operators import Ment, PauliOp
 from mentpy.mbqc.states.graphstate import GraphState
-from mentpy.mbqc.mbqcircuit import MBQCircuit, hstack, merge
+from mentpy.mbqc.mbqcircuit import MBQCircuit, hstack
+
+__all__ = [
+    "linear_cluster",
+    "many_wires",
+    "grid_cluster",
+    "muta",
+    "from_pauli",
+]
 
 
 def linear_cluster(n, **kwargs) -> MBQCircuit:
@@ -222,7 +230,12 @@ def muta(n_wires, n_layers, **kwargs) -> MBQCircuit:
 
 
 def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
-    """Returns a graph state that can implement :math:`U=e^{-i\theta P}`"""
+    """Returns a graph state that can implement :math:`U=e^{-i \\theta P}`
+
+    Group
+    -----
+    templates
+    """
 
     if len(pauli_op) != 1:
         raise ValueError(

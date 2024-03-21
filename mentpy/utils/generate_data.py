@@ -8,8 +8,14 @@ import scipy
 
 from functools import reduce
 
-from mentpy import MBQCircuit
 from mentpy.operators import gates
+
+__all__ = [
+    "generate_haar_random_states",
+    "generate_random_dataset",
+    "generate_random_dataset_noisy",
+    "train_test_split",
+]
 
 
 def _generate_haar_random_state(n_qubits: int) -> np.ndarray:
@@ -22,7 +28,12 @@ def _generate_haar_random_state(n_qubits: int) -> np.ndarray:
 
 
 def generate_haar_random_states(n_qubits: int, n_samples: int = 1) -> np.ndarray:
-    r"""Makes one Haar random state over n_qubits"""
+    r"""Makes one Haar random state over n_qubits
+
+    Group
+    -----
+    utils
+    """
 
     if n_samples == 1:
         return _generate_haar_random_state(n_qubits)
@@ -33,7 +44,13 @@ def generate_haar_random_states(n_qubits: int, n_samples: int = 1) -> np.ndarray
 def generate_random_dataset(
     unitary: np.ndarray, n_samples: int, test_size: float = 0.3
 ) -> tuple:
-    r"Return random training and test data (input, target) for a given unitary gate ``unitary``."
+    """
+    Return random training and test data (input, target) for a given unitary gate ``unitary``.
+
+    Group
+    -----
+    utils
+    """
     n_qubits = int(np.log2(unitary.shape[0]))
     random_inputs = generate_haar_random_states(n_qubits, n_samples=n_samples)
     random_targets = [(unitary @ st.T).T for st in random_inputs]
@@ -41,7 +58,12 @@ def generate_random_dataset(
 
 
 def train_test_split(inputs, targets, test_size: float = 0.3, randomize=False) -> tuple:
-    r"Split the data into training and test sets."
+    """Split the data into training and test sets.
+
+    Group
+    -----
+    utils
+    """
     n_samples = len(inputs)
     n_test_samples = int(n_samples * test_size)
     n_train_samples = n_samples - n_test_samples
@@ -90,6 +112,10 @@ def generate_random_dataset_noisy(
         noise_level (float): noise level
         noise_type (str): type of noise. Either 'brownian' or 'bitflip'
         test_size (float): percentage of test data
+
+    Group
+    -----
+    utils
     """
     if noise_level > 1 or noise_level < 0:
         raise ValueError("noise_level must be between 0 and 1")

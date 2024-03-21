@@ -12,9 +12,16 @@ import networkx as nx
 
 from mentpy.calculator import linalg2
 
+__all__ = ["Flow"]
+
 
 class Flow:
-    """This class deals with the flow of a given graph state"""
+    """This class deals with the flow of a given graph state
+
+    Group
+    -----
+    mbqc
+    """
 
     def __init__(self, graph, input_nodes, output_nodes, planes=None):
         """

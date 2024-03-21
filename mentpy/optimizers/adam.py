@@ -6,10 +6,10 @@
 import numpy as np
 from mentpy.gradients import get_gradient
 
-from mentpy.optimizers.base_optimizer import BaseOptimizer
+from mentpy.optimizers.base import BaseOpt
 
 
-class AdamOptimizer(BaseOptimizer):
+class AdamOpt(BaseOpt):
     """Class for the Adam optimizer.
 
     Parameters
@@ -29,13 +29,13 @@ class AdamOptimizer(BaseOptimizer):
 
     .. ipython:: python
 
-        opt = mp.optimizers.AdamOptimizer()
+        opt = mp.optimizers.AdamOpt()
         print(opt)
 
 
     See Also
     --------
-    :class:`mp.optimizers.SGDOptimizer`
+    :class:`mp.optimizers.SGDOpt`
 
     Group
     -----

@@ -3,13 +3,13 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """This module contains the random coordinate descent optimizer."""
-from mentpy.optimizers.base_optimizer import BaseOptimizer
+from mentpy.optimizers.base import BaseOpt
 
 import numpy as np
 import random
 
 
-class RCDOptimizer(BaseOptimizer):
+class RCDOpt(BaseOpt):
     """Class for the random coordinate descent optimizer.
 
     Args
@@ -25,7 +25,7 @@ class RCDOptimizer(BaseOptimizer):
 
     .. ipython:: python
 
-        opt = mp.optimizers.RCDOptimizer()
+        opt = mp.optimizers.RCDOpt()
         print(opt)
 
     Group

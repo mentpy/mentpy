@@ -70,7 +70,7 @@ Then, we define our training loop and iterate over a noise range to see how the 
             (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset_noisy(gate2learn, 20, noise_level=0.05*k, noise_type=noise_type, test_size = 0.5)
                 
             theta = np.random.rand(len(gs.trainable_nodes))
-            opt = mp.optimizers.AdamOptimizer(step_size=0.08)
+            opt = mp.optimizers.AdamOpt(step_size=0.08)
             theta = opt.optimize(lambda params: cost(params, x_train, y_train), theta, num_iters=NUM_STEPS)
             post_cost_test = cost(theta, x_test, y_test)
             post_cost_train = cost(theta, x_train, y_train)

@@ -33,7 +33,12 @@ qubit_plus = H @ q_zero
 
 
 class NumpySimulatorSV(BaseSimulator):
-    """A vector state simulator that uses numpy to simulate the quantum circuit."""
+    """A vector state simulator that uses numpy to simulate the quantum circuit.
+
+    Group
+    -----
+    simulators
+    """
 
     def __init__(
         self, mbqcircuit: MBQCircuit, input_state: np.ndarray = None, **kwargs

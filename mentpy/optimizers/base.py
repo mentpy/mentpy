@@ -6,7 +6,7 @@
 import abc
 
 
-class BaseOptimizer(abc.ABC):
+class BaseOpt(abc.ABC):
     """Base class for optimizers.
 
     Note
@@ -15,7 +15,7 @@ class BaseOptimizer(abc.ABC):
 
     See Also
     --------
-    :class:`mp.optimizers.SGDOptimizer`, :class:`mp.optimizers.AdamOptimizer`
+    :class:`mp.optimizers.SGDOpt`, :class:`mp.optimizers.AdamOpt`
 
     Group
     -----

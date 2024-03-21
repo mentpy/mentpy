@@ -52,7 +52,7 @@ class MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
 
     def __init__(
@@ -466,7 +466,12 @@ def _check_measurement_order(measurement_order: List, partial_order: Callable):
 
 def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
     """Merge two MBQC circuits into a larger MBQC circuit. This is, the input and
-    output of the new MBQC circuit will depend on the concat_indices."""
+    output of the new MBQC circuit will depend on the concat_indices.
+
+    Group
+    -----
+    mbqc
+    """
 
     for i, j in along:
         if i not in state1.output_nodes or j not in state2.input_nodes:
@@ -508,14 +513,14 @@ def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
     return MBQCircuit(graph, input_nodes, output_nodes, measurements=measurements)
 
 
-def vstack(states):
+def vstack(states) -> MBQCircuit:
     """Vertically stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
 
     Group
     -----
-    states
+    mbqc
     """
     if len(states) == 0:
         raise ValueError("Cannot vertically stack an empty list of states.")
@@ -524,14 +529,14 @@ def vstack(states):
     return reduce(_vstack2, states)
 
 
-def hstack(states):
+def hstack(states) -> MBQCircuit:
     """Horizontally stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
 
     Group
     -----
-    states
+    mbqc
     """
     if len(states) == 0:
         raise ValueError("Cannot horizontally stack an empty list of states.")
@@ -547,7 +552,7 @@ def _vstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
     graph = nx.disjoint_union(state1.graph, state2.graph)
     input_nodes = state1.input_nodes + [
@@ -580,7 +585,7 @@ def _hstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
     # check that the size of the output of the first state is the same as the
     # size of the input of the second state
