@@ -90,7 +90,7 @@ Here, we will learn now to perform a classification of quantum states according 
    get_fishers = lambda sts, hamilt: get_targets_or_fishers(sts, hamilt, return_fisher=True)
 
    def get_optimizer(opt_name, step_size, momentum, adaptive=False):
-      opts = {'SGD': mp.optimizers.SGDOptimizer, 'Adam': mp.optimizers.AdamOptimizer, 'RCD': mp.optimizers.RCDOptimizer}
+      opts = {'SGD': mp.optimizers.SGDOpt, 'Adam': mp.optimizers.AdamOpt, 'RCD': mp.optimizers.RCDOpt}
       return opts[opt_name](step_size=step_size, momentum=momentum) if opt_name == 'SGD' else opts[opt_name](step_size=step_size, adaptive=adaptive)
 
    def get_stochastic_batch(x, y, batch_size):

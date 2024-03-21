@@ -587,7 +587,67 @@
   
     <li class="md-nav__item">
       <a href="../api.html" class="md-nav__link">
-        <span class="md-ellipsis">Ment<wbr>Py</span>
+        <span class="md-ellipsis">Operators</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#mbqcircuits" class="md-nav__link">
+        <span class="md-ellipsis">MBQCircuits</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#simulators" class="md-nav__link">
+        <span class="md-ellipsis">Simulators</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#optimizers" class="md-nav__link">
+        <span class="md-ellipsis">Optimizers</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#utils" class="md-nav__link">
+        <span class="md-ellipsis">Utils</span>
       </a>
     </li>
   
@@ -699,7 +759,7 @@ of the infidelity between the target states and the output states.</p>
         <span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">generate_random_dataset_noisy</span><span class="p">(</span><span class="n">gate2learn</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">noise_level</span><span class="o">=</span><span class="mf">0.05</span><span class="o">*</span><span class="n">k</span><span class="p">,</span> <span class="n">noise_type</span><span class="o">=</span><span class="n">noise_type</span><span class="p">,</span> <span class="n">test_size</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
 
         <span class="n">theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gs</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">))</span>
-        <span class="n">opt</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">(</span><span class="n">step_size</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOpt</span><span class="p">(</span><span class="n">step_size</span><span class="o">=</span><span class="mf">0.08</span><span class="p">)</span>
         <span class="n">theta</span> <span class="o">=</span> <span class="n">opt</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">params</span><span class="p">:</span> <span class="n">cost</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="n">theta</span><span class="p">,</span> <span class="n">num_iters</span><span class="o">=</span><span class="n">NUM_STEPS</span><span class="p">)</span>
         <span class="n">post_cost_test</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
         <span class="n">post_cost_train</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>

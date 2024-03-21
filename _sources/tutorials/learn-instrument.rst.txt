@@ -169,7 +169,7 @@ We can now define a loss function, a callback, and train the ansatz to get a sol
         (x_train, y_train), (x_test, y_test) = mp.utils.generate_random_dataset(np.eye(2), 50, test_size = 0.3)
         theta = np.random.rand(len(mgs.trainable_nodes))
         print("value pre-training: ", cost(theta, x_test, y_test))
-        opt = mp.optimizers.AdamOptimizer(step_size=0.1)
+        opt = mp.optimizers.AdamOpt(step_size=0.1)
         theta = opt.optimize(lambda x: cost(x, x_train, y_train), theta, callback = create_callback(), num_iters=MAX_NUM_STEPS)
         post_cost = cost(theta, x_test, y_test)
         runs_train[i] = cost_train

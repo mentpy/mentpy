@@ -593,7 +593,67 @@
   
     <li class="md-nav__item">
       <a href="../api.html" class="md-nav__link">
-        <span class="md-ellipsis">Ment<wbr>Py</span>
+        <span class="md-ellipsis">Operators</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#mbqcircuits" class="md-nav__link">
+        <span class="md-ellipsis">MBQCircuits</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#simulators" class="md-nav__link">
+        <span class="md-ellipsis">Simulators</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#optimizers" class="md-nav__link">
+        <span class="md-ellipsis">Optimizers</span>
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#utils" class="md-nav__link">
+        <span class="md-ellipsis">Utils</span>
       </a>
     </li>
   
@@ -715,7 +775,7 @@
 <span class="n">get_fishers</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">sts</span><span class="p">,</span> <span class="n">hamilt</span><span class="p">:</span> <span class="n">get_targets_or_fishers</span><span class="p">(</span><span class="n">sts</span><span class="p">,</span> <span class="n">hamilt</span><span class="p">,</span> <span class="n">return_fisher</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_optimizer</span><span class="p">(</span><span class="n">opt_name</span><span class="p">,</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">momentum</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-   <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;SGD&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGDOptimizer</span><span class="p">,</span> <span class="s1">&#39;Adam&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOptimizer</span><span class="p">,</span> <span class="s1">&#39;RCD&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">RCDOptimizer</span><span class="p">}</span>
+   <span class="n">opts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;SGD&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">SGDOpt</span><span class="p">,</span> <span class="s1">&#39;Adam&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOpt</span><span class="p">,</span> <span class="s1">&#39;RCD&#39;</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">RCDOpt</span><span class="p">}</span>
    <span class="k">return</span> <span class="n">opts</span><span class="p">[</span><span class="n">opt_name</span><span class="p">](</span><span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">)</span> <span class="k">if</span> <span class="n">opt_name</span> <span class="o">==</span> <span class="s1">&#39;SGD&#39;</span> <span class="k">else</span> <span class="n">opts</span><span class="p">[</span><span class="n">opt_name</span><span class="p">](</span><span class="n">step_size</span><span class="o">=</span><span class="n">step_size</span><span class="p">,</span> <span class="n">adaptive</span><span class="o">=</span><span class="n">adaptive</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">get_stochastic_batch</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
