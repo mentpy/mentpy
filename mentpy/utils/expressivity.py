@@ -17,6 +17,14 @@ from mentpy.utils.lc_equivalence import are_lc_equivalent
 from mentpy.utils.generate_data import generate_haar_random_states
 from mentpy.utils.flow_space import FlowSpace
 
+__all__ = [
+    "expressivity_with_histogram",
+    "sample_probability_density_of_fidelities",
+    "digraph_expressivity_of_flow_space",
+    "lc_cluster_flowspace",
+    "draw_digraph_flow_space",
+]
+
 
 def haar_probability_density_of_fidelities(F: float, n_qubits: int):
     r"""Returns the probability density function of fidelities

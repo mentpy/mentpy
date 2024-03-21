@@ -92,7 +92,6 @@ def draw(
     -----
     states
     """
-
     options = get_options(kwargs)
 
     show_controls = options.pop("show_controls")
@@ -120,6 +119,8 @@ def draw(
         ax.patch.set_alpha(0)
 
     if fix_wires is None and isinstance(state, MBQCircuit):
+        if state.flow.name.lower() != "cflow":
+            raise ValueError("Only cflow is supported at the moment")
         if state.flow is not None:
             fix_wires = []
             for inp in state.input_nodes:
@@ -255,5 +256,14 @@ def _graph_with_flow(state):
     dflow = nx.DiGraph()
     dflow.add_nodes_from(g.nodes())
     for node in state.outputc:
-        dflow.add_edge(node, state.flow(node))
+        next_nodes = state.flow(node)
+        vs = []
+        if isinstance(next_nodes, int):
+            vs = [next_nodes]
+        else:
+            # check indx where the flow is 1
+            vs = [i for i, x in enumerate(next_nodes) if x == 1]
+
+        for v in vs:
+            dflow.add_edge(node, v)
     return dflow

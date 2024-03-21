@@ -5,16 +5,16 @@
 """The graph_state module"""
 import copy
 from functools import cached_property, reduce
-from typing import Optional, List, Tuple, Callable, Union, Any, Dict
+from typing import Optional, List, Tuple, Callable, Dict
 
 import numpy as np
 import scipy as scp
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from mentpy.operators import Ment, ControlMent, PauliOp
+from mentpy.operators import Ment, ControlMent
 from mentpy.mbqc.states.graphstate import GraphState
-from mentpy.mbqc.flow import find_cflow, check_if_cflow, Flow
+from mentpy.mbqc.flow import Flow
 
 __all__ = ["MBQCircuit", "merge", "hstack", "vstack"]
 
@@ -32,6 +32,8 @@ class MBQCircuit:
         The output nodes of the MBQC circuit.
     measurements: dict
         The measurements of the MBQC circuit. The keys are the nodes and the values are the measurements.
+    default_measurement: mp.Ment
+        The default measurement of the MBQC circuit if no `measurements` are given.
 
     Examples
     --------
@@ -50,7 +52,7 @@ class MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
 
     def __init__(
@@ -60,66 +62,71 @@ class MBQCircuit:
         output_nodes: List[int] = [],
         measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
-        flow: Optional[Callable] = None,
-        partial_order: Optional[callable] = None,
-        measurement_order: Optional[List[int]] = None,
         relabel_indices: bool = True,
     ) -> None:
         """Initializes a graph state"""
-        # TODO: Remove measurement_order and gflow from the constructor
 
         if relabel_indices:
-            N = graph.number_of_nodes()
-            mapping = dict(zip(sorted(graph.nodes), range(N)))
-            inv_mapping = dict(zip(range(N), sorted(graph.nodes)))
-            graph = nx.relabel_nodes(graph, mapping)
-            input_nodes = [mapping[i] for i in input_nodes]
-            output_nodes = [mapping[i] for i in output_nodes]
-            if flow is not None:
-                flow = lambda x: mapping[flow(inv_mapping[x])]
-            if partial_order is not None:
-                partial_order = lambda x, y: partial_order(
-                    inv_mapping[x], inv_mapping[y]
-                )
-            if measurement_order is not None:
-                measurement_order = [mapping[i] for i in measurement_order]
-            if measurements is not None:
-                measurements = {mapping[k]: v for k, v in measurements.items()}
+            graph, input_nodes, output_nodes, measurements = self._relabel_graph(
+                graph, input_nodes, output_nodes, measurements
+            )
 
         self._graph = graph
-
         self._setup_nodes(input_nodes, output_nodes)
         self._setup_measurements(measurements, default_measurement)
-
-        self._flow, self._partial_order = None, None
         self._update_attributes()
 
-        if (flow is None) or (partial_order is None):
-            flow, partial_order, depth, layers = find_cflow(
-                graph, input_nodes, output_nodes
+        # create flow
+        self._flow = Flow(
+            graph,
+            input_nodes,
+            output_nodes,
+            {v: m.plane for v, m in self.measurements.items() if m is not None},
+        )
+        self._flow.initialize_flow()
+
+        # Temporary fix for controlled nodes
+        if self.partial_order is not None and self.controlled_nodes != []:
+            old_partial_order = self._partial_order
+            self._partial_order = _create_new_partial_order(
+                self.controlled_nodes, self.measurements, old_partial_order
             )
-            self.gflow = Flow(
-                graph,
-                input_nodes,
-                output_nodes,
-                {v: m.plane for v, m in self.measurements.items() if m is not None},
-            )
 
-        elif (flow is not None) and (partial_order is not None):
-            check_if_cflow(graph, input_nodes, output_nodes, flow, partial_order)
-
-        self._flow = flow
-        self._partial_order = partial_order
-
-        if measurement_order is None and flow is not None:
-            measurement_order = self.calculate_order()
-
-        # in case we measure an output node
+        # In case we measure an output node
         quantum_output_nodes = [
             node for node, i in self.measurements.items() if i is None
         ]
+
         self._quantum_output_nodes = quantum_output_nodes
-        self._measurement_order = measurement_order
+        self._measurement_order = None
+
+    def _relabel_graph(
+        self,
+        graph: nx.Graph,
+        input_nodes: List[int],
+        output_nodes: List[int],
+        measurements: Optional[Dict[int, "Ment"]],
+    ) -> Tuple[nx.Graph, List[int], List[int], Optional[Dict[int, "Ment"]]]:
+        """Relabels the graph nodes and updates related node indices.
+
+        Args:
+            graph (nx.Graph): The original graph.
+            input_nodes (List[int]): Original input node indices.
+            output_nodes (List[int]): Original output node indices.
+            measurements (Optional[Dict[int, 'Ment']]): Original node measurements.
+
+        Returns:
+            tuple: A tuple containing the relabeled graph, input nodes, output nodes, and measurements.
+        """
+        N = graph.number_of_nodes()
+        mapping = dict(zip(sorted(graph.nodes), range(N)))
+        graph = nx.relabel_nodes(graph, mapping)
+        input_nodes = [mapping[i] for i in input_nodes]
+        output_nodes = [mapping[i] for i in output_nodes]
+        if measurements is not None:
+            measurements = {mapping[k]: v for k, v in measurements.items()}
+
+        return graph, input_nodes, output_nodes, measurements
 
     def _setup_nodes(self, input_nodes: List[int], output_nodes: List[int]) -> None:
         """Setup the input and output nodes of the MBQCircuit"""
@@ -180,14 +187,13 @@ class MBQCircuit:
         """Return the number of nodes in the MBQCircuit"""
         return len(self.graph)
 
-    # if an attribute is not found, look for it in the graph
     def __getattr__(self, name):
-        # try getting the attribute in graph, if not there, look in gflow
+        # If the attribute is not found in the MBQCircuit, try to find it in the graph or flow
         try:
             return getattr(self.graph, name)
         except AttributeError:
             try:
-                return getattr(self.gflow, name)
+                return getattr(self._flow, name)
             except AttributeError:
                 raise AttributeError(f"Attribute {name} not found in MBQCircuit.")
 
@@ -284,23 +290,28 @@ class MBQCircuit:
         return self._controlled_nodes
 
     @property
-    def flow(self) -> Callable:
+    def flow(self) -> Flow:
         r"""Return the flow function of the MBQC circuit."""
         return self._flow
 
     @property
     def partial_order(self) -> Callable:
         r"""Return the partial order function of the MBQC circuit."""
-        return self._partial_order
+        return self._flow.partial_order
 
     @property
     def depth(self) -> int:
         r"""Return the depth of the MBQC circuit."""
-        return self.gflow.depth
+        return self._flow.depth
 
     @property
     def measurement_order(self) -> List[int]:
         r"""Return the measurement order of the MBQC circuit."""
+        if self._flow.flow_initialized is False:
+            self._flow.initialize_flow()
+        if self._measurement_order is None:
+            self._measurement_order = self.calculate_order()
+
         return self._measurement_order
 
     @measurement_order.setter
@@ -322,21 +333,22 @@ class MBQCircuit:
 
     def ordered_layers(self, train_indices=False) -> List[List[int]]:
         r"""Returns the layers of the MBQC circuit."""
-        if self.gflow.func is None:
+        if self._flow.func is None:
             return None
         if train_indices:
             # return the nested layers in Flow.layers but with the trainable_nodes indices
             return [
                 [self.trainable_nodes.index(node) for node in layer]
-                for layer in self.gflow.layers[:-1]
+                for layer in self._flow.layers[:-1]
             ]
-        return self.gflow.layers
+        return self._flow.layers
 
     def _update_attributes(self) -> None:
         trainable_nodes = []
         controlled_nodes = []
         quantum_outputs = []
         classical_outputs = []
+
         for nodei, menti in self._measurements.items():
             if menti is not None:
                 if isinstance(menti, ControlMent):
@@ -372,12 +384,6 @@ class MBQCircuit:
         #     self._partial_order = partial_order
         #     self._depth = depth
 
-        if self._partial_order is not None:
-            old_partial_order = self._partial_order
-            self._partial_order = _create_new_partial_order(
-                self.controlled_nodes, self.measurements, old_partial_order
-            )
-
     def _update_attributes_key(self, key) -> None:
         menti = self._measurements[key]
         if menti is not None:
@@ -398,7 +404,7 @@ class MBQCircuit:
 
         for indi, i in enumerate(list(self.graph.nodes())):
             for indj, j in enumerate(list(self.graph.nodes())):
-                if self.partial_order(i, j):
+                if self._flow.partial_order(i, j):
                     mat[indi, indj] = 1
 
         sum_mat = np.sum(mat, axis=1)
@@ -444,8 +450,6 @@ class MBQCircuit:
                 new_graph,
                 self.input_nodes,
                 self.output_nodes,
-                self.flow,
-                self.partial_order,
             )
         except Exception as e:
             raise ValueError(f"Cannot add edges {edges}.\n" + str(e))
@@ -462,7 +466,12 @@ def _check_measurement_order(measurement_order: List, partial_order: Callable):
 
 def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
     """Merge two MBQC circuits into a larger MBQC circuit. This is, the input and
-    output of the new MBQC circuit will depend on the concat_indices."""
+    output of the new MBQC circuit will depend on the concat_indices.
+
+    Group
+    -----
+    mbqc
+    """
 
     for i, j in along:
         if i not in state1.output_nodes or j not in state2.input_nodes:
@@ -504,14 +513,14 @@ def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
     return MBQCircuit(graph, input_nodes, output_nodes, measurements=measurements)
 
 
-def vstack(states):
+def vstack(states) -> MBQCircuit:
     """Vertically stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
 
     Group
     -----
-    states
+    mbqc
     """
     if len(states) == 0:
         raise ValueError("Cannot vertically stack an empty list of states.")
@@ -520,14 +529,14 @@ def vstack(states):
     return reduce(_vstack2, states)
 
 
-def hstack(states):
+def hstack(states) -> MBQCircuit:
     """Horizontally stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
 
     Group
     -----
-    states
+    mbqc
     """
     if len(states) == 0:
         raise ValueError("Cannot horizontally stack an empty list of states.")
@@ -543,7 +552,7 @@ def _vstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
     graph = nx.disjoint_union(state1.graph, state2.graph)
     input_nodes = state1.input_nodes + [
@@ -576,7 +585,7 @@ def _hstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
 
     Group
     -----
-    states
+    mbqc
     """
     # check that the size of the output of the first state is the same as the
     # size of the input of the second state

@@ -3,13 +3,13 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """This module contains the SGD optimizer."""
-from mentpy.optimizers.base_optimizer import BaseOptimizer
+from mentpy.optimizers.base import BaseOpt
 from mentpy.gradients import get_gradient
 
 import numpy as np
 
 
-class SGDOptimizer(BaseOptimizer):
+class SGDOpt(BaseOpt):
     """Class for the SGD optimizer.
 
     Args
@@ -27,12 +27,12 @@ class SGDOptimizer(BaseOptimizer):
 
     .. ipython:: python
 
-        opt = mp.optimizers.SGDOptimizer()
+        opt = mp.optimizers.SGDOpt()
         print(opt)
 
     See Also
     --------
-    :class:`mp.optimizers.AdamOptimizer`
+    :class:`mp.optimizers.AdamOpt`
 
     Group
     -----

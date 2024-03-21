@@ -6,6 +6,8 @@ TAKEN FROM: https://github.com/XanaduAI/flamingpy/blob/main/flamingpy/utils/lina
 import numpy as np
 import networkx as nx
 
+__all__ = ["are_lc_equivalent"]
+
 
 def reduce_RREform_mod2(M, max_cols=None):
     """Put a binary matrix into row reduced echelon form modulo 2, up to a

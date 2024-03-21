@@ -27,7 +27,12 @@ qubit_plus = gates.HGate @ q_zero
 
 
 class NumpySimulatorDM(BaseSimulator):
-    """A density matrix simulator that uses numpy to simulate the quantum circuit."""
+    """A density matrix simulator that uses numpy to simulate the quantum circuit.
+
+    Group
+    -----
+    simulators
+    """
 
     # TODO: CALCULATE OPTIMAL WINDOW SIZE AUTOMATICALLY
     def __init__(

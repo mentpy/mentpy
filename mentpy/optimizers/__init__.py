@@ -4,9 +4,9 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """This module contains the optimizers for the MBQCircuit class"""
 
-from .adam import AdamOptimizer
-from .sgd import SGDOptimizer
-from .rcd import RCDOptimizer
+from .adam import AdamOpt
+from .sgd import SGDOpt
+from .rcd import RCDOpt
 from .bp_tools import *
 
-__all__ = ["AdamOptimizer", "SGDOptimizer", "RCDOptimizer"]
+__all__ = ["AdamOpt", "SGDOpt", "RCDOpt"]

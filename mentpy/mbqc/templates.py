@@ -10,7 +10,15 @@ It has several common ansatzes that can be used for MBQC algorithms
 from typing import List
 from mentpy.operators import Ment, PauliOp
 from mentpy.mbqc.states.graphstate import GraphState
-from mentpy.mbqc.mbqcircuit import MBQCircuit, hstack, merge
+from mentpy.mbqc.mbqcircuit import MBQCircuit, hstack
+
+__all__ = [
+    "linear_cluster",
+    "many_wires",
+    "grid_cluster",
+    "muta",
+    "from_pauli",
+]
 
 
 def linear_cluster(n, **kwargs) -> MBQCircuit:
@@ -221,90 +229,13 @@ def muta(n_wires, n_layers, **kwargs) -> MBQCircuit:
     return bigger_graph
 
 
-def spturb(n_qubits: int, n_layers: int, periodic=False, **kwargs) -> MBQCircuit:
-    """
-    .. warning::
-        This template will be deprecated. Use the :from_pauli: template instead.
-
-    This is the Symmetry Protected Topological Perturbator Ansatz (SPTurb) template.
-
-    Args
-    ----
-    n_qubits: int
-        The number of qubits in the SPT state.
-    n_layers: int
-        The number of layers in the graph state.
-    periodic: bool
-        Whether to use periodic boundary conditions.
-
-    Returns
-    -------
-    The graph state with the SPTurb template.
+def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
+    """Returns a graph state that can implement :math:`U=e^{-i \\theta P}`
 
     Group
     -----
     templates
     """
-    if n_qubits < 4:
-        raise ValueError("n_qubits must be greater than 4")
-
-    gr = many_wires([5, 2, 5]).graph
-    gr.add_edge(2, 6)
-    gr.add_edge(9, 6)
-    sym_block1 = MBQCircuit(
-        gr,
-        input_nodes=[0, 7],
-        output_nodes=[4, 11],
-        measurements={5: Ment(plane="XY")},
-        default_measurement=Ment(plane="X"),
-    )
-    sym_block2 = MBQCircuit(
-        gr,
-        input_nodes=[0, 7],
-        output_nodes=[4, 11],
-        measurements={
-            5: Ment(plane="XY"),
-            1: Ment(plane="Y"),
-            3: Ment(plane="Y"),
-            8: Ment(plane="Y"),
-            10: Ment(plane="Y"),
-        },
-        default_measurement=Ment(plane="X"),
-    )
-    spt_ansatz = many_wires(
-        [3] * n_qubits,
-        measurements={3 * i + 1: Ment() for i in range(n_qubits)},
-        default_measurement=Ment(plane="X"),
-    )
-
-    n_blocks = n_qubits if periodic else n_qubits - 2
-
-    for layer in range(n_layers):
-        if layer != 0:
-            spt_ansatz = hstack(
-                (
-                    spt_ansatz,
-                    many_wires(
-                        [3] * n_qubits,
-                        measurements={3 * i + 1: Ment() for i in range(n_qubits)},
-                        default_measurement=Ment(plane="X"),
-                    ),
-                )
-            )
-        for m in range(2):
-            for i in range(n_blocks):
-                n1 = spt_ansatz.output_nodes[i]
-                n2 = spt_ansatz.output_nodes[(i + 2) % n_qubits]
-                if m % 2 == 0:
-                    spt_ansatz = merge(spt_ansatz, sym_block1, [(n1, 0), (n2, 7)])
-                else:
-                    spt_ansatz = merge(spt_ansatz, sym_block2, [(n1, 0), (n2, 7)])
-
-    return spt_ansatz
-
-
-def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
-    """Returns a graph state that can implement :math:`U=e^{-i\theta P}`"""
 
     if len(pauli_op) != 1:
         raise ValueError(

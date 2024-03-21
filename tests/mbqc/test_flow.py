@@ -43,9 +43,9 @@ def test_pflow():
             4: mp.Ment("X"),
         },
     )
-    circ.gflow.initialize_flow()
+    circ.flow.initialize_flow()
 
-    assert circ.gflow.depth == 1
+    assert circ.flow.depth == 1
 
     gs = mp.GraphState()
     gs.add_edges_from([(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)])
@@ -62,5 +62,5 @@ def test_pflow():
         },
     )
 
-    circ.gflow.initialize_flow()
-    assert circ.gflow.depth == 6
+    circ.flow.initialize_flow()
+    assert circ.flow.depth == 6

@@ -12,6 +12,17 @@ import copy
 
 from mentpy.calculator import solve
 
+__all__ = [
+    "calculate_complete_gens_lie_algebra",
+    "calculate_gens_lie_algebra",
+    "calculate_possible_rotations",
+    "lie_algebra_completion",
+    "calculate_lie_algebra",
+    "dim_su",
+    "dim_so",
+    "dim_sp",
+]
+
 GF = galois.GF(2)
 
 
@@ -62,7 +73,12 @@ def _find_solution(j: int, state: MBQCircuit, stabilizers: PauliOp):
 
 
 def calculate_complete_gens_lie_algebra(state: MBQCircuit):
-    """Calculates the Pauli operators for the Lie algebra of a given state"""
+    """Calculates the Pauli operators for the Lie algebra of a given state
+
+    Group
+    -----
+    utils
+    """
     graph_stabs = state.stabilizers()
 
     lieAlgebra = None
@@ -77,7 +93,12 @@ def calculate_complete_gens_lie_algebra(state: MBQCircuit):
 
 
 def calculate_gens_lie_algebra(state: MBQCircuit):
-    """Calculates the generators of the Lie algebra of a given state"""
+    """Calculates the generators of the Lie algebra of a given state
+
+    Group
+    -----
+    utils
+    """
     mapping = {
         i: j
         for i, j in zip(state.measurement_order, range(len(state.measurement_order)))
@@ -113,6 +134,10 @@ def calculate_possible_rotations(state: MBQCircuit):
 
     Returns:
         PauliOp: The possible rotations achievable by the state
+
+    Group
+    -----
+    utils
     """
     liealg_gens = calculate_gens_lie_algebra(state)
     possible_rotations = PauliOp(list(_generate_products(liealg_gens)))
@@ -153,7 +178,12 @@ def calculate_possible_rotations(state: MBQCircuit):
 
 
 def lie_algebra_completion(generators: PauliOp, max_iter: int = 1000):
-    """Completes a given set of Pauli operators to a basis of the Lie algebra"""
+    """Completes a given set of Pauli operators to a basis of the Lie algebra
+
+    Group
+    -----
+    utils
+    """
     lieAlg = copy.deepcopy(generators)
     already_commutated = set()
     queue = [(i, j) for i, j in combinations(lieAlg, 2)]
@@ -181,9 +211,24 @@ def lie_algebra_completion(generators: PauliOp, max_iter: int = 1000):
     return lieAlg
 
 
-def calculate_lie_algebra(state: MBQCircuit, max_iter: int = 10000):
-    """Calculates the Lie algebra of a given state"""
-    generators = calculate_gens_lie_algebra(state)
+def calculate_lie_algebra(circuit: MBQCircuit, max_iter: int = 10000):
+    """Calculates the Lie algebra of a given MBQCircuit
+
+    Examples
+    --------
+    Calculate the Lie algebra of a 3x3 grid cluster state
+
+    .. ipython:: python
+
+        circ = mp.templates.grid_cluster(3,3)
+        lie_alg = mp.utils.calculate_lie_algebra(circ)
+        print(lie_alg)
+
+    Group
+    -----
+    utils
+    """
+    generators = calculate_gens_lie_algebra(circuit)
     return lie_algebra_completion(generators, max_iter=max_iter)
 
 
@@ -197,19 +242,33 @@ def remove_repeated_ops(ops: PauliOp):
     return unrep_ops
 
 
-# dimension of su(n)
 def dim_su(n):
-    """Calculates the dimension of :math:`Su(n)`"""
+    """Calculates the dimension of :math:`\mathfrak{su}(n)`
+
+    Group
+    -----
+    utils
+    """
     return int(n**2 - 1)
 
 
 def dim_so(n):
-    """Calculates the dimension of :math:`So(n)`"""
+    """Calculates the dimension of :math:`\mathfrak{so}(n)`
+
+    Group
+    -----
+    utils
+    """
     return int(n * (n - 1) // 2)
 
 
 def dim_sp(n):
-    """Calculates the dimension of :math:`Sp(n)`"""
+    """Calculates the dimension of :math:`\mathfrak{sp}(n)`
+
+    Group
+    -----
+    utils
+    """
     assert n % 2 == 0, "n must be even"
     n = n // 2
     return int(n * (2 * n + 1))

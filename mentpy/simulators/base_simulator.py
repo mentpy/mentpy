@@ -9,6 +9,8 @@ from typing import Union, List, Tuple, Optional
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 
+__all__ = ["BaseSimulator"]
+
 
 class BaseSimulator(abc.ABC):
     """Base class for simulators.

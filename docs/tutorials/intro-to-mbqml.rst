@@ -79,7 +79,7 @@ where the input and target states are related by a given unitary :math:`\sigma_i
             cost_test.append(cost(params, x_test, y_test))
         
         theta = np.random.rand(len(gs.trainable_nodes))
-        opt = mp.optimizers.AdamOptimizer(step_size=0.08)
+        opt = mp.optimizers.AdamOpt(step_size=0.08)
         theta = opt.optimize(lambda params: cost(params, x_train, y_train), theta, num_iters=NUM_STEPS, callback=callback)
         post_cost = cost(theta, x_test, y_test)
 

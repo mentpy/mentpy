@@ -8,6 +8,8 @@ import networkx as nx
 
 from mentpy.mbqc import MBQCircuit, GraphState
 
+__all__ = ["FlowSpace"]
+
 
 class FlowSpace:
     r"""The flow space graph of a MBQCircuit.
@@ -26,6 +28,10 @@ class FlowSpace:
 
     .. note::  ``flow_space()`` will only work for MBQCircuit with less
     than 8 qubits.
+
+    Group
+    -----
+    utils
     """
 
     def __init__(
@@ -88,7 +94,8 @@ class FlowSpace:
             mbqc_graph = MBQCircuit(
                 graph, input_nodes=self.input_nodes, output_nodes=self.output_nodes
             )
-            layers = mbqc_graph.gflow.layers
+            mbqc_graph.flow.initialize_flow()
+            layers = mbqc_graph.flow.layers
 
             if layers is not None:
                 graph_space.add_node(idx, flow=True, mbqc_circuit=mbqc_graph)
