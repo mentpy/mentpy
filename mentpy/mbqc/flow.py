@@ -12,7 +12,7 @@ import networkx as nx
 
 from mentpy.calculator import linalg2
 
-__all__ = ["Flow"]
+__all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow"]
 
 
 class Flow:
@@ -108,7 +108,12 @@ class Flow:
 
 
 def find_cflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf."""
+    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+
+    Group
+    -----
+    mbqc
+    """
 
     l = {}
     g = {}
@@ -203,6 +208,10 @@ def check_if_cflow(
 def find_gflow(graph, input_nodes, output_nodes) -> object:
     """Finds the generalized flow of a ``MBQCGraph`` if it exists.
     Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+
+    Group
+    -----
+    mbqc
     """
     gamma = nx.adjacency_matrix(graph).toarray()
 
@@ -266,7 +275,11 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 
 def find_pflow(graph, I, O, λ):
     """
-    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf
+    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+
+    Group
+    -----
+    mbqc
     """
     V = set(graph.nodes())
     Γ = nx.adjacency_matrix(graph).toarray()
