@@ -271,6 +271,7 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 
 
 # Implementation of PauliFlow. Time complexity: O(n^5)
+# Special thanks to Will Simmons for useful discussions about this algorithm.
 
 
 def find_pflow(graph, I, O, λ):
@@ -308,41 +309,26 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
     PAu = get_PAu(Γ, A, u, V, I, B, λ)
     YAu = get_YAu(Γ, A, u, V, I, B, λ)
 
-    solution_executed = False
+    MAu1, MAu2 = get_MAu1(Γ, KAu, PAu), get_MAu2(Γ, KAu, YAu)
+    SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
+    SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
 
-    if len(KAu) != 0 and len(PAu) != 0:
-        MAu1 = get_MAu1(Γ, KAu, PAu)
-        SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
+    MAu = np.vstack((MAu1.T, MAu2.T))
+    SLambda = np.vstack((SLambda1, SLambda2))
 
-        try:
-            solution1 = linalg2.solve(MAu1.T, SLambda1, check_solution=True).reshape(
-                -1, 1
-            )
-            solution_executed = True
-        except Exception as e:
-            pass
+    try:
+        solution = linalg2.solve(MAu, SLambda, check_solution=True).reshape(-1, 1)
+    except Exception as e:
+        pass
 
-    if len(KAu) != 0 and len(YAu) != 0:
-        MAu2 = get_MAu2(Γ, KAu, YAu)
-        SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
-        try:
-            solution2 = linalg2.solve(MAu2.T, SLambda2, check_solution=True).reshape(
-                -1, 1
-            )
-            solution_executed = True
-        except Exception as e:
-            pass
+    if solution is not None:
+        ext_solution = np.zeros((len(V), 1), dtype=int)
+        ext_solution[KAu] = solution
 
-    if solution_executed:
-        solution = np.zeros((len(V), 1), dtype=int)
+        if plane in {"X", "Y", "Z", "XZ", "YZ"}:
+            ext_solution[u] = 1
 
-        if "solution1" in locals():
-            solution[KAu] = solution1
-
-        if "solution2" in locals():
-            for idx, val in np.ndenumerate(solution2):
-                i = YAu[idx[0]]
-                solution[i] = max(solution[i], val)
+        solution = ext_solution
 
     return solution
 
