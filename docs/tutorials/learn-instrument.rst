@@ -20,6 +20,7 @@ where :math:`\left\{E_x\right\}_{x\in X}` is a collection of completely positive
 
 
 .. ipython:: python
+    :okwarning:
 
     import numpy as np
     import mentpy as mp
@@ -44,7 +45,7 @@ where :math:`\left\{E_x\right\}_{x\in X}` is a collection of completely positive
     mgs[21] = mp.ControlMent(mgs[12].outcome + 1)
     
     @savefig teleportation_ansatz.png width=1000px
-    mp.draw(mgs, label='indices', edge_color_control='black', figsize = (12,4), fix_wires=[(8, '*', '*', '*','*', 9,10,11,12), (0,1,2,3, 13,14,15,16,17), (4,5,6,7, "*", "*","*", "*", 18, 19,20,21,22)])
+    mp.draw_old(mgs, label='indices', edge_color_control='black', figsize = (12,4), fix_wires=[(8, '*', '*', '*','*', 9,10,11,12), (0,1,2,3, 13,14,15,16,17), (4,5,6,7, "*", "*","*", "*", 18, 19,20,21,22)])
 
 Usually we do not have access to the analytical solution of a learning problem, but in this case, it is possible to find it as it is a small quantum system. In particular, to get an optimal cost value we define the following measurement pattern:
 

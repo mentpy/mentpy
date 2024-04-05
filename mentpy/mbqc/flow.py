@@ -12,7 +12,7 @@ import networkx as nx
 
 from mentpy.calculator import linalg2
 
-__all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow"]
+__all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow", "odd_neighborhood"]
 
 
 class Flow:
@@ -428,6 +428,16 @@ def get_YAu(Gamma, A, u, V, I, O, planes):
 
 def LambdaPu(plane, u, V, O, planes):
     return {v for v in V - O if v != u and planes[v] == plane}
+
+
+def odd_neighborhood(graph, A):
+    """Returns the set of nodes in the graph that have an odd number of neighbors in A.
+
+    Group
+    -----
+    mbqc
+    """
+    return {w for w in graph.nodes() if len(set(graph.neighbors(w)) & A) % 2 == 1}
 
 
 if __name__ == "__main__":
