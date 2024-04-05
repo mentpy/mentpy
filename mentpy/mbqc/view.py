@@ -131,7 +131,27 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
             position_xy = {}
             for i, layer in enumerate(layers):
                 for j, node in enumerate(layer):
+                    # if node in state.input_nodes:
+                    #     j = state.input_nodes.index(node)
+                    # if node in state.output_nodes:
+                    #     j = state.output_nodes.index(node)
                     position_xy[node] = (i, -j)
+
+            # position_xy = {}
+            # for i, node in enumerate(state.input_nodes):
+            #     # find index of layer
+            #     layer_of_node = [l for l, layer in enumerate(layers) if node in layer][0]
+            #     position_xy[node] = (layer_of_node, -i)
+
+            # for i, node in enumerate(state.output_nodes):
+            #     # find layer
+            #     layer_of_node = [l for l, layer in enumerate(layers) if node in layer][0]
+            #     position_xy[node] = (layer_of_node, -i)
+
+            # fixed_nodes = list(set(state.input_nodes) | set(state.output_nodes))
+            # position_xy = nx.spring_layout(
+            #     state.graph, pos=position_xy, fixed=fixed_nodes, k=1 / len(state.graph)
+            # )
 
             nx.draw(state.graph, ax=ax, pos=position_xy, **options)
 
