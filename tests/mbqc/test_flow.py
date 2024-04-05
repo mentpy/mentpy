@@ -64,3 +64,26 @@ def test_pflow():
 
     circ.flow.initialize_flow()
     assert circ.flow.depth == 6
+
+    gs = mp.GraphState()
+
+    gs.add_edges_from(
+        [
+            (0, 3),
+            (1, 3),
+            (1, 4),
+            (2, 4),
+            (0, 5),
+            (2, 5),
+        ]
+    )
+
+    circ = mp.MBQCircuit(
+        gs,
+        input_nodes=[0, 1, 2],
+        output_nodes=[0, 1, 2],
+        measurements={3: mp.Ment("YZ"), 4: mp.Ment("YZ"), 5: mp.Ment("YZ")},
+    )
+
+    circ.flow.initialize_flow()
+    assert circ.flow.depth == 1
