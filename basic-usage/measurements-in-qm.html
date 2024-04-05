@@ -697,7 +697,7 @@
 
 
 <h1 id="single-qubit-measurements">Single qubit measurements<a class="headerlink" href="#single-qubit-measurements" title="Link to this heading">¶</a></h1>
-<p>At the code of measurement-based quantum computation (MBQC) are single-qubit measurements. In MentPy, measurements are represented by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">mp.Ment</span></code> class.</p>
+<p>Measurement-based quantum computation (MBQC) is a paradigm of quantum computing where the computation is performed by performing single-qubit measurements on a large entangled state known as a resource state. In MentPy, measurements are represented by the <code class="xref py py-obj docutils literal notranslate"><span class="pre">mp.Ment</span></code> class.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="n">m1</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
 
 <span class="gp">In [2]: </span><span class="n">m1</span><span class="o">.</span><span class="n">matrix</span><span class="p">()</span>
@@ -706,9 +706,7 @@
 <span class="go">       [1, 0]])</span>
 </code></pre></div>
 </div>
-<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">mp.Ment</span></code> class can be initialized with a string representing a pauli operator, or with an
-optional angle and a string representing the plane of rotation. The default angle is <code class="docutils literal notranslate"><span class="pre">None</span></code> which
-represents a trainable parameter. The default plane of rotation is <code class="docutils literal notranslate"><span class="pre">XY</span></code>.</p>
+<p>The <code class="xref py py-obj docutils literal notranslate"><span class="pre">mp.Ment</span></code> class can be initialized with a string representing a pauli operator, or with an optional angle and a string representing the plane of rotation. The default angle is <code class="docutils literal notranslate"><span class="pre">None</span></code> which represents a trainable parameter. The default plane of rotation is <code class="docutils literal notranslate"><span class="pre">XY</span></code>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [3]: </span><span class="n">m2</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;XY&#39;</span><span class="p">)</span>
 
 <span class="gp">In [4]: </span><span class="n">m2</span><span class="o">.</span><span class="n">matrix</span><span class="p">()</span>
