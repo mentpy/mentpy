@@ -11,6 +11,7 @@ import numpy as np
 import networkx as nx
 
 from mentpy.calculator import linalg2
+from mentpy.operators.pauliop import PauliOp
 
 __all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow", "odd_neighborhood"]
 
@@ -102,6 +103,28 @@ class Flow:
 
     def adapt_angle(self, angle, node, previous_outcomes):
         raise NotImplementedError
+
+    def correction_op(self, node):
+        """Returns the correction operator for a given node."""
+        n_nodes = self.graph.number_of_nodes()
+
+        # X corrections
+        f_node = self(node)
+        x_corrections = (
+            {f_node}
+            if isinstance(f_node, int)
+            else set(np.where(f_node.flatten() != 0)[0])
+        )
+
+        # Z corrections
+        z_corrections = odd_neighborhood(self.graph, x_corrections)
+
+        # Pauli op
+        pauli_op = np.zeros((1, 2 * n_nodes), dtype=int)
+        pauli_op[0, list(x_corrections)] = 1
+        pauli_op[0, n_nodes + np.array(list(z_corrections))] = 1
+
+        return PauliOp(pauli_op)
 
 
 # Implementation of Causal Flow. Time complexity: O(min(m, kn))

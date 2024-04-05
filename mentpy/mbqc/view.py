@@ -343,7 +343,7 @@ def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
         obj_nodes = (
             state.graph.nodes() if isinstance(state, MBQCircuit) else state.nodes()
         )
-        labels = {node: pauliop.txt[ind] for ind, node in enumerate(obj_nodes)}
+        labels = {node: pauliop.txt[node] for node in obj_nodes}
         return labels
     else:
         raise ValueError(
