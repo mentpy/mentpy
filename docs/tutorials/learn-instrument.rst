@@ -82,6 +82,7 @@ Usually we do not have access to the analytical solution of a learning problem, 
     :collapsible:
 
     .. ipython:: python
+        :okwarning:
 
         angle_to_text = {
             0: '0',
@@ -99,7 +100,7 @@ Usually we do not have access to the analytical solution of a learning problem, 
                 labels[node] = 'Z'
 
         @savefig teleport_exact_solution.png width=1000px
-        mp.draw(
+        mp.mbqc.view.draw_old(
             mgs,
             label='angles',
             labels=labels,
