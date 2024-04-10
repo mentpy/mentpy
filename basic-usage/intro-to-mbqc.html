@@ -913,7 +913,7 @@ some common MBQC circuits. For example, we can create a grid cluster state with 
 
 <span class="gp">In [24]: </span><span class="n">linear_cluster</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 
-<span class="gp">In [25]: </span><span class="n">grid_and_linear</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">,</span> <span class="n">linear_cluster</span><span class="p">,</span> <span class="n">along</span><span class="o">=</span><span class="p">[(</span><span class="mi">9</span><span class="p">,</span><span class="mi">0</span><span class="p">)])</span>
+<span class="gp">In [25]: </span><span class="n">grid_and_linear</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">,</span> <span class="n">linear_cluster</span><span class="p">,</span> <span class="n">along</span><span class="o">=</span><span class="p">[(</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">)])</span>
 
 <span class="gp">In [26]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">grid_and_linear</span><span class="p">)</span>
 <span class="gh">Out[26]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
