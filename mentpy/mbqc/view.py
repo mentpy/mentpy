@@ -16,7 +16,7 @@ from mentpy.mbqc.states.graphstate import GraphState
 
 import warnings
 
-__all__ = ["draw"]
+__all__ = ["draw", "draw_with_wires"]
 
 DEFAULT_NODE_COLOR = "#FFBD59"
 INPUT_NODE_COLOR = "#ADD8E6"
@@ -122,36 +122,17 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
     elif isinstance(state, MBQCircuit):
         if state.flow is None:
             nx.draw(state.graph, ax=ax, **options)
+        elif state.flow.name.lower() == "cflow":
+            return draw_with_wires(state, **kwargs)
         else:
             layers = state.flow.layers
             node_colors = get_node_colors(state, style=style)
             options["node_color"] = [node_colors[node] for node in state.graph.nodes()]
 
-            # place in each column the nodes of the same layer
             position_xy = {}
             for i, layer in enumerate(layers):
                 for j, node in enumerate(layer):
-                    # if node in state.input_nodes:
-                    #     j = state.input_nodes.index(node)
-                    # if node in state.output_nodes:
-                    #     j = state.output_nodes.index(node)
                     position_xy[node] = (i, -j)
-
-            # position_xy = {}
-            # for i, node in enumerate(state.input_nodes):
-            #     # find index of layer
-            #     layer_of_node = [l for l, layer in enumerate(layers) if node in layer][0]
-            #     position_xy[node] = (layer_of_node, -i)
-
-            # for i, node in enumerate(state.output_nodes):
-            #     # find layer
-            #     layer_of_node = [l for l, layer in enumerate(layers) if node in layer][0]
-            #     position_xy[node] = (layer_of_node, -i)
-
-            # fixed_nodes = list(set(state.input_nodes) | set(state.output_nodes))
-            # position_xy = nx.spring_layout(
-            #     state.graph, pos=position_xy, fixed=fixed_nodes, k=1 / len(state.graph)
-            # )
 
             nx.draw(state.graph, ax=ax, pos=position_xy, **options)
 
@@ -175,7 +156,7 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
     return fig, ax
 
 
-def draw_old(
+def draw_with_wires(
     state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs
 ) -> Tuple[plt.Figure, plt.Axes]:
     """Draws mbqc circuit with flow.
@@ -187,12 +168,6 @@ def draw_old(
     -----
     states
     """
-    warnings.warn(
-        "This function is being deprecated",  # DeprecationWarning,
-        DeprecationWarning,
-        stacklevel=2,
-    )
-
     options = get_options(kwargs)
 
     show_controls = options.pop("show_controls")
