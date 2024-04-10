@@ -7,6 +7,21 @@ import pytest
 import mentpy as mp
 
 
+def test_from_pauli():
+    """Test the from_pauli template."""
+    gs = mp.templates.from_pauli("XYY")
+    assert gs.flow is not None
+    assert gs.graph.number_of_nodes() == 3 * 3 + 2
+
+    gs = mp.templates.from_pauli("IIIX")
+    assert gs.flow is not None
+    assert gs.graph.number_of_nodes() == 4 * 3 + 2
+
+    gs = mp.templates.from_pauli("XYXZZ")
+    assert gs.flow is not None
+    assert gs.graph.number_of_nodes() == 5 * 3 + 2
+
+
 class TestMuTA:
     """Test the MuTA template."""
 
