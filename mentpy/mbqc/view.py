@@ -121,8 +121,9 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
 
     elif isinstance(state, MBQCircuit):
         if state.flow is None:
-            nx.draw(state.graph, ax=ax, **options)
+            nx.draw(state.graph, position, ax=ax, **options)
         elif state.flow.name.lower() == "cflow":
+            plt.close(fig)
             return draw_with_wires(state, **kwargs)
         else:
             layers = state.flow.layers
