@@ -232,6 +232,26 @@ def muta(n_wires, n_layers, **kwargs) -> MBQCircuit:
 def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
     """Returns a graph state that can implement :math:`U=e^{-i \\theta P}`
 
+    Args
+    ----
+    pauli_op: PauliOp
+        The Pauli operator to implement.
+
+    Returns
+    -------
+    The graph state that can implement the Pauli operator.
+
+    Examples
+    --------
+    Create a graph state that can implement a rotation around :math:`XYY`.
+
+    .. ipython:: python
+
+            g = mp.templates.from_pauli(mp.PauliOp("XYY"))
+            p_op = g.flow.correction_op(10)
+            @savefig from_pauli.png width=1000px
+            mp.draw(g, pauliop=p_op)
+
     Group
     -----
     templates
@@ -253,14 +273,13 @@ def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
         has_x, has_z = False, False
         if pauli_op.matrix[0, q] == 1:
             exp_ansatz.add_edge(3 * q + 1, 3 * n_qubits)
-            has_x = True
 
         if pauli_op.matrix[0, q + n_qubits] == 1:
             exp_ansatz.add_edge(3 * q, 3 * n_qubits)
-            has_z = True
 
-        if has_x and has_z:
-            measurements[3 * n_qubits] = Ment("Y")
+    n_y = pauli_op.txt.count("Y")
+    if n_y % 2 == 1:
+        measurements[3 * n_qubits] = Ment("Y")
 
     input_nodes = [3 * q for q in range(n_qubits)]
     output_nodes = [3 * q + 2 for q in range(n_qubits)]

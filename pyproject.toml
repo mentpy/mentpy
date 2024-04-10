@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mentpy"
-version = "0.1.0a12"
+version = "0.1.0a13"
 description = "A Python library for simulating MBQC circuits"
 readme = "README.md"
 authors = [{name = "Luis Mantilla", email = "contact@mentpy.com"}]

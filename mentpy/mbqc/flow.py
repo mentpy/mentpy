@@ -11,8 +11,9 @@ import numpy as np
 import networkx as nx
 
 from mentpy.calculator import linalg2
+from mentpy.operators.pauliop import PauliOp
 
-__all__ = ["Flow"]
+__all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow", "odd_neighborhood"]
 
 
 class Flow:
@@ -103,12 +104,39 @@ class Flow:
     def adapt_angle(self, angle, node, previous_outcomes):
         raise NotImplementedError
 
+    def correction_op(self, node):
+        """Returns the correction operator for a given node."""
+        n_nodes = self.graph.number_of_nodes()
+
+        # X corrections
+        f_node = self(node)
+        x_corrections = (
+            {f_node}
+            if isinstance(f_node, int)
+            else set(np.where(f_node.flatten() != 0)[0])
+        )
+
+        # Z corrections
+        z_corrections = odd_neighborhood(self.graph, x_corrections)
+
+        # Pauli op
+        pauli_op = np.zeros((1, 2 * n_nodes), dtype=int)
+        pauli_op[0, list(x_corrections)] = 1
+        pauli_op[0, n_nodes + np.array(list(z_corrections))] = 1
+
+        return PauliOp(pauli_op)
+
 
 # Implementation of Causal Flow. Time complexity: O(min(m, kn))
 
 
 def find_cflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf."""
+    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+
+    Group
+    -----
+    mbqc
+    """
 
     l = {}
     g = {}
@@ -203,6 +231,10 @@ def check_if_cflow(
 def find_gflow(graph, input_nodes, output_nodes) -> object:
     """Finds the generalized flow of a ``MBQCGraph`` if it exists.
     Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+
+    Group
+    -----
+    mbqc
     """
     gamma = nx.adjacency_matrix(graph).toarray()
 
@@ -262,11 +294,16 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 
 
 # Implementation of PauliFlow. Time complexity: O(n^5)
+# Special thanks to Will Simmons for useful discussions about this algorithm.
 
 
 def find_pflow(graph, I, O, λ):
     """
-    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf
+    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+
+    Group
+    -----
+    mbqc
     """
     V = set(graph.nodes())
     Γ = nx.adjacency_matrix(graph).toarray()
@@ -295,41 +332,26 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
     PAu = get_PAu(Γ, A, u, V, I, B, λ)
     YAu = get_YAu(Γ, A, u, V, I, B, λ)
 
-    solution_executed = False
+    MAu1, MAu2 = get_MAu1(Γ, KAu, PAu), get_MAu2(Γ, KAu, YAu)
+    SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
+    SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
 
-    if len(KAu) != 0 and len(PAu) != 0:
-        MAu1 = get_MAu1(Γ, KAu, PAu)
-        SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
+    MAu = np.vstack((MAu1.T, MAu2.T))
+    SLambda = np.vstack((SLambda1, SLambda2))
 
-        try:
-            solution1 = linalg2.solve(MAu1.T, SLambda1, check_solution=True).reshape(
-                -1, 1
-            )
-            solution_executed = True
-        except Exception as e:
-            pass
+    try:
+        solution = linalg2.solve(MAu, SLambda, check_solution=True).reshape(-1, 1)
+    except Exception as e:
+        pass
 
-    if len(KAu) != 0 and len(YAu) != 0:
-        MAu2 = get_MAu2(Γ, KAu, YAu)
-        SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
-        try:
-            solution2 = linalg2.solve(MAu2.T, SLambda2, check_solution=True).reshape(
-                -1, 1
-            )
-            solution_executed = True
-        except Exception as e:
-            pass
+    if solution is not None:
+        ext_solution = np.zeros((len(V), 1), dtype=int)
+        ext_solution[KAu] = solution
 
-    if solution_executed:
-        solution = np.zeros((len(V), 1), dtype=int)
+        if plane in {"X", "Y", "Z", "XZ", "YZ"}:
+            ext_solution[u] = 1
 
-        if "solution1" in locals():
-            solution[KAu] = solution1
-
-        if "solution2" in locals():
-            for idx, val in np.ndenumerate(solution2):
-                i = YAu[idx[0]]
-                solution[i] = max(solution[i], val)
+        solution = ext_solution
 
     return solution
 
@@ -431,32 +453,29 @@ def LambdaPu(plane, u, V, O, planes):
     return {v for v in V - O if v != u and planes[v] == plane}
 
 
+def odd_neighborhood(graph, A):
+    """Returns the set of nodes in the graph that have an odd number of neighbors in A.
+
+    Group
+    -----
+    mbqc
+    """
+    return {w for w in graph.nodes() if len(set(graph.neighbors(w)) & A) % 2 == 1}
+
+
 if __name__ == "__main__":
     import mentpy as mp
 
     gs = mp.GraphState()
+
     gs.add_edges_from(
         [
+            (0, 3),
+            (1, 3),
+            (1, 4),
+            (2, 4),
             (0, 5),
-            (1, 5),
-            (1, 6),
-            (2, 6),
-            (2, 7),
-            (3, 7),
-            (3, 8),
-            (4, 8),
-            (0, 9),
-            (2, 9),
-            (1, 10),
-            (3, 10),
-            (2, 11),
-            (4, 11),
-            (0, 12),
-            (3, 12),
-            (1, 13),
-            (4, 13),
-            (0, 14),
-            (4, 14),
+            (2, 5),
         ]
     )
 
@@ -464,22 +483,16 @@ if __name__ == "__main__":
         0: (0, 0),
         1: (1, 0),
         2: (2, 0),
-        3: (3, 0),
-        4: (4, 0),
-        5: (0.5, 0.5),
-        6: (1.5, 0.5),
-        7: (2.5, 0.5),
-        8: (3.5, 0.5),
-        9: (1, 1.5),
-        10: (2, 1.5),
-        11: (3, 1.5),
-        12: (1.5, 2.5),
-        13: (2.5, 2.5),
-        14: (2, 4),
+        3: (0.5, 0.5),
+        4: (1.5, 0.5),
+        5: (1, 1.5),
     }
 
     cond, p, d = find_pflow(
-        gs, set([0, 1, 2, 3, 4]), set([0, 1, 2, 3, 4]), {v: "YZ" for v in gs.nodes}
+        gs,
+        set([0, 1, 2]),
+        set([0, 1, 2]),
+        {v: "YZ" for v in set(gs.nodes()) - {0, 1, 2}},
     )
 
     print(cond, p, d)

@@ -14,7 +14,9 @@ import networkx as nx
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 from mentpy.mbqc.states.graphstate import GraphState
 
-__all__ = ["draw"]
+import warnings
+
+__all__ = ["draw", "draw_with_wires"]
 
 DEFAULT_NODE_COLOR = "#FFBD59"
 INPUT_NODE_COLOR = "#ADD8E6"
@@ -80,7 +82,82 @@ def get_options(kwargs) -> dict:
     return default_options
 
 
-def draw(
+def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, plt.Axes]:
+    """Draws mbqc circuit with flow.
+
+    Group
+    -----
+    states
+    """
+
+    options = get_options(kwargs)
+
+    show_controls = options.pop("show_controls")
+    show_flow = options.pop("show_flow")
+    pauliop = options.get("pauliop", None)
+    edge_color_control = options.pop("edge_color_control")
+    style = options.pop("style")
+    position = options.pop("position")
+
+    if pauliop is not None:
+        if len(pauliop) != 1:
+            raise ValueError("pauliop must be a single Pauli operator")
+        options["label"] = "pauliop"
+
+    if "labels" not in options:
+        options["labels"] = process_labels(state, options)
+    else:
+        options.pop("pauliop")
+
+    transp = options.pop("transparent")
+    fig, ax = plt.subplots(figsize=options.pop("figsize"))
+
+    if transp:
+        fig.patch.set_alpha(0)
+        ax.patch.set_alpha(0)
+
+    if isinstance(state, GraphState):
+        nx.draw(state, position, ax=ax, **options)
+
+    elif isinstance(state, MBQCircuit):
+        if state.flow is None:
+            nx.draw(state.graph, position, ax=ax, **options)
+        elif state.flow.name.lower() == "cflow":
+            plt.close(fig)
+            return draw_with_wires(state, **kwargs)
+        else:
+            layers = state.flow.layers
+            node_colors = get_node_colors(state, style=style)
+            options["node_color"] = [node_colors[node] for node in state.graph.nodes()]
+
+            position_xy = {}
+            for i, layer in enumerate(layers):
+                for j, node in enumerate(layer):
+                    position_xy[node] = (i, -j)
+
+            nx.draw(state.graph, ax=ax, pos=position_xy, **options)
+
+            if show_flow:
+                nx.draw(_graph_with_flow(state), pos=position_xy, ax=ax, **options)
+
+            if show_controls:
+                dashed_edges = []
+                for node in state.controlled_nodes:
+                    for k in state.measurements[node].condition.cond_nodes:
+                        dashed_edges.append((node, k))
+                nx.draw_networkx_edges(
+                    state.graph,
+                    pos=position_xy,
+                    edge_color=edge_color_control,
+                    width=1.5,
+                    edgelist=dashed_edges,
+                    style="dashed",
+                )
+
+    return fig, ax
+
+
+def draw_with_wires(
     state: Union[MBQCircuit, GraphState], fix_wires=None, **kwargs
 ) -> Tuple[plt.Figure, plt.Axes]:
     """Draws mbqc circuit with flow.
@@ -242,7 +319,7 @@ def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
         obj_nodes = (
             state.graph.nodes() if isinstance(state, MBQCircuit) else state.nodes()
         )
-        labels = {node: pauliop.txt[ind] for ind, node in enumerate(obj_nodes)}
+        labels = {node: pauliop.txt[node] for node in obj_nodes}
         return labels
     else:
         raise ValueError(
@@ -252,6 +329,8 @@ def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
 
 def _graph_with_flow(state):
     """Return digraph with flow (but does not have all CZ edges!)"""
+    if state.flow.name.lower() != "cflow":
+        return state.graph
     g = state.graph
     dflow = nx.DiGraph()
     dflow.add_nodes_from(g.nodes())

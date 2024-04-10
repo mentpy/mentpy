@@ -16,6 +16,7 @@ __all__ = [
     "GraphState",
     "MBQCircuit",
     "draw",
+    "draw_with_wires",
     "vstack",
     "hstack",
     "merge",
