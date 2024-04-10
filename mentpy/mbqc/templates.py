@@ -248,8 +248,9 @@ def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
     .. ipython:: python
 
             g = mp.templates.from_pauli(mp.PauliOp("XYY"))
+            p_op = g.flow.correction_op(10)
             @savefig from_pauli.png width=1000px
-            mp.draw(g)
+            mp.draw(g, pauliop=p_op)
 
     Group
     -----
