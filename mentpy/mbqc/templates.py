@@ -232,6 +232,25 @@ def muta(n_wires, n_layers, **kwargs) -> MBQCircuit:
 def from_pauli(pauli_op: PauliOp) -> MBQCircuit:
     """Returns a graph state that can implement :math:`U=e^{-i \\theta P}`
 
+    Args
+    ----
+    pauli_op: PauliOp
+        The Pauli operator to implement.
+
+    Returns
+    -------
+    The graph state that can implement the Pauli operator.
+
+    Examples
+    --------
+    Create a graph state that can implement a rotation around :math:`XYY`.
+
+    .. ipython:: python
+
+            g = mp.templates.from_pauli(mp.PauliOp("XYY"))
+            @savefig from_pauli.png width=1000px
+            mp.draw(g)
+
     Group
     -----
     templates
