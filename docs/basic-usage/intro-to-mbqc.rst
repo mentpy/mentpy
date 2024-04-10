@@ -83,7 +83,7 @@ functions.
 
         .. ipython:: python
 
-            new_circ = mp.merge(mbcirc, mbcirc, along=[(9,0)])  # specify nodes to merge
+            new_circ = mp.merge(mbcirc, mbcirc, along=[(4,0)])  # specify nodes to merge
             @savefig merge_mbqc.png width=1000px
             mp.draw(new_circ, label='angles')
     
@@ -114,7 +114,7 @@ some common MBQC circuits. For example, we can create a grid cluster state with 
 
     grid_cluster = mp.templates.grid_cluster(3, 5)
     linear_cluster = mp.templates.linear_cluster(4)
-    grid_and_linear = mp.merge(grid_cluster, linear_cluster, along=[(4,0)])
+    grid_and_linear = mp.merge(grid_cluster, linear_cluster, along=[(9,0)])
     @savefig template_merge.png width=1000px
     mp.draw(grid_and_linear)
 
