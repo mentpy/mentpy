@@ -83,7 +83,7 @@ functions.
 
         .. ipython:: python
 
-            new_circ = mp.merge(mbcirc, mbcirc, along=[(4,0)])  # specify nodes to merge
+            new_circ = mp.merge(mbcirc, mbcirc, along=[(9,0)])  # specify nodes to merge
             @savefig merge_mbqc.png width=1000px
             mp.draw(new_circ, label='angles')
     
