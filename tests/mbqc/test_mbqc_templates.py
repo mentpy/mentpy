@@ -7,17 +7,27 @@ import pytest
 import mentpy as mp
 
 
+@pytest.mark.parametrize("n_wires", [2, 3, 4])
+@pytest.mark.parametrize("n_layers", [2, 3, 4])
+@pytest.mark.parametrize("periodic", [True, False])
+def test_grid_cluster(n_wires, n_layers, periodic):
+    """Test the grid_cluster template."""
+    gc = mp.templates.grid_cluster(n_wires, n_layers, periodic=periodic)
+    assert gc.flow is not None
+    assert gc.graph.number_of_nodes() == n_wires * n_layers
+
+
 def test_from_pauli():
     """Test the from_pauli template."""
-    gs = mp.templates.from_pauli("XYY")
+    gs = mp.templates.from_pauli(mp.PauliOp("XYY"))
     assert gs.flow is not None
     assert gs.graph.number_of_nodes() == 3 * 3 + 2
 
-    gs = mp.templates.from_pauli("IIIX")
+    gs = mp.templates.from_pauli(mp.PauliOp("IIIX"))
     assert gs.flow is not None
     assert gs.graph.number_of_nodes() == 4 * 3 + 2
 
-    gs = mp.templates.from_pauli("XYXZZ")
+    gs = mp.templates.from_pauli(mp.PauliOp("XYXZZ"))
     assert gs.flow is not None
     assert gs.graph.number_of_nodes() == 5 * 3 + 2
 
