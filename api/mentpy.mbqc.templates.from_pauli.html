@@ -1017,8 +1017,10 @@
 <p>Create a graph state that can implement a rotation around <span class="math notranslate nohighlight">\(XYY\)</span>.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="n">g</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">from_pauli</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">PauliOp</span><span class="p">(</span><span class="s2">&quot;XYY&quot;</span><span class="p">))</span>
 
-<span class="gp">In [2]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
-<span class="gh">Out[2]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
+<span class="gp">In [2]: </span><span class="n">p_op</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">correction_op</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="gp">In [3]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">pauliop</span><span class="o">=</span><span class="n">p_op</span><span class="p">)</span>
+<span class="gh">Out[3]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/from_pauli.png"><img alt="../_images/from_pauli.png" src="../_images/from_pauli.png" style="width: 1000px;" /></a>
