@@ -19,5 +19,7 @@ from importlib.metadata import version, PackageNotFoundError
 
 try:
     __version__ = version("mentpy")
+    __version_info__ = tuple(map(int, __version__.split(".")))
 except PackageNotFoundError:
     __version__ = "0.0.0"
+    __version_info__ = (0, 0, 0)
