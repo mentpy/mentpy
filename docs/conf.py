@@ -61,6 +61,7 @@ latex_elements = {
 python_apigen_modules = {
     "mentpy": "api/mentpy.",
     "mentpy.mbqc.templates": "api/mentpy.mbqc.templates.",
+    "mentpy.mbqc.flow": "api/mentpy.mbqc.flow.",
     "mentpy.utils": "api/mentpy.utils.",
     "mentpy.optimizers": "api/mentpy/optimizers.",
 }

@@ -19,9 +19,20 @@ __all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow", "odd_neighborhood"]
 class Flow:
     """This class deals with the flow of a given graph state
 
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+    planes : dict
+        The measurement planes of the graph state. The keys are the nodes and the values are the planes. If None, the algorithm will assume that the measurement planes are all XY.
+
     Group
     -----
-    mbqc
+    flow
     """
 
     def __init__(self, graph, input_nodes, output_nodes, planes=None):
@@ -126,16 +137,65 @@ class Flow:
 
         return PauliOp(pauli_op)
 
+    def generator_op(self, node):
+        """Returns the generator operator for a given node."""
+        op = self.correction_op(node)
+        cond = False
+        while not cond:
+            z_places = set(
+                op.matrix[0, self.graph.number_of_nodes() :].nonzero()[0]
+            ) - set(op.matrix[0, : self.graph.number_of_nodes()].nonzero()[0])
+            nodes_allowed = set([node, *self.output_nodes])
+
+            z_mult = None
+
+            if z_places.issubset(nodes_allowed):
+                cond = True
+
+            else:
+                z_mult = z_places - nodes_allowed
+
+            if z_mult:
+                for z in z_mult:
+                    op = op * self.correction_op(z)
+
+        return op
+
 
 # Implementation of Causal Flow. Time complexity: O(min(m, kn))
 
 
 def find_cflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+    """Finds the causal flow a graph.
+
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+
+    Returns
+    -------
+    flow : function
+        The flow function.
+    partial_order : function
+        The partial order function.
+    depth : int
+        The depth of the flow.
+    layers : dict
+        The layers of the flow.
+
+
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/0709.2670v1.pdf.
 
     Group
     -----
-    mbqc
+    flow
     """
 
     l = {}
@@ -229,12 +289,35 @@ def check_if_cflow(
 
 
 def find_gflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the generalized flow of a ``MBQCGraph`` if it exists.
-    Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+    """Finds the generalized flow of a graph.
+
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+
+    Returns
+    -------
+    flow : function
+        The flow function.
+    partial_order : function
+        The partial order function.
+    depth : int
+        The depth of the flow.
+    layers : dict
+        The layers of the flow.
+
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/0709.2670v1.pdf.
 
     Group
     -----
-    mbqc
+    flow
     """
     gamma = nx.adjacency_matrix(graph).toarray()
 
@@ -294,16 +377,41 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 
 
 # Implementation of PauliFlow. Time complexity: O(n^5)
-# Special thanks to Will Simmons for useful discussions about this algorithm.
 
 
-def find_pflow(graph, I, O, λ):
+def find_pflow(graph, I, O, planes):
     """
-    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+    Find a p-flow in a given graph.
+
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    I : list
+        The input nodes of the graph state.
+    O : list
+        The output nodes of the graph state.
+    planes : dict
+        The measurement planes of the graph state. The keys are the nodes and the values are the planes.
+
+    Returns
+    -------
+    condition : bool
+        True if a p-flow was found, False otherwise.
+    flow : function
+        The flow function.
+    layers : dict
+        The layers of the flow.
+
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+    (Special thanks to Will Simmons for useful discussions about this algorithm.)
+
 
     Group
     -----
-    mbqc
+    flow
     """
     V = set(graph.nodes())
     Γ = nx.adjacency_matrix(graph).toarray()
@@ -315,26 +423,26 @@ def find_pflow(graph, I, O, λ):
     for v in V:
         if v in O:
             d[v] = 0
-        elif λ[v] == "X":
+        elif planes[v] == "X":
             LX.add(v)
-        elif λ[v] == "Y":
+        elif planes[v] == "Y":
             LY.add(v)
-        elif λ[v] == "Z":
+        elif planes[v] == "Z":
             LZ.add(v)
 
     p = {}
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, set(), O, d, 0, graph, p)
+    return pflowaux(V, Γ, I, O, planes, LX, LY, LZ, set(), O, d, 0, graph, p)
 
 
-def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
+def solve_constraints(u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, plane):
     solution = None
-    KAu = get_KAu(Γ, A, u, V, I, B, λ)
-    PAu = get_PAu(Γ, A, u, V, I, B, λ)
-    YAu = get_YAu(Γ, A, u, V, I, B, λ)
+    KAu = get_KAu(Γ, A, u, V, I, B, planes)
+    PAu = get_PAu(Γ, A, u, V, I, B, planes)
+    YAu = get_YAu(Γ, A, u, V, I, B, planes)
 
     MAu1, MAu2 = get_MAu1(Γ, KAu, PAu), get_MAu2(Γ, KAu, YAu)
-    SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
-    SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
+    SLambda1 = get_SLambda1(plane, u, V, I, O, planes, graph, Γ, A, KAu, PAu)
+    SLambda2 = get_SLambda2(plane, u, V, I, O, planes, graph, Γ, A, KAu, YAu)
 
     MAu = np.vstack((MAu1.T, MAu2.T))
     SLambda = np.vstack((SLambda1, SLambda2))
@@ -356,24 +464,24 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
     return solution
 
 
-def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
+def pflowaux(V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, p):
     C = set()
     for u in set(V) - B:
         solution = None
 
-        if λ[u] in {"XY", "X", "Y"}:
+        if planes[u] in {"XY", "X", "Y"}:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XY"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XY"
             )
 
-        if λ[u] in {"XZ", "X", "Z"} and solution is None:
+        if planes[u] in {"XZ", "X", "Z"} and solution is None:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XZ"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XZ"
             )
 
-        if λ[u] in {"YZ", "Y", "Z"} and solution is None:
+        if planes[u] in {"YZ", "Y", "Z"} and solution is None:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "YZ"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "YZ"
             )
 
         if solution is not None:
@@ -388,7 +496,7 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
             return False, None, {}
 
     Bprime = B | C
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
+    return pflowaux(V, Γ, I, O, planes, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
 
 
 def get_MAu1(Gamma, KAu, PAu):
@@ -458,7 +566,7 @@ def odd_neighborhood(graph, A):
 
     Group
     -----
-    mbqc
+    flow
     """
     return {w for w in graph.nodes() if len(set(graph.neighbors(w)) & A) % 2 == 1}
 

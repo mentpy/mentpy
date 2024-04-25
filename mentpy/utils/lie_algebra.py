@@ -13,9 +13,9 @@ import copy
 from mentpy.calculator import solve
 
 __all__ = [
-    "calculate_complete_gens_lie_algebra",
-    "calculate_gens_lie_algebra",
-    "calculate_possible_rotations",
+    "calculate_complete_gens",
+    "calculate_ordered_gens",
+    "calculate_gens",
     "lie_algebra_completion",
     "calculate_lie_algebra",
     "dim_su",
@@ -72,8 +72,10 @@ def _find_solution(j: int, state: MBQCircuit, stabilizers: PauliOp):
     return op
 
 
-def calculate_complete_gens_lie_algebra(state: MBQCircuit):
+def calculate_complete_gens_lie_algebra_old(state: MBQCircuit):
     """Calculates the Pauli operators for the Lie algebra of a given state
+
+    NOTE: This function is deprecated
 
     Group
     -----
@@ -92,56 +94,57 @@ def calculate_complete_gens_lie_algebra(state: MBQCircuit):
     return lieAlgebra
 
 
-def calculate_gens_lie_algebra(state: MBQCircuit):
-    """Calculates the generators of the Lie algebra of a given state
+def calculate_complete_gens(circuit: MBQCircuit):
+    """Calculates the complete generators for the Lie algebra of a given circuit.
 
     Group
     -----
     utils
     """
-    mapping = {
-        i: j
-        for i, j in zip(state.measurement_order, range(len(state.measurement_order)))
-    }
+    gens = None
+    if circuit.flow is None:
+        raise ValueError("Cannot calculate the Lie algebra of a circuit without a flow")
 
-    lieAlgebra = calculate_complete_gens_lie_algebra(state)
+    for node in circuit.trainable_nodes:
+        op = circuit.flow.generator_op(node)
+        if gens is None:
+            gens = op
+        else:
+            gens.append(op)
 
-    output_ops = lieAlgebra.get_subset(state.output_nodes)
+    return gens
+
+
+def calculate_gens(circuit: MBQCircuit):
+    """Calculates the generators of the Lie algebra of a given circuit removing repeated operators
+
+    Group
+    -----
+    utils
+    """
+    lieAlgebra = calculate_complete_gens(circuit)
+
+    output_ops = lieAlgebra.get_subset(circuit.output_nodes)
     return remove_repeated_ops(output_ops)
 
 
-def _generate_products(liealg_gens, start=0, current_product=None):
-    """
-    Generate all possible products of the generators of a Lie algebra.
-    """
-    if current_product is None:
-        current_product = PauliOp("I" * liealg_gens[0].number_of_qubits)
-
-    if current_product != 1:
-        yield current_product
-
-    for i in range(start, len(liealg_gens)):
-        # Generate the next product and proceed recursively
-        next_product = current_product * liealg_gens[i]
-        yield from _generate_products(liealg_gens, i + 1, next_product)
-
-
-def calculate_possible_rotations(state: MBQCircuit):
-    """Calculates the possible rotations of a given state
+def calculate_ordered_gens(circuit: MBQCircuit):
+    """Calculates the generators of a given circuit in order. The i-th generator
+    corresponds to the i-th trainable node in the circuit.
 
     Args:
-        state (MBQCircuit): The state for which to calculate the possible rotations
+        circuit (MBQCircuit): The state for which to calculate the possible rotations
 
     Returns:
-        PauliOp: The possible rotations achievable by the state
+        PauliOp: The possible rotations achievable by the circuit
 
     Group
     -----
     utils
     """
-    liealg_gens = calculate_gens_lie_algebra(state)
-    possible_rotations = PauliOp(list(_generate_products(liealg_gens)))
-    return possible_rotations
+    lieAlgebra = calculate_complete_gens(circuit)
+    output_ops = lieAlgebra.get_subset(circuit.output_nodes)
+    return output_ops
 
 
 # def lie_algebra_completion_old(generators: PauliOp, max_iter: int = 1000):
@@ -228,7 +231,7 @@ def calculate_lie_algebra(circuit: MBQCircuit, max_iter: int = 10000):
     -----
     utils
     """
-    generators = calculate_gens_lie_algebra(circuit)
+    generators = calculate_gens(circuit)
     return lie_algebra_completion(generators, max_iter=max_iter)
 
 
@@ -236,14 +239,15 @@ def remove_repeated_ops(ops: PauliOp):
     """Removes repeated Pauli operators from a set"""
     ops = copy.deepcopy(ops)
     unrep_ops = ops[0]
-    for op in ops[1:]:
-        if op not in unrep_ops:
-            unrep_ops.append(op)
+    if len(ops) > 1:
+        for op in ops[1:]:
+            if op not in unrep_ops:
+                unrep_ops.append(op)
     return unrep_ops
 
 
 def dim_su(n):
-    """Calculates the dimension of :math:`\mathfrak{su}(n)`
+    """Calculates the dimension of :math:`\\mathfrak{su}(n)`
 
     Group
     -----
@@ -253,7 +257,7 @@ def dim_su(n):
 
 
 def dim_so(n):
-    """Calculates the dimension of :math:`\mathfrak{so}(n)`
+    """Calculates the dimension of :math:`\\mathfrak{so}(n)`
 
     Group
     -----
@@ -263,7 +267,7 @@ def dim_so(n):
 
 
 def dim_sp(n):
-    """Calculates the dimension of :math:`\mathfrak{sp}(n)`
+    """Calculates the dimension of :math:`\\mathfrak{sp}(n)`
 
     Group
     -----
