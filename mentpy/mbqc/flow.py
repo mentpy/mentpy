@@ -166,7 +166,7 @@ class Flow:
 
 
 def find_cflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+    """Finds the causal flow a graph.
 
     Parameters
     ----------
@@ -187,6 +187,11 @@ def find_cflow(graph, input_nodes, output_nodes) -> object:
         The depth of the flow.
     layers : dict
         The layers of the flow.
+
+
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/0709.2670v1.pdf.
 
     Group
     -----
@@ -284,8 +289,7 @@ def check_if_cflow(
 
 
 def find_gflow(graph, input_nodes, output_nodes) -> object:
-    """Finds the generalized flow of a ``MBQCGraph`` if it exists.
-    Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
+    """Finds the generalized flow of a graph.
 
     Parameters
     ----------
@@ -307,6 +311,9 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     layers : dict
         The layers of the flow.
 
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/0709.2670v1.pdf.
 
     Group
     -----
@@ -370,12 +377,11 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 
 
 # Implementation of PauliFlow. Time complexity: O(n^5)
-# Special thanks to Will Simmons for useful discussions about this algorithm.
 
 
 def find_pflow(graph, I, O, planes):
     """
-    Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+    Find a p-flow in a given graph.
 
     Parameters
     ----------
@@ -387,6 +393,21 @@ def find_pflow(graph, I, O, planes):
         The output nodes of the graph state.
     planes : dict
         The measurement planes of the graph state. The keys are the nodes and the values are the planes.
+
+    Returns
+    -------
+    condition : bool
+        True if a p-flow was found, False otherwise.
+    flow : function
+        The flow function.
+    layers : dict
+        The layers of the flow.
+
+    References
+    ----------
+    Implementation of algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+    (Special thanks to Will Simmons for useful discussions about this algorithm.)
+
 
     Group
     -----
