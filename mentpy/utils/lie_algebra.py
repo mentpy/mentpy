@@ -13,9 +13,9 @@ import copy
 from mentpy.calculator import solve
 
 __all__ = [
-    "calculate_complete_gens_lie_algebra",
-    "calculate_gens",
+    "calculate_complete_gens",
     "calculate_ordered_gens",
+    "calculate_gens",
     "lie_algebra_completion",
     "calculate_lie_algebra",
     "dim_su",
@@ -94,8 +94,8 @@ def calculate_complete_gens_lie_algebra_old(state: MBQCircuit):
     return lieAlgebra
 
 
-def calculate_complete_gens_lie_algebra(circuit: MBQCircuit):
-    """Calculates the Pauli operators for the Lie algebra of a given circuit
+def calculate_complete_gens(circuit: MBQCircuit):
+    """Calculates the complete generators for the Lie algebra of a given circuit.
 
     Group
     -----
@@ -122,26 +122,10 @@ def calculate_gens(circuit: MBQCircuit):
     -----
     utils
     """
-    lieAlgebra = calculate_complete_gens_lie_algebra(circuit)
+    lieAlgebra = calculate_complete_gens(circuit)
 
     output_ops = lieAlgebra.get_subset(circuit.output_nodes)
     return remove_repeated_ops(output_ops)
-
-
-# def _generate_products(liealg_gens, start=0, current_product=None):
-#     """
-#     Generate all possible products of the generators of a Lie algebra.
-#     """
-#     if current_product is None:
-#         current_product = PauliOp("I" * liealg_gens[0].number_of_qubits)
-
-#     if current_product != 1:
-#         yield current_product
-
-#     for i in range(start, len(liealg_gens)):
-#         # Generate the next product and proceed recursively
-#         next_product = current_product * liealg_gens[i]
-#         yield from _generate_products(liealg_gens, i + 1, next_product)
 
 
 def calculate_ordered_gens(circuit: MBQCircuit):
@@ -158,7 +142,7 @@ def calculate_ordered_gens(circuit: MBQCircuit):
     -----
     utils
     """
-    lieAlgebra = calculate_complete_gens_lie_algebra(circuit)
+    lieAlgebra = calculate_complete_gens(circuit)
     output_ops = lieAlgebra.get_subset(circuit.output_nodes)
     return output_ops
 
