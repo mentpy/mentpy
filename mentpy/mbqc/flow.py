@@ -32,7 +32,7 @@ class Flow:
 
     Group
     -----
-    mbqc
+    flow
     """
 
     def __init__(self, graph, input_nodes, output_nodes, planes=None):
@@ -170,7 +170,7 @@ def find_cflow(graph, input_nodes, output_nodes) -> object:
 
     Group
     -----
-    mbqc
+    flow
     """
 
     l = {}
@@ -269,7 +269,7 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
 
     Group
     -----
-    mbqc
+    flow
     """
     gamma = nx.adjacency_matrix(graph).toarray()
 
@@ -338,7 +338,7 @@ def find_pflow(graph, I, O, λ):
 
     Group
     -----
-    mbqc
+    flow
     """
     V = set(graph.nodes())
     Γ = nx.adjacency_matrix(graph).toarray()
@@ -493,7 +493,7 @@ def odd_neighborhood(graph, A):
 
     Group
     -----
-    mbqc
+    flow
     """
     return {w for w in graph.nodes() if len(set(graph.neighbors(w)) & A) % 2 == 1}
 
