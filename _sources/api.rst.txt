@@ -16,6 +16,11 @@ Templates
 
 .. python-apigen-group:: templates
 
+Flow
+----
+
+.. python-apigen-group:: flow
+
 
 Simulators
 ==========
