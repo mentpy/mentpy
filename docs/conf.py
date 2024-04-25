@@ -22,7 +22,7 @@ copyright = "2022-2023, Luis Mantilla"
 author = "Luis Mantilla"
 
 # The short X.Y version.
-version = ".".join(str(x) for x in mentpy.__version_info__[:2])
+version = f"{mentpy.__version_info__.major}.{mentpy.__version_info__.minor}"
 # The full version, including alpha/beta/rc tags.
 release = mentpy.__version__
 
