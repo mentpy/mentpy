@@ -6,5 +6,5 @@
 
 
 
-.. python-apigen-entity-page::  mentpy.utils.calculate_gens_lie_algebra
+.. python-apigen-entity-page::  mentpy.utils.calculate_ordered_gens
 

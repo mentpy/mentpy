@@ -6,5 +6,5 @@
 
 
 
-.. python-apigen-entity-page::  mentpy.utils.calculate_possible_rotations
+.. python-apigen-entity-page::  mentpy.utils.calculate_gens
 

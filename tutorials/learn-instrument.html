@@ -745,7 +745,8 @@
 <span class="gh">Out[19]: </span><span class="go">(&lt;Figure size 1200x400 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/teleportation_ansatz.png"><img alt="../_images/teleportation_ansatz.png" src="../_images/teleportation_ansatz.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="../_images/teleportation_ansatz.png"><img alt="../_images/teleportation_ansatz.png" src="../_images/teleportation_ansatz.png" style="width: 1000px;" />
+</a>
 <p>Usually we do not have access to the analytical solution of a learning problem, but in this case, it is possible to find it as it is a small quantum system. In particular, to get an optimal cost value we define the following measurement pattern:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [20]: </span><span class="n">input_state_random</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">generate_haar_random_states</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
@@ -784,8 +785,8 @@
 <span class="gp">In [37]: </span><span class="n">fidelity</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">calculator</span><span class="o">.</span><span class="n">fidelity</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">input_state_random</span><span class="p">,</span> <span class="n">input_state_random</span><span class="o">.</span><span class="n">conj</span><span class="p">()))</span>
 
 <span class="gp">In [38]: </span><span class="nb">print</span><span class="p">(</span><span class="n">quantum_state</span><span class="p">,</span> <span class="n">outcomes</span><span class="p">,</span> <span class="n">fidelity</span><span class="p">)</span>
-<span class="go">[[ 0.10485264+0.j         -0.09184815-0.29227125j]</span>
-<span class="go"> [-0.09184815+0.29227125j  0.89514736+0.j        ]] (0, 0) 1.0000000074505806</span>
+<span class="go">[[ 0.54252221+0.00000000e+00j -0.47842412-1.38932444e-01j]</span>
+<span class="go"> [-0.47842412+1.38932444e-01j  0.45747779-5.55111512e-17j]] (0, 1) 0.9999999999999991</span>
 </code></pre></div>
 </div>
 <details class="codeblock admonition">
@@ -818,7 +819,8 @@
 <span class="gh">Out[42]: </span><span class="go">(&lt;Figure size 1200x400 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
-<a class="reference internal image-reference" href="../_images/teleport_exact_solution.png"><img alt="../_images/teleport_exact_solution.png" src="../_images/teleport_exact_solution.png" style="width: 1000px;" /></a>
+<a class="reference internal image-reference" href="../_images/teleport_exact_solution.png"><img alt="../_images/teleport_exact_solution.png" src="../_images/teleport_exact_solution.png" style="width: 1000px;" />
+</a>
 </details>
 <p>We can now define a loss function, a callback, and train the ansatz to get a solution close to the analytical one.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">apply_hadamard</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
@@ -995,7 +997,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    7.2.6.
+    7.3.7.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
