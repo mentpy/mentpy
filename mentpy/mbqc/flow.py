@@ -19,6 +19,17 @@ __all__ = ["Flow", "find_cflow", "find_gflow", "find_pflow", "odd_neighborhood"]
 class Flow:
     """This class deals with the flow of a given graph state
 
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+    planes : dict
+        The measurement planes of the graph state. The keys are the nodes and the values are the planes. If None, the algorithm will assume that the measurement planes are all XY.
+
     Group
     -----
     mbqc
@@ -125,6 +136,30 @@ class Flow:
         pauli_op[0, n_nodes + np.array(list(z_corrections))] = 1
 
         return PauliOp(pauli_op)
+
+    def generator_op(self, node):
+        """Returns the generator operator for a given node."""
+        op = self.correction_op(node)
+        cond = False
+        while not cond:
+            z_places = set(
+                op.matrix[0, self.graph.number_of_nodes() :].nonzero()[0]
+            ) - set(op.matrix[0, : self.graph.number_of_nodes()].nonzero()[0])
+            nodes_allowed = set([node, *self.output_nodes])
+
+            z_mult = None
+
+            if z_places.issubset(nodes_allowed):
+                cond = True
+
+            else:
+                z_mult = z_places - nodes_allowed
+
+            if z_mult:
+                for z in z_mult:
+                    op = op * self.correction_op(z)
+
+        return op
 
 
 # Implementation of Causal Flow. Time complexity: O(min(m, kn))
