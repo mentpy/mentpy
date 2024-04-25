@@ -15,11 +15,13 @@ from . import gradients
 from . import optimizers
 from . import utils
 
-from importlib.metadata import version, PackageNotFoundError
+from packaging.version import parse as parse_version
 
 try:
-    __version__ = version("mentpy")
-    __version_info__ = tuple(map(int, __version__.split(".")))
-except PackageNotFoundError:
+    import importlib.metadata
+
+    __version__ = importlib.metadata.version("mentpy")
+except importlib.metadata.PackageNotFoundError:
     __version__ = "0.0.0"
-    __version_info__ = (0, 0, 0)
+
+__version_info__ = parse_version(__version__)
