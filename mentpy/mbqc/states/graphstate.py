@@ -30,7 +30,7 @@ class GraphState(nx.Graph):
 
     Group
     -----
-    states
+    mbqc
     """
 
     def __init__(self, *args, **kwargs):
@@ -73,7 +73,7 @@ def lc_reduce(graph: GraphState):
 
     Group
     -----
-    states
+    mbqc
     """
     raise NotImplementedError
 
@@ -82,7 +82,12 @@ def lc_reduce(graph: GraphState):
 def entanglement_entropy(
     state: GraphState, subRegionA: List, subRegionB: Optional[List] = None
 ) -> float:
-    """Calculate the entanglement entropy of a subregion of a graph state."""
+    """Calculate the entanglement entropy of a subregion of a graph state.
+
+    Group
+    -----
+    mbqc
+    """
 
     G = state.copy()
 
@@ -106,12 +111,7 @@ def entanglement_entropy(
 
 
 def _get_stabilizers(graph: GraphState) -> List[PauliOp]:
-    """Generate the stabilizers of a graph state.
-
-    Group
-    -----
-    states
-    """
+    """Generate the stabilizers of a graph state."""
     z_mat = nx.adjacency_matrix(graph).todense()
     x_mat = np.eye(graph.number_of_nodes(), dtype=int)
 

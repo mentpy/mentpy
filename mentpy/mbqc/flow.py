@@ -332,7 +332,7 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 # Special thanks to Will Simmons for useful discussions about this algorithm.
 
 
-def find_pflow(graph, I, O, λ):
+def find_pflow(graph, I, O, planes):
     """
     Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
 
@@ -350,26 +350,26 @@ def find_pflow(graph, I, O, λ):
     for v in V:
         if v in O:
             d[v] = 0
-        elif λ[v] == "X":
+        elif planes[v] == "X":
             LX.add(v)
-        elif λ[v] == "Y":
+        elif planes[v] == "Y":
             LY.add(v)
-        elif λ[v] == "Z":
+        elif planes[v] == "Z":
             LZ.add(v)
 
     p = {}
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, set(), O, d, 0, graph, p)
+    return pflowaux(V, Γ, I, O, planes, LX, LY, LZ, set(), O, d, 0, graph, p)
 
 
-def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
+def solve_constraints(u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, plane):
     solution = None
-    KAu = get_KAu(Γ, A, u, V, I, B, λ)
-    PAu = get_PAu(Γ, A, u, V, I, B, λ)
-    YAu = get_YAu(Γ, A, u, V, I, B, λ)
+    KAu = get_KAu(Γ, A, u, V, I, B, planes)
+    PAu = get_PAu(Γ, A, u, V, I, B, planes)
+    YAu = get_YAu(Γ, A, u, V, I, B, planes)
 
     MAu1, MAu2 = get_MAu1(Γ, KAu, PAu), get_MAu2(Γ, KAu, YAu)
-    SLambda1 = get_SLambda1(plane, u, V, I, O, λ, graph, Γ, A, KAu, PAu)
-    SLambda2 = get_SLambda2(plane, u, V, I, O, λ, graph, Γ, A, KAu, YAu)
+    SLambda1 = get_SLambda1(plane, u, V, I, O, planes, graph, Γ, A, KAu, PAu)
+    SLambda2 = get_SLambda2(plane, u, V, I, O, planes, graph, Γ, A, KAu, YAu)
 
     MAu = np.vstack((MAu1.T, MAu2.T))
     SLambda = np.vstack((SLambda1, SLambda2))
@@ -391,24 +391,24 @@ def solve_constraints(u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, plane):
     return solution
 
 
-def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
+def pflowaux(V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, p):
     C = set()
     for u in set(V) - B:
         solution = None
 
-        if λ[u] in {"XY", "X", "Y"}:
+        if planes[u] in {"XY", "X", "Y"}:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XY"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XY"
             )
 
-        if λ[u] in {"XZ", "X", "Z"} and solution is None:
+        if planes[u] in {"XZ", "X", "Z"} and solution is None:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "XZ"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XZ"
             )
 
-        if λ[u] in {"YZ", "Y", "Z"} and solution is None:
+        if planes[u] in {"YZ", "Y", "Z"} and solution is None:
             solution = solve_constraints(
-                u, V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, "YZ"
+                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "YZ"
             )
 
         if solution is not None:
@@ -423,7 +423,7 @@ def pflowaux(V, Γ, I, O, λ, LX, LY, LZ, A, B, d, k, graph, p):
             return False, None, {}
 
     Bprime = B | C
-    return pflowaux(V, Γ, I, O, λ, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
+    return pflowaux(V, Γ, I, O, planes, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
 
 
 def get_MAu1(Gamma, KAu, PAu):

@@ -87,7 +87,7 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
 
     Group
     -----
-    states
+    mbqc
     """
 
     options = get_options(kwargs)
@@ -167,7 +167,7 @@ def draw_with_wires(
 
     Group
     -----
-    states
+    mbqc
     """
     options = get_options(kwargs)
 
