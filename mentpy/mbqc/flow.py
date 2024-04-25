@@ -168,6 +168,26 @@ class Flow:
 def find_cflow(graph, input_nodes, output_nodes) -> object:
     """Finds the causal flow a graph. Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
 
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+
+    Returns
+    -------
+    flow : function
+        The flow function.
+    partial_order : function
+        The partial order function.
+    depth : int
+        The depth of the flow.
+    layers : dict
+        The layers of the flow.
+
     Group
     -----
     flow
@@ -267,6 +287,27 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     """Finds the generalized flow of a ``MBQCGraph`` if it exists.
     Retrieved from https://arxiv.org/pdf/0709.2670v1.pdf.
 
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    input_nodes : list
+        The input nodes of the graph state.
+    output_nodes : list
+        The output nodes of the graph state.
+
+    Returns
+    -------
+    flow : function
+        The flow function.
+    partial_order : function
+        The partial order function.
+    depth : int
+        The depth of the flow.
+    layers : dict
+        The layers of the flow.
+
+
     Group
     -----
     flow
@@ -335,6 +376,17 @@ def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
 def find_pflow(graph, I, O, planes):
     """
     Find a p-flow in a given graph. Implementation of pauli flow algorithm in https://arxiv.org/pdf/2109.05654v1.pdf.
+
+    Parameters
+    ----------
+    graph : mp.GraphState
+        The graph state to find the flow of.
+    I : list
+        The input nodes of the graph state.
+    O : list
+        The output nodes of the graph state.
+    planes : dict
+        The measurement planes of the graph state. The keys are the nodes and the values are the planes.
 
     Group
     -----
