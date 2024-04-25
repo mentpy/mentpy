@@ -15,5 +15,9 @@ from . import gradients
 from . import optimizers
 from . import utils
 
-__version__ = "0.0.0"
-__version_info__ = (0, 0, 0)
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("mentpy")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
