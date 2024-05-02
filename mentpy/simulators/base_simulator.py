@@ -5,7 +5,7 @@
 """Base class for simulators.""" ""
 import abc
 import numpy as np
-from typing import Union, List, Tuple, Optional
+from typing import List, Tuple
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 
@@ -39,7 +39,10 @@ class BaseSimulator(abc.ABC):
         self,
         mbqcircuit: MBQCircuit,
         input_state: np.ndarray = None,
+        *args,
+        **kwargs,
     ) -> None:
+        self._check_flow(mbqcircuit)
         self._mbqcirc = mbqcircuit
         self._input_state = input_state
         self._outcomes = {}
@@ -101,3 +104,14 @@ class BaseSimulator(abc.ABC):
     def reset(self, input_state=None):
         """Resets the simulator to the initial state."""
         pass
+
+    def _check_flow(self, mbqcircuit: MBQCircuit) -> None:
+        """Checks if the MBQC circuit has a flow."""
+        if not mbqcircuit.flow:
+            raise ValueError("Cannot simulate a circuit without a flow.")
+
+    def num_qubits_layer_pairs(self) -> int:
+        """Returns the maximum number of qubits in a layer pair."""
+        num_qubits_layer = np.array([len(layer) for layer in self.mbqcircuit.layers])
+        num_qubits_layer_pairs = num_qubits_layer[:-1] + num_qubits_layer[1:]
+        return num_qubits_layer_pairs
