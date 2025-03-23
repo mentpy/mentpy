@@ -85,7 +85,7 @@ We welcome contributions to `mentpy`! Please see our [contributing guidelines](.
 If you use `mentpy` in your research, please cite it as follows:
 
 ```
-@software{Mantilla_Mentpy_2023,
+@software{mantilla2023mentpy,
     title = {{MentPy: A Python package for parametrized MBQC circuits}},
     author = {Mantilla Calderón, Luis},
     year = {2023},

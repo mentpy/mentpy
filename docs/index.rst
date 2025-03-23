@@ -61,7 +61,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
 
       .. code-block:: latex
 
-         @software{Mantilla_Mentpy_2023,
+         @software{mantilla2023mentpy,
             title = {{MentPy: A Python package for parametrized MBQC circuits}},
             author = {Mantilla Calderón, Luis},
             year = {2023},
