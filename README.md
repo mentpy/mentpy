@@ -86,7 +86,7 @@ If you use `mentpy` in your research, please cite it as follows:
 
 ```
 @software{Mantilla_Mentpy_2023,
-    title = {{MentPy: A python package for simulating and training QML models in the MBQC framework.}},
+    title = {{MentPy: A Python package for parametrized MBQC circuits}},
     author = {Mantilla Calderón, Luis},
     year = {2023},
     url = {https://github.com/mentpy/mentpy},
