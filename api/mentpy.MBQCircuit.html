@@ -1,5 +1,6 @@
 
 
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -7,6 +8,13 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+      
+      
+      
+        <link rel="prev" href="mentpy.GraphState.nodes.html">
+      
+      
+        <link rel="next" href="mentpy.MBQCircuit.__init__.html">
       
       
       <link rel="icon" href="../_static/favicon-32x32.png">
@@ -19,11 +27,13 @@
     
       
         
-        
       
       
 
+
     
+    
+      
     
     
       
@@ -32,8 +42,8 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.669a59f1d789f2fd0.min.css?v=35c1a834" />
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.a80228666b74d39df.min.css?v=31d691bb" />
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -50,11 +60,8 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="">
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
   
-    
-    
-      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -80,7 +87,8 @@
       <img src="../_static/logo-state.png" alt="logo">
     </a>
     <label class="md-header__button md-icon" for="__drawer">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -99,32 +107,40 @@
       </div>
     </div>
     
-      <form class="md-header__option" data-md-component="palette">
-        
-          
-          
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent=""  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
-          
-            <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5Z"/></svg>
-            </label>
-          
-        
-          
-          
-          <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent=""  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_2">
-          
-            <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1Z"/></svg>
-            </label>
-          
-        
-      </form>
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
       <label class="md-header__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
       </label>
       <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
@@ -132,28 +148,32 @@
     <form class="md-search__form" name="search">
       <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
       </label>
       <nav class="md-search__options" aria-label="Search">
         
           <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
           </a>
         
         <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
       </nav>
       
     </form>
     <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
         <div class="md-search-result" data-md-component="search-result">
           <div class="md-search-result__meta">
             Initializing search
           </div>
-          <ol class="md-search-result__list"></ol>
+          <ol class="md-search-result__list" role="presentation"></ol>
         </div>
       </div>
     </div>
@@ -165,7 +185,7 @@
         <a href="https://github.com/mentpy/mentpy" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
     MentPy
@@ -186,43 +206,58 @@
           
             
 <nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
-  <div class="md-tabs__inner md-grid">
+  <div class="md-grid">
     <ul class="md-tabs__list">
       
         
   
   
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started.html" class="md-tabs__link">
+        
+  
+    
+  
+  Getting Started
 
-
-  <li class="md-tabs__item">
-    <a href="../getting-started.html" class="md-tabs__link">
-      <span class="md-ellipsis">Getting Started</span>
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
       
         
   
   
+  
+    <li class="md-tabs__item">
+      <a href="../basic-usage/measurements-in-qm.html" class="md-tabs__link">
+        
+  
+    
+  
+  Basic usage
 
-
-  <li class="md-tabs__item">
-    <a href="../basic-usage/measurements-in-qm.html" class="md-tabs__link">
-      <span class="md-ellipsis">Basic usage</span>
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
       
         
   
   
+  
+    <li class="md-tabs__item">
+      <a href="../tutorials/intro-to-mbqml.html" class="md-tabs__link">
+        
+  
+    
+  
+  Tutorials
 
-
-  <li class="md-tabs__item">
-    <a href="../tutorials/intro-to-mbqml.html" class="md-tabs__link">
-      <span class="md-ellipsis">Tutorials</span>
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
       
         
@@ -230,13 +265,18 @@
   
     
   
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../api.html" class="md-tabs__link">
+        
+  
+    
+  
+  API Reference
 
-
-  <li class="md-tabs__item">
-    <a href="../api.html" class="md-tabs__link md-tabs__link--active">
-      <span class="md-ellipsis">API Reference</span>
-    </a>
-  </li>
+      </a>
+    </li>
+  
 
       
     </ul>
@@ -255,6 +295,7 @@
                   <div class="md-sidebar__inner">
                     
 
+
   
 
 
@@ -270,7 +311,7 @@
       <a href="https://github.com/mentpy/mentpy" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
   </div>
   <div class="md-source__repository">
     MentPy
@@ -282,48 +323,70 @@
     
       
       
-      
-
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" type="checkbox" id="__nav_1" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_1">
-          <span class="md-ellipsis">Getting Started</span>
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Getting Started" data-md-level="1">
-        <label class="md-nav__title" for="__nav_1">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Getting Started</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
           
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../getting-started.html" class="md-nav__link">
-        <span class="md-ellipsis">Installation</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
@@ -331,93 +394,142 @@
     
       
       
-      
-
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" type="checkbox" id="__nav_2" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_2">
-          <span class="md-ellipsis">Basic usage</span>
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Basic usage" data-md-level="1">
-        <label class="md-nav__title" for="__nav_2">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Basic usage</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
           
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Basic usage
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Basic usage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../basic-usage/measurements-in-qm.html" class="md-nav__link">
-        <span class="md-ellipsis">Single qubit measurements</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Single qubit measurements
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../basic-usage/intro-to-graphstates.html" class="md-nav__link">
-        <span class="md-ellipsis">Graph States</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Graph States
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../basic-usage/intro-to-mbqc.html" class="md-nav__link">
-        <span class="md-ellipsis">Creating MBQC Circuits</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Creating MBQC Circuits
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../basic-usage/simulating-mbqc-circuits.html" class="md-nav__link">
-        <span class="md-ellipsis">Simulating MBQC Circuits</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Simulating MBQC Circuits
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
@@ -425,123 +537,190 @@
     
       
       
-      
-
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" >
-      
-      
-      
-        <label class="md-nav__link" for="__nav_3">
-          <span class="md-ellipsis">Tutorials</span>
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="Tutorials" data-md-level="1">
-        <label class="md-nav__title" for="__nav_3">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Tutorials</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
           
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/intro-to-mbqml.html" class="md-nav__link">
-        <span class="md-ellipsis">An introduction to MB-<wbr>QML</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    An introduction to MB-<wbr>QML
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/intro-to-mbqml-parallel.html" class="md-nav__link">
-        <span class="md-ellipsis">Parallelizing MB-<wbr>QML protocols</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Parallelizing MB-<wbr>QML protocols
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/classify-classical-data.html" class="md-nav__link">
-        <span class="md-ellipsis">Classifying classical data</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Classifying classical data
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/classify-fisher.html" class="md-nav__link">
-        <span class="md-ellipsis">Fisher information classifier</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Fisher information classifier
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/hea-discrete.html" class="md-nav__link">
-        <span class="md-ellipsis">Discrete optimization for HEA</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Discrete optimization for HEA
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../tutorials/learn-instrument.html" class="md-nav__link">
-        <span class="md-ellipsis">Learning a quantum instrument</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Learning a quantum instrument
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
@@ -549,680 +728,1099 @@
     
       
       
-      
-
   
   
     
   
   
+  
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      
+        
+        
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
-      
-      
-        <label class="md-nav__link" for="__nav_4">
-          <span class="md-ellipsis">API Reference</span>
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <nav class="md-nav" aria-label="API Reference" data-md-level="1">
-        <label class="md-nav__title" for="__nav_4">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">API Reference</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
           
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html" class="md-nav__link">
-        <span class="md-ellipsis">Operators</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Operators
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
     
   
   
+  
+    
+    
+      
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2" type="checkbox" id="__nav_4_2" checked>
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="../api.html#mbqcircuits"><span class="md-ellipsis">MBQCircuits</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
           
-            <label for="__nav_4_2">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="MBQCircuits" data-md-level="2">
-        <label class="md-nav__title" for="__nav_4_2">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">MBQCircuits</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api.html#mbqcircuits" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    MBQCircuits
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            MBQCircuits
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.GraphState.html" class="md-nav__link">
-        <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.GraphState (Python class) — A graph state class that inherits from networkx.Graph." class="md-ellipsis">Graph<wbr>State</span>
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.GraphState (Python class) — A graph state class that inherits from networkx.Graph.">Graph<wbr>State</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
   
   
     
   
     
   
+  
+    
+    
+      
+      
+    
     
     <li class="md-nav__item md-nav__item--active md-nav__current-nested md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2" type="checkbox" id="__nav_4_2_2" checked>
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index md-nav__link--active">
-          <a href="#"><span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" checked>
+        
           
-            <label for="__nav_4_2_2">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="MBQCircuit" data-md-level="3">
-        <label class="md-nav__title" for="__nav_4_2_2">
-          <span class="md-nav__icon md-icon"></span>
-          <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#" class="md-nav__link md-nav__link--active">
+              
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link md-nav__link--active" for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            <span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2_1" type="checkbox" id="__nav_4_2_2_1" >
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="#constructors"><span class="md-ellipsis">Constructors</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2_1" >
+        
           
-            <label for="__nav_4_2_2_1">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="Constructors" data-md-level="4">
-        <label class="md-nav__title" for="__nav_4_2_2_1">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Constructors</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#constructors" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Constructors
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2_2_1" id="__nav_4_2_2_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Constructors
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__init__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state" class="md-ellipsis">__<wbr>init__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state">__<wbr>init__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2_2" type="checkbox" id="__nav_4_2_2_2" >
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="#string-representation"><span class="md-ellipsis">String representation</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2_2" >
+        
           
-            <label for="__nav_4_2_2_2">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="String representation" data-md-level="4">
-        <label class="md-nav__title" for="__nav_4_2_2_2">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">String representation</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#string-representation" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    String representation
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2_2_2" id="__nav_4_2_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            String representation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__repr__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state" class="md-ellipsis">__<wbr>repr__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state">__<wbr>repr__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2_3" type="checkbox" id="__nav_4_2_2_3" >
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="#special-methods"><span class="md-ellipsis">Special methods</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2_3" >
+        
           
-            <label for="__nav_4_2_2_3">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="Special methods" data-md-level="4">
-        <label class="md-nav__title" for="__nav_4_2_2_3">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Special methods</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#special-methods" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Special methods
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2_2_3" id="__nav_4_2_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Special methods
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__delitem__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key." class="md-ellipsis">__<wbr>delitem__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key.">__<wbr>delitem__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__getitem__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key." class="md-ellipsis">__<wbr>getitem__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key.">__<wbr>getitem__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__len__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit" class="md-ellipsis">__<wbr>len__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit">__<wbr>len__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.__setitem__.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key." class="md-ellipsis">__<wbr>setitem__<wbr></span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key.">__<wbr>setitem__<wbr></span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2_4" type="checkbox" id="__nav_4_2_2_4" >
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="#methods"><span class="md-ellipsis">Methods</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2_4" >
+        
           
-            <label for="__nav_4_2_2_4">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="Methods" data-md-level="4">
-        <label class="md-nav__title" for="__nav_4_2_2_4">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Methods</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#methods" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Methods
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2_2_4" id="__nav_4_2_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            Methods
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.add_edge.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v" class="md-ellipsis">add_<wbr>edge</span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v">add_<wbr>edge</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.add_edges_from.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples" class="md-ellipsis">add_<wbr>edges_<wbr>from</span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples">add_<wbr>edges_<wbr>from</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.calculate_order.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.calculate_order (Python method) — Returns the order of the measurements" class="md-ellipsis">calculate_<wbr>order</span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.calculate_order (Python method) — Returns the order of the measurements">calculate_<wbr>order</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.ordered_layers.html" class="md-nav__link">
-        <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit." class="md-ellipsis">ordered_<wbr>layers</span>
+        
+  
+  
+    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit.">ordered_<wbr>layers</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
     
+    
+      
+      
+    
+    
     <li class="md-nav__item md-nav__item--nested">
       
-      
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4_2_2_5" type="checkbox" id="__nav_4_2_2_5" >
-      
-      
-      
         
-        <div class="md-nav__link md-nav__link--index ">
-          <a href="#properties"><span class="md-ellipsis">Properties</span></a>
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2_5" >
+        
           
-            <label for="__nav_4_2_2_5">
-              <span class="md-nav__icon md-icon"></span>
-            </label>
-          
-        </div>
-      
-      <nav class="md-nav" aria-label="Properties" data-md-level="4">
-        <label class="md-nav__title" for="__nav_4_2_2_5">
-          <span class="md-nav__icon md-icon"></span>
-          <span class="md-ellipsis">Properties</span>
-        </label>
-        <ul class="md-nav__list" data-md-scrollfix>
-          
+          <div class="md-nav__link md-nav__container">
+            <a href="#properties" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Properties
+    
+  </span>
+  
+
+            </a>
             
               
+              <label class="md-nav__link " for="__nav_4_2_2_5" id="__nav_4_2_2_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            Properties
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.classical_output_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">classical_<wbr>output_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit.">classical_<wbr>output_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.controlled_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit." class="md-ellipsis">controlled_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit.">controlled_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.depth.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit." class="md-ellipsis">depth</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit.">depth</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.flow.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.flow (Python property) — Return the flow function of the MBQC circuit." class="md-ellipsis">flow</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.flow (Python property) — Return the flow function of the MBQC circuit.">flow</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.graph.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.graph (Python property) — Return the graph of the resource state." class="md-ellipsis">graph</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.graph (Python property) — Return the graph of the resource state.">graph</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.input_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit." class="md-ellipsis">input_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit.">input_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.inputc.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes." class="md-ellipsis">inputc</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes.">inputc</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.measurement_order.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit." class="md-ellipsis">measurement_<wbr>order</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit.">measurement_<wbr>order</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.measurements.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit." class="md-ellipsis">measurements</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit.">measurements</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.output_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">output_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit.">output_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.outputc.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes." class="md-ellipsis">outputc</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes.">outputc</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.partial_order.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit." class="md-ellipsis">partial_<wbr>order</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit.">partial_<wbr>order</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.quantum_output_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">quantum_<wbr>output_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit.">quantum_<wbr>output_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.MBQCircuit.trainable_nodes.html" class="md-nav__link">
-        <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit." class="md-ellipsis">trainable_<wbr>nodes</span>
+        
+  
+  
+    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit.">trainable_<wbr>nodes</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
@@ -1230,15 +1828,35 @@
     <li class="md-nav__item md-nav__item--active md-nav__current-toc">
       
       
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span>
+          
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
+    
+  </span>
+  
+
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="#" class="md-nav__link md-nav__link--active">
-        <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span>
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
+    
+  </span>
+  
+
       </a>
       
         
@@ -1253,27 +1871,36 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span>
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#parameters" class="md-nav__link">
-    <span class="md-ellipsis">Parameters</span>
+    
+    <span class="md-ellipsis">
+      Parameters
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">Examples</span>
+    
+    <span class="md-ellipsis">
+      Examples
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#constructors" class="md-nav__link">
-    <span class="md-ellipsis">Constructors</span>
+    
+    <span class="md-ellipsis">
+      Constructors
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Constructors">
@@ -1281,7 +1908,12 @@
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__init__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state" class="md-ellipsis">__<wbr>init__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state">__<wbr>init__<wbr></span>
+    </span>
   </a>
   
 </li>
@@ -1293,7 +1925,10 @@
       
         <li class="md-nav__item">
   <a href="#string-representation" class="md-nav__link">
-    <span class="md-ellipsis">String representation</span>
+    
+    <span class="md-ellipsis">
+      String representation
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="String representation">
@@ -1301,7 +1936,12 @@
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__repr__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state" class="md-ellipsis">__<wbr>repr__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state">__<wbr>repr__<wbr></span>
+    </span>
   </a>
   
 </li>
@@ -1313,7 +1953,10 @@
       
         <li class="md-nav__item">
   <a href="#special-methods" class="md-nav__link">
-    <span class="md-ellipsis">Special methods</span>
+    
+    <span class="md-ellipsis">
+      Special methods
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Special methods">
@@ -1321,28 +1964,48 @@
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__delitem__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key." class="md-ellipsis">__<wbr>delitem__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key.">__<wbr>delitem__<wbr></span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__getitem__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key." class="md-ellipsis">__<wbr>getitem__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key.">__<wbr>getitem__<wbr></span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__len__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit" class="md-ellipsis">__<wbr>len__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit">__<wbr>len__<wbr></span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.__setitem__.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key." class="md-ellipsis">__<wbr>setitem__<wbr></span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key.">__<wbr>setitem__<wbr></span>
+    </span>
   </a>
   
 </li>
@@ -1354,7 +2017,10 @@
       
         <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
-    <span class="md-ellipsis">Methods</span>
+    
+    <span class="md-ellipsis">
+      Methods
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Methods">
@@ -1362,28 +2028,48 @@
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.add_edge.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v" class="md-ellipsis">add_<wbr>edge</span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v">add_<wbr>edge</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.add_edges_from.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples" class="md-ellipsis">add_<wbr>edges_<wbr>from</span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples">add_<wbr>edges_<wbr>from</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.calculate_order.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.calculate_order (Python method) — Returns the order of the measurements" class="md-ellipsis">calculate_<wbr>order</span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.calculate_order (Python method) — Returns the order of the measurements">calculate_<wbr>order</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.ordered_layers.html" class="md-nav__link">
-    <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span><span title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit." class="md-ellipsis">ordered_<wbr>layers</span>
+    
+      <span aria-label="Python method" class="objinfo-icon objinfo-icon__procedure" title="Python method">M</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit.">ordered_<wbr>layers</span>
+    </span>
   </a>
   
 </li>
@@ -1395,7 +2081,10 @@
       
         <li class="md-nav__item">
   <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">Properties</span>
+    
+    <span class="md-ellipsis">
+      Properties
+    </span>
   </a>
   
     <nav class="md-nav" aria-label="Properties">
@@ -1403,98 +2092,168 @@
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.classical_output_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">classical_<wbr>output_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit.">classical_<wbr>output_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.controlled_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit." class="md-ellipsis">controlled_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit.">controlled_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.depth.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit." class="md-ellipsis">depth</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit.">depth</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.flow.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.flow (Python property) — Return the flow function of the MBQC circuit." class="md-ellipsis">flow</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.flow (Python property) — Return the flow function of the MBQC circuit.">flow</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.graph.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.graph (Python property) — Return the graph of the resource state." class="md-ellipsis">graph</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.graph (Python property) — Return the graph of the resource state.">graph</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.input_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit." class="md-ellipsis">input_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit.">input_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.inputc.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes." class="md-ellipsis">inputc</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes.">inputc</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.measurement_order.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit." class="md-ellipsis">measurement_<wbr>order</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit.">measurement_<wbr>order</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.measurements.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit." class="md-ellipsis">measurements</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit.">measurements</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.output_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">output_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit.">output_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.outputc.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes." class="md-ellipsis">outputc</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes.">outputc</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.partial_order.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit." class="md-ellipsis">partial_<wbr>order</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit.">partial_<wbr>order</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.quantum_output_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit." class="md-ellipsis">quantum_<wbr>output_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit.">quantum_<wbr>output_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
   <a href="mentpy.MBQCircuit.trainable_nodes.html" class="md-nav__link">
-    <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span><span title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit." class="md-ellipsis">trainable_<wbr>nodes</span>
+    
+      <span aria-label="Python property" class="objinfo-icon objinfo-icon__alias" title="Python property">P</span>
+    
+    <span class="md-ellipsis">
+      <span title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit.">trainable_<wbr>nodes</span>
+    </span>
   </a>
   
 </li>
@@ -1511,168 +2270,270 @@
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.draw.html" class="md-nav__link">
-        <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span><span title="mentpy.draw (Python function) — Draws mbqc circuit with flow." class="md-ellipsis">draw</span>
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.draw (Python function) — Draws mbqc circuit with flow.">draw</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.draw_with_wires.html" class="md-nav__link">
-        <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span><span title="mentpy.draw_with_wires (Python function) — Draws mbqc circuit with flow." class="md-ellipsis">draw_<wbr>with_<wbr>wires</span>
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.draw_with_wires (Python function) — Draws mbqc circuit with flow.">draw_<wbr>with_<wbr>wires</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.hstack.html" class="md-nav__link">
-        <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span><span title="mentpy.hstack (Python function) — Horizontally stack a list of graph states into a larger graph state. This is, the input of the new MBQC circuit is the input of the first state, and the output is the output of the last state." class="md-ellipsis">hstack</span>
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.hstack (Python function) — Horizontally stack a list of graph states into a larger graph state. This is, the input of the new MBQC circuit is the input of the first state, and the output is the output of the last state.">hstack</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.merge.html" class="md-nav__link">
-        <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span><span title="mentpy.merge (Python function) — Merge two MBQC circuits into a larger MBQC circuit. This is, the input and output of the new MBQC circuit will depend on the concat_indices." class="md-ellipsis">merge</span>
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.merge (Python function) — Merge two MBQC circuits into a larger MBQC circuit. This is, the input and output of the new MBQC circuit will depend on the concat_indices.">merge</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="mentpy.vstack.html" class="md-nav__link">
-        <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span><span title="mentpy.vstack (Python function) — Vertically stack a list of graph states into a larger graph state. This is, the input of the new MBQC circuit is the input of the first state, and the output is the output of the last state." class="md-ellipsis">vstack</span>
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.vstack (Python function) — Vertically stack a list of graph states into a larger graph state. This is, the input of the new MBQC circuit is the input of the first state, and the output is the output of the last state.">vstack</span>
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html#templates" class="md-nav__link">
-        <span class="md-ellipsis">Templates</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Templates
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html#flow" class="md-nav__link">
-        <span class="md-ellipsis">Flow</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Flow
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html#simulators" class="md-nav__link">
-        <span class="md-ellipsis">Simulators</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Simulators
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html#optimizers" class="md-nav__link">
-        <span class="md-ellipsis">Optimizers</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Optimizers
+    
+  </span>
+  
+
       </a>
     </li>
   
 
-            
-          
+              
             
               
+                
+  
   
   
   
   
     <li class="md-nav__item">
       <a href="../api.html#utils" class="md-nav__link">
-        <span class="md-ellipsis">Utils</span>
+        
+  
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
       </a>
     </li>
   
 
+              
             
-          
-        </ul>
-      </nav>
+          </ul>
+        </nav>
+      
     </li>
   
   
@@ -1699,55 +2560,76 @@
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
-      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states" class="md-ellipsis">MBQCircuit</span>
+      <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span><span title="mentpy.MBQCircuit (Python class) — The MBQCircuit class that deals with operations and manipulations of graph states">MBQCircuit</span>
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#parameters" class="md-nav__link">
-    <span class="md-ellipsis">Parameters</span>
+    
+    <span class="md-ellipsis">
+      Parameters
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">Examples</span>
+    
+    <span class="md-ellipsis">
+      Examples
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#constructors" class="md-nav__link">
-    <span class="md-ellipsis">Constructors</span>
+    
+    <span class="md-ellipsis">
+      Constructors
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#string-representation" class="md-nav__link">
-    <span class="md-ellipsis">String representation</span>
+    
+    <span class="md-ellipsis">
+      String representation
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#special-methods" class="md-nav__link">
-    <span class="md-ellipsis">Special methods</span>
+    
+    <span class="md-ellipsis">
+      Special methods
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#methods" class="md-nav__link">
-    <span class="md-ellipsis">Methods</span>
+    
+    <span class="md-ellipsis">
+      Methods
+    </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
   <a href="#properties" class="md-nav__link">
-    <span class="md-ellipsis">Properties</span>
+    
+    <span class="md-ellipsis">
+      Properties
+    </span>
   </a>
   
 </li>
@@ -1763,6 +2645,8 @@
           
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset" role="main">
+                
+                
                   
 
 
@@ -1775,11 +2659,11 @@
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt><span class="sig-name descname">graph</span><span class="p"> : </span><span class="desctype"><span class="desctype">mp.GraphState</span></span></dt><dd><p>The graph state of the MBQC circuit.</p>
 </dd>
-<dt><span class="sig-name descname">input_nodes</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)">list</a></span></span></dt><dd><p>The input nodes of the MBQC circuit.</p>
+<dt><span class="sig-name descname">input_nodes</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a></span></span></dt><dd><p>The input nodes of the MBQC circuit.</p>
 </dd>
-<dt><span class="sig-name descname">output_nodes</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.12)">list</a></span></span></dt><dd><p>The output nodes of the MBQC circuit.</p>
+<dt><span class="sig-name descname">output_nodes</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a></span></span></dt><dd><p>The output nodes of the MBQC circuit.</p>
 </dd>
-<dt><span class="sig-name descname">measurements</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.12)">dict</a></span></span></dt><dd><p>The measurements of the MBQC circuit. The keys are the nodes and the values are the measurements.</p>
+<dt><span class="sig-name descname">measurements</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></span></span></dt><dd><p>The measurements of the MBQC circuit. The keys are the nodes and the values are the measurements.</p>
 </dd>
 <dt><span class="sig-name descname">default_measurement</span><span class="p"> : </span><span class="desctype"><span class="desctype">mp.Ment</span></span></dt><dd><p>The default measurement of the MBQC circuit if no <cite>measurements</cite> are given.</p>
 </dd>
@@ -1802,7 +2686,7 @@
 <h2 id="constructors">Constructors<a class="headerlink" href="#constructors" title="Link to this heading">¶</a></h2>
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__init__.html" title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state"><span class="sig-name descname pseudo-toc-entry"><span class="pre">MBQCircuit</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="mentpy.GraphState.html" title="mentpy.mbqc.states.graphstate.GraphState (Python class)"><span class="pre">GraphState</span></a></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">input_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="p"><span class="pre">...</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__init__.html" title="mentpy.MBQCircuit.__init__ (Python method) — Initializes a graph state"><span class="sig-name descname pseudo-toc-entry"><span class="pre">MBQCircuit</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__init__.html" title="mentpy.MBQCircuit.__init__.graph (Python parameter)"><span class="n"><span class="pre">graph</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="mentpy.GraphState.html" title="mentpy.mbqc.states.graphstate.GraphState (Python class)"><span class="pre">GraphState</span></a></span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__init__.html" title="mentpy.MBQCircuit.__init__.input_nodes (Python parameter)"><span class="n"><span class="pre">input_nodes</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="p">[]</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="p"><span class="pre">...</span></span></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Initializes a graph state</p>
 </dd></dl>
 
@@ -1811,7 +2695,7 @@
 <h2 id="string-representation">String representation<a class="headerlink" href="#string-representation" title="Link to this heading">¶</a></h2>
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__repr__.html" title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state"><span class="sig-name descname pseudo-toc-entry"><span class="pre">__repr__</span></span></a><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><span class="pre">str</span></a></span></span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__repr__.html" title="mentpy.MBQCircuit.__repr__ (Python method) — Return the representation of the current MBQC circuit state"><span class="sig-name descname pseudo-toc-entry"><span class="pre">__repr__</span></span></a><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span></span></dt>
 <dd><p>Return the representation of the current MBQC circuit state</p>
 </dd></dl>
 
@@ -1820,25 +2704,25 @@
 <h2 id="special-methods">Special methods<a class="headerlink" href="#special-methods" title="Link to this heading">¶</a></h2>
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__delitem__.html" title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__delitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">key</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__delitem__.html" title="mentpy.MBQCircuit.__delitem__ (Python method) — Delete the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__delitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__delitem__.html" title="mentpy.MBQCircuit.__delitem__.key (Python parameter)"><span class="n"><span class="pre">key</span></span></a></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Delete the measurement of the node with index key.</p>
 </dd></dl>
 
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__getitem__.html" title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__getitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">key</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__getitem__.html" title="mentpy.MBQCircuit.__getitem__ (Python method) — Return the value of the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__getitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__getitem__.html" title="mentpy.MBQCircuit.__getitem__.key (Python parameter)"><span class="n"><span class="pre">key</span></span></a></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Return the value of the measurement of the node with index key.</p>
 </dd></dl>
 
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__len__.html" title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit"><span class="sig-name descname pseudo-toc-entry"><span class="pre">__len__</span></span></a><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__len__.html" title="mentpy.MBQCircuit.__len__ (Python method) — Return the number of nodes in the MBQCircuit"><span class="sig-name descname pseudo-toc-entry"><span class="pre">__len__</span></span></a><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></span></span></dt>
 <dd><p>Return the number of nodes in the MBQCircuit</p>
 </dd></dl>
 
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__setitem__.html" title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__setitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">value</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.__setitem__.html" title="mentpy.MBQCircuit.__setitem__ (Python method) — Set the value of the measurement of the node with index key."><span class="sig-name descname pseudo-toc-entry"><span class="pre">__setitem__</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__setitem__.html" title="mentpy.MBQCircuit.__setitem__.key (Python parameter)"><span class="n"><span class="pre">key</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.__setitem__.html" title="mentpy.MBQCircuit.__setitem__.value (Python parameter)"><span class="n"><span class="pre">value</span></span></a></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Set the value of the measurement of the node with index key.</p>
 </dd></dl>
 
@@ -1847,13 +2731,13 @@
 <h2 id="methods">Methods<a class="headerlink" href="#methods" title="Link to this heading">¶</a></h2>
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.add_edge.html" title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v"><span class="sig-name descname pseudo-toc-entry"><span class="pre">add_edge</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">u</span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">v</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.add_edge.html" title="mentpy.MBQCircuit.add_edge (Python method) — Adds an edge between nodes u and v"><span class="sig-name descname pseudo-toc-entry"><span class="pre">add_edge</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.add_edge.html" title="mentpy.MBQCircuit.add_edge.u (Python parameter)"><span class="n"><span class="pre">u</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.add_edge.html" title="mentpy.MBQCircuit.add_edge.v (Python parameter)"><span class="n"><span class="pre">v</span></span></a></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Adds an edge between nodes u and v</p>
 </dd></dl>
 
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.add_edges_from.html" title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples"><span class="sig-name descname pseudo-toc-entry"><span class="pre">add_edges_from</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">edges</span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em></span><span class="sig-paren">)</span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.add_edges_from.html" title="mentpy.MBQCircuit.add_edges_from (Python method) — Adds edges from a list of tuples"><span class="sig-name descname pseudo-toc-entry"><span class="pre">add_edges_from</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.add_edges_from.html" title="mentpy.MBQCircuit.add_edges_from.edges (Python parameter)"><span class="n"><span class="pre">edges</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="o"><span class="pre">**</span></span><a class="n reference internal" href="mentpy.MBQCircuit.add_edges_from.html" title="mentpy.MBQCircuit.add_edges_from.kwargs (Python parameter)"><span class="n"><span class="pre">kwargs</span></span></a></em></span><span class="sig-paren">)</span></dt>
 <dd><p>Adds edges from a list of tuples</p>
 </dd></dl>
 
@@ -1865,7 +2749,7 @@
 
 <dl class="py method summary objdesc">
 <dt class="sig sig-object highlight py">
-<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.ordered_layers.html" title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">ordered_layers</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><span class="n"><span class="pre">train_indices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em></span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></dt>
+<a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.ordered_layers.html" title="mentpy.MBQCircuit.ordered_layers (Python method) — Returns the layers of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">ordered_layers</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="mentpy.MBQCircuit.ordered_layers.html" title="mentpy.MBQCircuit.ordered_layers.train_indices (Python parameter)"><span class="n"><span class="pre">train_indices</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span></span></dt>
 <dd><p>Returns the layers of the MBQC circuit.</p>
 </dd></dl>
 
@@ -1874,19 +2758,19 @@
 <h2 id="properties">Properties<a class="headerlink" href="#properties" title="Link to this heading">¶</a></h2>
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.classical_output_nodes.html" title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">classical_output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.classical_output_nodes.html" title="mentpy.MBQCircuit.classical_output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">classical_output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the output nodes of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.controlled_nodes.html" title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">controlled_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.controlled_nodes.html" title="mentpy.MBQCircuit.controlled_nodes (Python property) — Return the controlled nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">controlled_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the controlled nodes of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.depth.html" title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">depth</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.depth.html" title="mentpy.MBQCircuit.depth (Python property) — Return the depth of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">depth</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></dt>
 <dd><p>Return the depth of the MBQC circuit.</p>
 </dd></dl>
 
@@ -1904,55 +2788,55 @@
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.input_nodes.html" title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">input_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.input_nodes.html" title="mentpy.MBQCircuit.input_nodes (Python property) — Return the input nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">input_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the input nodes of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.inputc.html" title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes."><span class="sig-name descname pseudo-toc-entry"><span class="pre">inputc</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.inputc.html" title="mentpy.MBQCircuit.inputc (Python property) — Returns I^c, the complement of input nodes."><span class="sig-name descname pseudo-toc-entry"><span class="pre">inputc</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></dt>
 <dd><p>Returns <span class="math notranslate nohighlight">\(I^c\)</span>, the complement of input nodes.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.measurement_order.html" title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">measurement_order</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.measurement_order.html" title="mentpy.MBQCircuit.measurement_order (Python property) — Return the measurement order of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">measurement_order</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the measurement order of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.measurements.html" title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">measurements</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ment</span><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.measurements.html" title="mentpy.MBQCircuit.measurements (Python property) — Return the measurements of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">measurements</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Ment</span><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the measurements of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.output_nodes.html" title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.output_nodes.html" title="mentpy.MBQCircuit.output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the output nodes of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.outputc.html" title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes."><span class="sig-name descname pseudo-toc-entry"><span class="pre">outputc</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.outputc.html" title="mentpy.MBQCircuit.outputc (Python property) — Returns O^c, the complement of output nodes."><span class="sig-name descname pseudo-toc-entry"><span class="pre">outputc</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a></span></dt>
 <dd><p>Returns <span class="math notranslate nohighlight">\(O^c\)</span>, the complement of output nodes.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.partial_order.html" title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">partial_order</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><span class="pre">Callable</span></a></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.partial_order.html" title="mentpy.MBQCircuit.partial_order (Python property) — Return the partial order function of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">partial_order</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a></span></dt>
 <dd><p>Return the partial order function of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.quantum_output_nodes.html" title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">quantum_output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.quantum_output_nodes.html" title="mentpy.MBQCircuit.quantum_output_nodes (Python property) — Return the output nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">quantum_output_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the output nodes of the MBQC circuit.</p>
 </dd></dl>
 
 <dl class="py property summary objdesc">
 <dt class="sig sig-object highlight py">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.trainable_nodes.html" title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">trainable_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><a class="sig-name descname pseudo-toc-entry reference internal" href="mentpy.MBQCircuit.trainable_nodes.html" title="mentpy.MBQCircuit.trainable_nodes (Python property) — Return the trainable nodes of the MBQC circuit."><span class="sig-name descname pseudo-toc-entry"><span class="pre">trainable_nodes</span></span></a><span class="p"> <span class="pre">:</span> </span><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></dt>
 <dd><p>Return the trainable nodes of the MBQC circuit.</p>
 </dd></dl>
 
@@ -1966,6 +2850,14 @@
 
 
 
+  
+  
+
+
+
+
+
+
                 
               </article>
             </div>
@@ -1973,50 +2865,15 @@
           
         </div>
         
-          <a href="#" class="md-top md-icon" data-md-component="top" hidden>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
-            Back to top
-          </a>
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="mentpy.GraphState.nodes.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: mentpy.GraphState.nodes" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              mentpy.GraphState.nodes
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="mentpy.MBQCircuit.__init__.html" class="md-footer__link md-footer__link--next" aria-label="Next: mentpy.MBQCircuit.__init__" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              mentpy.MBQCircuit.__init__
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   
   
@@ -2032,7 +2889,7 @@
   
     Created using
     <a href="https://www.sphinx-doc.org/" target="_blank" rel="noopener">Sphinx</a>
-    7.3.7.
+    8.1.3.
      and
     <a href="https://github.com/jbms/sphinx-immaterial/" target="_blank" rel="noopener">Sphinx-Immaterial</a>
   
@@ -2048,10 +2905,11 @@
       <div class="md-dialog__inner md-typeset"></div>
     </div>
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "search.share", "toc.follow", "toc.sticky"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.top", "search.share", "toc.follow", "toc.sticky"], "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
       
-        <script src="../_static/sphinx_immaterial_theme.f9d9eeeb247ace16c.min.js?v=8ec58cb5"></script>
+        <script src="../_static/sphinx_immaterial_theme.32136f45f91ae6956.min.js?v=a7a9472a"></script>
         <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}})</script>
         <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "displayMath": [["\\[", "\\]"]]}}</script>
         <script id="MathJax-script" src="../_static/mathjax/tex-mml-chtml.js?v=cadf963e"></script>
