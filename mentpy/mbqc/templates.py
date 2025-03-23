@@ -3,7 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """
-This is the common_ansatz module. 
+This is the common_ansatz module.
 It has several common ansatzes that can be used for MBQC algorithms
 """
 
