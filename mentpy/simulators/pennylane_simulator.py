@@ -113,7 +113,7 @@ def mbqcircuit_to_circuit(
                 gsc.output_nodes
             ), f"Length of param is {len(param)}, but expected {N-len(gsc.output_nodes)}."
         input_v = st
-        qml.QubitStateVector(input_v, wires=gsc.input_nodes)
+        qml.StatePrep(input_v, wires=gsc.input_nodes)
 
         for j in gsc.inputc:
             qml.Hadamard(j)
