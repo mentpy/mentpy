@@ -85,6 +85,20 @@ We welcome contributions to `mentpy`! Please see our [contributing guidelines](.
 If you use `mentpy` in your research, please cite it as follows:
 
 ```
+@misc{mantilla2025mbqml,
+      title={Measurement-based quantum machine learning}, 
+      author={Luis Mantilla Calderón and Robert Raussendorf and Polina Feldmann and Dmytro Bondarenko},
+      year={2025},
+      eprint={2405.08319},
+      archivePrefix={arXiv},
+      primaryClass={quant-ph},
+      url={https://arxiv.org/abs/2405.08319},
+      doi={https://doi.org/10.48550/arXiv.2405.08319}
+}
+```
+
+
+```
 @software{mantilla2023mentpy,
     title = {{MentPy: A Python package for parametrized MBQC circuits}},
     author = {Mantilla Calderón, Luis},
