@@ -61,33 +61,38 @@ If you find MentPy useful in your research, please consider citing us 🙂
 
       .. code-block:: latex
 
-         @software{mantilla2023mentpy,
-            title = {{MentPy: A Python package for parametrized MBQC circuits}},
-            author = {Mantilla Calderón, Luis},
-            year = {2023},
-            url = {https://github.com/mentpy/mentpy},
+         @article{mantilla2025mbqml,
+           title = {Measurement-based quantum machine learning},
+           author = {Mantilla Calder\'on, Luis and Raussendorf, Robert and Feldmann, Polina and Bondarenko, Dmytro},
+           journal = {Phys. Rev. A},
+           volume = {113},
+           number = {4},
+           pages = {042421},
+           year = {2026},
+           month = {Apr},
+           publisher = {American Physical Society},
+           doi = {10.1103/2snk-m8c6},
+           url = {https://link.aps.org/doi/10.1103/2snk-m8c6}
          }
 
    .. md-tab-item:: AIP
 
       .. code-block:: text
 
-         L. Mantilla Calderón, MentPy: A Python package for parametrized MBQC circuits, (2023). https://github.com/mentpy/mentpy
-     
+         L. Mantilla Calderón, R. Raussendorf, P. Feldmann, and D. Bondarenko, Measurement-based quantum machine learning, Phys. Rev. A 113, 042421 (2026). https://doi.org/10.1103/2snk-m8c6
+
 
    .. md-tab-item:: APA
 
       .. code-block:: text
 
-         Mantilla Calderón, L. (2023). MentPy: A Python package for parametrized MBQC circuits. Retrieved from https://github.com/mentpy/mentpy
-   
+         Mantilla Calderón, L., Raussendorf, R., Feldmann, P., & Bondarenko, D. (2026). Measurement-based quantum machine learning. Physical Review A, 113(4), 042421. https://doi.org/10.1103/2snk-m8c6
+
    .. md-tab-item:: MLA
 
       .. code-block:: text
 
-         Mantilla Calderón, Luis. MentPy: A Python package for parametrized MBQC circuits. 2023. Web. https://github.com/mentpy/mentpy
-
-
+         Mantilla Calderón, Luis, et al. "Measurement-based quantum machine learning." Physical Review A, vol. 113, no. 4, 2026, p. 042421. https://doi.org/10.1103/2snk-m8c6
 
 .. toctree::
    :caption: Getting Started
