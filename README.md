@@ -15,11 +15,8 @@
     <a href="https://codecov.io/gh/mentpy/mentpy" > 
         <img src="https://codecov.io/gh/mentpy/mentpy/graph/badge.svg?token=3EM0A3Q4MG"/> 
     </a>
-    <a href="https://x.com/mentpy">
-        <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/mentpy">
-    </a>
-    <a href="https://discord.gg/HNA36hmEE5">
-      <img alt="Discord" src="https://img.shields.io/discord/1158882999551676586?logo=discord&label=Chat&labelColor=ffffff">
+    <a href="https://journals.aps.org/pra/abstract/10.1103/2snk-m8c6">
+        <img alt="Paper" src="https://img.shields.io/badge/Paper-Physical%20Review%20A-blue">
     </a>
 </div>
 
