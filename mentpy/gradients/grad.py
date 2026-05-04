@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Module that contains functions to calculate gradients of cost functions."""
+
 import numpy as np
 from ._finite_difference import fd_gradient, fd_hessian
 from ._parameter_shift import psr_gradient, psr_hessian

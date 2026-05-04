@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module to study the expressivity of a given MBQC circuit."""
+
 import numpy as np
 import networkx as nx
 

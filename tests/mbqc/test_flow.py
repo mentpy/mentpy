@@ -58,9 +58,7 @@ def test_gflow():
 def test_pflow():
     """Test the pflow function."""
     gs = mp.templates.linear_cluster(5).graph
-    cond, _, _ = flow.find_pflow(
-        gs, set([0]), set([4]), {v: "XY" for v in gs.nodes}
-    )
+    cond, _, _ = flow.find_pflow(gs, set([0]), set([4]), {v: "XY" for v in gs.nodes})
     assert cond
 
     gs = mp.GraphState()
@@ -81,9 +79,7 @@ def test_pflow():
     assert circ.flow.depth == 2
 
     gs = mp.GraphState()
-    gs.add_edges_from(
-        [(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)]
-    )
+    gs.add_edges_from([(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)])
     circ = mp.MBQCircuit(
         gs,
         input_nodes=[0],
@@ -140,9 +136,7 @@ def test_pflow_algebraic_square_case():
 def test_pflow_algebraic_rectangular_case():
     """Test the O(n^3) general algorithm when there are more outputs."""
     gs = mp.GraphState()
-    gs.add_edges_from(
-        [(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)]
-    )
+    gs.add_edges_from([(0, 1), (1, 2), (2, 3), (1, 4), (2, 4), (4, 5), (5, 2), (5, 6)])
     planes = {0: "XY", 1: "XY", 2: "Y", 4: "YZ", 5: "XY"}
 
     cond, _, d = flow.find_pflow(gs, {0}, {3, 6}, planes)
@@ -159,12 +153,8 @@ def test_pflow_dag_right_inverse_solver_matches_bruteforce():
     for n_vertices in range(1, 5):
         for free_dim in range(0, 4):
             for _ in range(8):
-                NL = rng.integers(
-                    0, 2, size=(n_vertices, n_vertices), dtype=np.uint8
-                )
-                NR = rng.integers(
-                    0, 2, size=(n_vertices, free_dim), dtype=np.uint8
-                )
+                NL = rng.integers(0, 2, size=(n_vertices, n_vertices), dtype=np.uint8)
+                NR = rng.integers(0, 2, size=(n_vertices, free_dim), dtype=np.uint8)
 
                 expected = _bruteforce_dag_right_inverse(NL, NR)
                 actual = flow._solve_dag_right_inverse(NL, NR)
@@ -194,14 +184,13 @@ def test_pflow_rust_accelerated_gf2_helpers_match_numpy_fallback():
     previous = flow._rust_ext
     try:
         flow._rust_ext = None
-        numpy_right_inverse, numpy_kernel = flow._gf2_right_inverse_and_kernel(
-            matrix
-        )
+        numpy_right_inverse, numpy_kernel = flow._gf2_right_inverse_and_kernel(matrix)
     finally:
         flow._rust_ext = previous
 
     assert rust_right_inverse.tolist() == numpy_right_inverse.tolist()
     assert rust_kernel.tolist() == numpy_kernel.tolist()
-    assert flow._gf2_matmul(matrix, rust_right_inverse).tolist() == np.eye(
-        matrix.shape[0], dtype=np.uint8
-    ).tolist()
+    assert (
+        flow._gf2_matmul(matrix, rust_right_inverse).tolist()
+        == np.eye(matrix.shape[0], dtype=np.uint8).tolist()
+    )

@@ -560,9 +560,7 @@ def test_to_cudaq_fake_requires_spin_helpers(monkeypatch):
 def test_to_cudaq_fake_empty_observable_uses_identity(monkeypatch):
     monkeypatch.setitem(sys.modules, "cudaq", _fake_cudaq_module())
 
-    spin_op = mp.utils.to_cudaq(
-        mp.Observable.identity(2, coeff=0.0), wire_order=[0, 1]
-    )
+    spin_op = mp.utils.to_cudaq(mp.Observable.identity(2, coeff=0.0), wire_order=[0, 1])
     obs = mp.utils.from_cudaq(spin_op, n_qubits=2)
 
     assert obs.constant == 0.0

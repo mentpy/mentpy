@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Module to calculate gradients using the parameter shift rule."""
+
 import numpy as np
 
 

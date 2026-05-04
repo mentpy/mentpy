@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Tests for the simulator module."""
+
 import pytest
 import numpy as np
 import mentpy as mp

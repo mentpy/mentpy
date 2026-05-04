@@ -393,7 +393,9 @@ def _pauli_template_text(state, pauliop, n_wires):
     return "".join(chars)
 
 
-def _pauli_template_node_color(node, input_nodes, output_nodes, parity_node, angle_node):
+def _pauli_template_node_color(
+    node, input_nodes, output_nodes, parity_node, angle_node
+):
     if node in input_nodes or node in output_nodes:
         return INPUT_NODE_COLOR
     if node == parity_node:

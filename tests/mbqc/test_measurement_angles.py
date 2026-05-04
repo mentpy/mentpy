@@ -137,9 +137,7 @@ def test_resolver_uses_outcomes_for_callable_metadata():
     circuit = _FakeCircuit({"node": ment})
     resolver = MeasurementAngleResolver(circuit)
 
-    command = resolver.resolve(
-        "node", [], outcomes={"branch": True, "angle": 0.75}
-    )
+    command = resolver.resolve("node", [], outcomes={"branch": True, "angle": 0.75})
 
     assert command.node == "node"
     assert command.plane == "XY"

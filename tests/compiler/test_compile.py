@@ -9,7 +9,6 @@ import pytest
 import mentpy as mp
 import mentpy.compiler.core as compiler_core
 
-
 QASM_HH = """OPENQASM 2.0;
 include "qelib1.inc";
 qreg q[1];

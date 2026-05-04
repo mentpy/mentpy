@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """This module contains the Adam optimizer."""
+
 import numpy as np
 from mentpy.gradients import get_gradient
 
