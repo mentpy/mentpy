@@ -29,6 +29,14 @@ def test_observable_complex_expectation_can_keep_imaginary_part():
     assert np.allclose(obs.expectation(state), 0.0)
 
 
+def test_observable_with_y_terms_accepts_real_statevectors():
+    obs = mp.Observable({"Y": 1.0})
+    state = np.array([1.0, 0.0])
+
+    assert np.allclose(obs.expectation(state), 0.0)
+    assert np.allclose(obs.expectation([1.0, 0.0]), 0.0)
+
+
 def test_observable_from_pauliop():
     obs = mp.Observable.from_pauliop(mp.PauliOp("ZI;IZ"), coeffs=[1.0, -1.0])
 

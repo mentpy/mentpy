@@ -129,6 +129,8 @@ class Observable:
         """
         xp = self._namespace(state)
         state = xp.asarray(state)
+        dtype = xp.result_type(state.dtype, xp.asarray(1j).dtype)
+        state = xp.asarray(state, dtype=dtype)
         n_qubits = self._infer_state_qubits(state)
         self._validate_qubits(n_qubits)
 
