@@ -254,6 +254,19 @@ class TestJaxFeatures:
         assert grad.shape == (n_trainable,)
         assert jnp.all(jnp.isfinite(grad))
 
+    def test_shot_sampled_expectation(self):
+        """Test finite-shot observable estimates through the TN backend."""
+        gs = mp.templates.linear_cluster(5)
+        sim = mp.simulators.JaxTNSimulator(gs)
+        observable = mp.Observable({"X": 1.0})
+        angles = jnp.zeros(len(gs.trainable_nodes))
+
+        exact = sim.expectation(angles, observable)
+        sampled = sim.expectation(angles, observable, shots=100, seed=7)
+
+        assert np.allclose(exact, 1.0)
+        assert np.allclose(sampled, 1.0)
+
     def test_gradient_method_jax(self):
         """Test get_gradient with method='jax'."""
         gs = mp.templates.linear_cluster(5)

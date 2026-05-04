@@ -5,7 +5,6 @@
 """This module contains the Adam optimizer."""
 
 import numpy as np
-from mentpy.gradients import get_gradient
 
 from mentpy.optimizers.base import BaseOpt
 
@@ -43,8 +42,19 @@ class AdamOpt(BaseOpt):
     optimizers
     """
 
-    def __init__(self, step_size=0.1, b1=0.9, b2=0.999, eps=10**-8) -> None:
+    def __init__(
+        self,
+        step_size=0.1,
+        b1=0.9,
+        b2=0.999,
+        eps=10**-8,
+        gradient_method="parameter-shift",
+        gradient_kwargs=None,
+    ) -> None:
         """Initialize the Adam optimizer."""
+        super().__init__(
+            gradient_method=gradient_method, gradient_kwargs=gradient_kwargs
+        )
         self.step_size = step_size
         self.b1 = b1
         self.b2 = b2
@@ -54,11 +64,12 @@ class AdamOpt(BaseOpt):
 
     def step(self, f, x, i, **kwargs):
         """Take a step of the optimizer."""
-        g = get_gradient(f, x, **kwargs)
+        x = np.asarray(x, dtype=float)
+        g = self._gradient(f, x, **kwargs)
         if self.m is None:
-            self.m = np.zeros(len(x))
+            self.m = np.zeros_like(x, dtype=float)
         if self.v is None:
-            self.v = np.zeros(len(x))
+            self.v = np.zeros_like(x, dtype=float)
         self.m = self.b1 * self.m + (1 - self.b1) * g
         self.v = self.b2 * self.v + (1 - self.b2) * g**2
         m_hat = self.m / (1 - self.b1 ** (i + 1))
@@ -68,9 +79,7 @@ class AdamOpt(BaseOpt):
 
     def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
         """Optimize a function f using the Adam optimizer."""
-        m = np.zeros(len(x0))
-        v = np.zeros(len(x0))
-        x = x0
+        x = np.asarray(x0, dtype=float)
         for i in range(num_iters):
             x = self.step(f, x, i, **kwargs)
             if callback is not None:
@@ -87,19 +96,12 @@ class AdamOpt(BaseOpt):
         self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
     ):
         """Optimize a function f using the Adam optimizer."""
-        m = np.zeros(len(x0))
-        v = np.zeros(len(x0))
-        x = x0
+        x = np.asarray(x0, dtype=float)
         norm = np.zeros(num_iters)
 
         for i in range(num_iters):
-            # Adam Optimizer
-            g = get_gradient(f, x, **kwargs)
-            m = (1 - self.b1) * g + self.b1 * m
-            v = (1 - self.b2) * (g**2) + self.b2 * v
-            mhat = m / (1 - self.b1 ** (i + 1))
-            vhat = v / (1 - self.b2 ** (i + 1))
-            x = x - self.step_size * mhat / (np.sqrt(vhat) + self.eps)
+            g = self._gradient(f, x, **kwargs)
+            x = self.step(f, x, i, gradient=g)
             norm[i] = np.linalg.norm(g)
             if callback is not None:
                 callback(x, i)

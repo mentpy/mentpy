@@ -2,12 +2,14 @@
 #
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
-"""Base class for simulators.""" ""
+"""Base class for simulators."""
+
 import abc
 import numpy as np
 from typing import Union, List, Tuple, Optional
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
+from mentpy.operators import Observable
 
 __all__ = ["BaseSimulator"]
 
@@ -96,6 +98,26 @@ class BaseSimulator(abc.ABC):
             The parameters of the MBQC circuit (if any).
         """
         pass
+
+    def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
+        """Evaluate an observable exactly or with finite synthetic shots."""
+        if not isinstance(observable, Observable):
+            observable = Observable(observable)
+
+        self.reset()
+        if shots is None:
+            try:
+                state = self.run(angles, output_form="sv", **kwargs)
+            except TypeError:
+                state = self.run(angles, **kwargs)
+            value = observable.expectation(state)
+            self.reset()
+            return value
+
+        state = self.run(angles, **kwargs)
+        value = observable.sample_expectation(state, shots=shots, seed=seed)
+        self.reset()
+        return value
 
     @abc.abstractmethod
     def reset(self, input_state=None):

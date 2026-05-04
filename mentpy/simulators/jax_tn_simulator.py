@@ -349,7 +349,7 @@ class JaxTNSimulator(BaseSimulator):
         cost_value, gradient = jax.value_and_grad(full_cost)(angles)
         return cost_value, gradient
 
-    def expectation(self, angles, observable, **kwargs):
+    def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
         """Evaluate an observable expectation value.
 
         Parameters
@@ -367,10 +367,17 @@ class JaxTNSimulator(BaseSimulator):
         if not isinstance(observable, Observable):
             observable = Observable(observable)
         state = self._forward(jnp.asarray(angles, dtype=jnp.float64), "sv")
+        if shots is not None:
+            return observable.sample_expectation(np.asarray(state), shots, seed=seed)
         return observable.expectation(state)
 
     def expectation_and_grad(self, angles, observable, **kwargs):
         """Evaluate an observable expectation and its gradient."""
+        if kwargs.get("shots") is not None:
+            raise ValueError(
+                "Shot-sampled expectations are stochastic and not compatible with "
+                "JAX autodiff. Use parameter-shift or finite-difference gradients."
+            )
         if not isinstance(observable, Observable):
             observable = Observable(observable)
 

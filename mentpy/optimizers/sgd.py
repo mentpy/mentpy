@@ -5,7 +5,6 @@
 """This module contains the SGD optimizer."""
 
 from mentpy.optimizers.base import BaseOpt
-from mentpy.gradients import get_gradient
 
 import numpy as np
 
@@ -40,8 +39,18 @@ class SGDOpt(BaseOpt):
     optimizers
     """
 
-    def __init__(self, step_size=0.1, momentum=0.0, nesterov=False) -> None:
+    def __init__(
+        self,
+        step_size=0.1,
+        momentum=0.0,
+        nesterov=False,
+        gradient_method="parameter-shift",
+        gradient_kwargs=None,
+    ) -> None:
         """Initialize the SGD optimizer."""
+        super().__init__(
+            gradient_method=gradient_method, gradient_kwargs=gradient_kwargs
+        )
         self.step_size = step_size
         self.momentum = momentum
         self.nesterov = nesterov
@@ -49,9 +58,10 @@ class SGDOpt(BaseOpt):
 
     def step(self, f, x, i, **kwargs):
         """Take a step of the SGD optimizer."""
-        g = get_gradient(f, x, **kwargs)
+        x = np.asarray(x, dtype=float)
+        g = self._gradient(f, x, **kwargs)
         if self.v is None:
-            self.v = np.zeros(len(x))
+            self.v = np.zeros_like(x, dtype=float)
         self.v = self.momentum * self.v - self.step_size * g
         if self.nesterov:
             x = x + self.momentum * self.v - self.step_size * g
@@ -61,7 +71,7 @@ class SGDOpt(BaseOpt):
 
     def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
         """Optimize a function f using the SGD optimizer."""
-        x = x0
+        x = np.asarray(x0, dtype=float)
         for i in range(num_iters):
             x = self.step(f, x, i, **kwargs)
             if callback is not None:
@@ -78,18 +88,12 @@ class SGDOpt(BaseOpt):
         self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
     ):
         """Optimize a function f using the SGD optimizer."""
-        v = np.zeros(len(x0))
-        x = x0
+        x = np.asarray(x0, dtype=float)
         norm = []
         for i in range(num_iters):
-            # SGD Optimizer
-            g = get_gradient(f, x, **kwargs)
+            g = self._gradient(f, x, **kwargs)
             norm.append(np.linalg.norm(g))
-            v = self.momentum * v - self.step_size * g
-            if self.nesterov:
-                x = x + self.momentum * v - self.step_size * g
-            else:
-                x = x + v
+            x = self.step(f, x, i, gradient=g)
             if callback is not None:
                 callback(x, i)
             if verbose:

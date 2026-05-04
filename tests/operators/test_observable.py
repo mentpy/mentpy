@@ -21,6 +21,19 @@ def test_observable_density_matrix_expectation():
     assert np.allclose(obs(density_matrix), 1.0)
 
 
+def test_observable_sample_expectation_uses_finite_shots():
+    deterministic = mp.Observable({"Z": 1.0})
+    zero = np.array([1.0, 0.0], dtype=np.complex128)
+
+    assert np.allclose(deterministic.sample_expectation(zero, shots=20, seed=1), 1.0)
+
+    stochastic = mp.Observable({"Z": 1.0})
+    plus = np.array([1.0, 1.0], dtype=np.complex128) / np.sqrt(2)
+    estimate = stochastic.sample_expectation(plus, shots=2000, seed=2)
+
+    assert abs(estimate) < 0.08
+
+
 def test_observable_complex_expectation_can_keep_imaginary_part():
     obs = mp.Observable({"Z": 1j})
     state = np.array([1.0, 0.0], dtype=np.complex128)

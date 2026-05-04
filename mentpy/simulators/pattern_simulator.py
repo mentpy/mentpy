@@ -95,5 +95,10 @@ class PatternSimulator:
     def run(self, angles: List[float], **kwargs) -> Tuple[List[int], np.ndarray]:
         return self.simulator.run(angles, **kwargs)
 
+    def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
+        return self.simulator.expectation(
+            angles, observable, shots=shots, seed=seed, **kwargs
+        )
+
     def reset(self, input_state: np.ndarray = None):
         return self.simulator.reset(input_state)

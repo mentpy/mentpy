@@ -80,6 +80,29 @@ which is useful for variational algorithms.
     )
     print(value)
 
+Exact autodiff is the default when ``shots=None``. To emulate finite
+measurement statistics while keeping the MBQC state preparation exact, pass a
+shot count to the same observable API:
+
+.. ipython:: python
+
+    exact_value = simulator.expectation(
+        np.zeros(len(wire.trainable_nodes)),
+        observable,
+    )
+    shot_value = simulator.expectation(
+        np.zeros(len(wire.trainable_nodes)),
+        observable,
+        shots=200,
+        seed=7,
+    )
+    print(exact_value, shot_value)
+
+The VQE helper uses this split too: ``gradient_method="auto"`` selects JAX
+autodiff for exact ``jax-tn`` objectives and parameter-shift when ``shots`` is
+set. You can still request ``"parameter-shift"``, ``"fd"``, or ``"jax"``
+explicitly.
+
 .. _clifford-t-long-wire:
 
 Clifford+T rotations on a long wire

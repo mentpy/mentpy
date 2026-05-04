@@ -147,6 +147,36 @@ class Observable:
 
         return xp.real(total) if real else total
 
+    def sample_expectation(self, state, shots, seed=None, real=True):
+        """Estimate the expectation value with finite Pauli measurement shots.
+
+        The input state is still simulated exactly; ``shots`` controls the
+        number of synthetic measurement samples used for each Pauli term in the
+        observable. This is useful for testing shot-noise-aware training loops
+        without changing the state-preparation backend.
+        """
+        shots = int(shots)
+        if shots <= 0:
+            raise ValueError("shots must be a positive integer.")
+
+        state = np.asarray(state)
+        dtype = np.result_type(state.dtype, np.asarray(1j).dtype)
+        state = np.asarray(state, dtype=dtype)
+        n_qubits = self._infer_state_qubits(state)
+        self._validate_qubits(n_qubits)
+
+        rng = np.random.default_rng(seed)
+        total = np.asarray(self.constant, dtype=dtype)
+        for pauli, coeff in self.terms.items():
+            mean = np.real(self._pauli_expectation(pauli, state))
+            p_plus = np.clip((1.0 + mean) / 2.0, 0.0, 1.0)
+            samples = rng.choice(
+                np.array([1.0, -1.0]), size=shots, p=[p_plus, 1.0 - p_plus]
+            )
+            total = total + np.asarray(coeff, dtype=dtype) * np.mean(samples)
+
+        return np.real(total) if real else total
+
     def matrix(self, pauli=None, xp=np, dtype=np.complex128):
         """Return a dense matrix for this observable or one Pauli string."""
         if pauli is not None:
@@ -163,6 +193,14 @@ class Observable:
 
     def __call__(self, state, real=True):
         return self.expectation(state, real=real)
+
+    def _pauli_expectation(self, pauli, state):
+        matrix = self.matrix(pauli, xp=np, dtype=state.dtype)
+        if state.ndim == 1:
+            return np.vdot(state, matrix @ state)
+        if state.ndim == 2:
+            return np.trace(state @ matrix)
+        raise ValueError("State must be a statevector or density matrix.")
 
     def __add__(self, other):
         if isinstance(other, Number):
