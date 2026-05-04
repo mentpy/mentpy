@@ -13,6 +13,15 @@ from mentpy.simulators.pennylane_simulator import *
 from mentpy.simulators.np_simulator_dm import *
 from mentpy.simulators.np_simulator_sv import *
 
+try:
+    from mentpy.simulators.jax_tn_simulator import JaxTNSimulator
+
+    _HAS_JAX = True
+except ImportError as exc:
+    if exc.name not in {"jax", "jax.numpy", "opt_einsum"}:
+        raise
+    _HAS_JAX = False
+
 __all__ = ["PatternSimulator"]
 
 
@@ -48,6 +57,8 @@ class PatternSimulator:
             "numpy-dm": NumpySimulatorDM,
             "numpy-sv": NumpySimulatorSV,
         }
+        if _HAS_JAX:
+            supported_backends["jax-tn"] = JaxTNSimulator
 
         backend = backend.lower()
         if backend not in supported_backends:

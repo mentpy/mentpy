@@ -10,6 +10,7 @@ from .states import *
 from .mbqcircuit import *
 from .templates import *
 from .flow import *
+from .measurement_angles import *
 from .view import *
 
 __all__ = [
@@ -20,6 +21,8 @@ __all__ = [
     "vstack",
     "hstack",
     "merge",
+    "MeasurementAngleResolver",
+    "MeasurementCommand",
     "templates",
     "flow",
 ]

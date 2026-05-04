@@ -3,12 +3,12 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """The graph_state module"""
+
 import copy
 from functools import cached_property, reduce
 from typing import Optional, List, Tuple, Callable, Dict
 
 import numpy as np
-import scipy as scp
 import networkx as nx
 import matplotlib.pyplot as plt
 

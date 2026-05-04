@@ -27,6 +27,24 @@ Simulators
 
 .. python-apigen-group:: simulators
 
+Compiler
+========
+
+.. autofunction:: mentpy.compile
+
+.. autoclass:: mentpy.CompileResult
+   :members:
+
+Chemistry
+=========
+
+.. python-apigen-group:: chemistry
+
+QML
+===
+
+.. python-apigen-group:: qml
+
 Optimizers
 ==========
 
@@ -36,6 +54,3 @@ Utils
 =====
 
 .. python-apigen-group:: utils
-
-
-

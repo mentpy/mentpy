@@ -1,0 +1,12 @@
+[package]
+name = "mentpy-rust"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "_rust"
+path = "rust/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = "0.25"

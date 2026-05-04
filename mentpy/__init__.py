@@ -14,6 +14,10 @@ from .simulators import *
 from . import gradients
 from . import optimizers
 from . import utils
+from . import chem
+from . import compiler
+from . import qml
+from .compiler import CompileResult, compile
 
 from packaging.version import parse as parse_version
 

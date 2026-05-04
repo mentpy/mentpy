@@ -63,6 +63,8 @@ python_apigen_modules = {
     "mentpy.mbqc.templates": "api/mentpy.mbqc.templates.",
     "mentpy.mbqc.flow": "api/mentpy.mbqc.flow.",
     "mentpy.utils": "api/mentpy.utils.",
+    "mentpy.chem": "api/mentpy.chem.",
+    "mentpy.qml": "api/mentpy.qml.",
     "mentpy.optimizers": "api/mentpy/optimizers.",
 }
 

@@ -74,6 +74,8 @@ def get_options(kwargs) -> dict:
         "pauliop": None,
         "style": "default",
         "position": None,
+        "layout": None,
+        "title": None,
     }
 
     # Update default options with any provided by the user
@@ -98,13 +100,24 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
     position = options.pop("position")
+    layout = options.pop("layout")
+    title = options.pop("title")
+
+    if layout == "pauli" and pauliop is None:
+        pauliop = _infer_pauliop_from_template(state)
+        options["pauliop"] = pauliop
 
     if pauliop is not None:
         if len(pauliop) != 1:
             raise ValueError("pauliop must be a single Pauli operator")
         options["label"] = "pauliop"
 
-    if "labels" not in options:
+    if layout == "pauli":
+        options.pop("label", None)
+        options.pop("pauliop", None)
+        if "labels" in options:
+            options.pop("labels")
+    elif "labels" not in options:
         options["labels"] = process_labels(state, options)
     else:
         options.pop("pauliop")
@@ -120,6 +133,14 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
         nx.draw(state, position, ax=ax, **options)
 
     elif isinstance(state, MBQCircuit):
+        if layout == "pauli":
+            return _draw_pauli_template(
+                state,
+                ax=ax,
+                title=title,
+                pauliop=pauliop,
+                options=options,
+            )
         if state.flow is None:
             nx.draw(state.graph, position, ax=ax, **options)
         elif state.flow.name.lower() == "cflow":
@@ -177,6 +198,8 @@ def draw_with_wires(
     edge_color_control = options.pop("edge_color_control")
     style = options.pop("style")
     position = options.pop("position")
+    options.pop("layout")
+    title = options.pop("title")
 
     if pauliop is not None:
         if len(pauliop) != 1:
@@ -268,6 +291,116 @@ def draw_with_wires(
             )
 
     return fig, ax
+
+
+def _infer_pauliop_from_template(state):
+    if isinstance(state, MBQCircuit):
+        try:
+            from mentpy.operators import PauliOp
+
+            return PauliOp(_pauli_template_text(state, None, len(state.input_nodes)))
+        except Exception:
+            return None
+    return None
+
+
+def _draw_pauli_template(state, ax, title, pauliop, options):
+    n_wires = len(state.input_nodes)
+    _validate_pauli_template(state, n_wires)
+
+    parity_node = 3 * n_wires
+    angle_node = parity_node + 1
+    pauli_text = _pauli_template_text(state, pauliop, n_wires)
+
+    positions = {}
+    labels = {}
+    for q in range(n_wires):
+        y = -q
+        positions[3 * q] = (0, y)
+        positions[3 * q + 1] = (1, y)
+        positions[3 * q + 2] = (2, y)
+        labels[3 * q] = f"q{q}"
+        labels[3 * q + 1] = pauli_text[q]
+        labels[3 * q + 2] = f"q{q}'"
+
+    positions[parity_node] = (1, -n_wires)
+    positions[angle_node] = (2, -n_wires)
+    labels[parity_node] = "P"
+    labels[angle_node] = r"$\theta$"
+
+    draw_options = dict(options)
+    draw_options["labels"] = labels
+    draw_options.setdefault("edge_color", "#6c6c6c")
+    draw_options.setdefault("edgecolors", "black")
+    draw_options.setdefault("linewidths", 1.2)
+    draw_options.setdefault("node_size", 1120)
+    draw_options.setdefault("font_size", 12)
+    draw_options.setdefault("width", 1.8)
+    draw_options["node_color"] = draw_options.get(
+        "node_color",
+        [
+            _pauli_template_node_color(
+                node, state.input_nodes, state.output_nodes, parity_node, angle_node
+            )
+            for node in state.graph.nodes
+        ],
+    )
+
+    nx.draw_networkx(state.graph, positions, ax=ax, **draw_options)
+    if title is not None:
+        ax.set_title(title)
+    elif pauli_text:
+        ax.set_title(f"MBQC Pauli-rotation layer: {pauli_text}")
+    ax.axis("off")
+    return ax.figure, ax
+
+
+def _validate_pauli_template(state, n_wires):
+    if n_wires == 0:
+        raise ValueError("Pauli template layout requires at least one input wire.")
+    expected_nodes = set(range(3 * n_wires + 2))
+    if set(state.graph.nodes) != expected_nodes:
+        raise ValueError(
+            "layout='pauli' expects a circuit produced by templates.from_pauli."
+        )
+    if list(state.input_nodes) != [3 * q for q in range(n_wires)]:
+        raise ValueError(
+            "layout='pauli' expects input nodes from templates.from_pauli."
+        )
+    if list(state.output_nodes) != [3 * q + 2 for q in range(n_wires)]:
+        raise ValueError(
+            "layout='pauli' expects output nodes from templates.from_pauli."
+        )
+
+
+def _pauli_template_text(state, pauliop, n_wires):
+    if pauliop is not None:
+        return pauliop.txt
+
+    parity_node = 3 * n_wires
+    chars = []
+    for q in range(n_wires):
+        has_x = state.graph.has_edge(3 * q + 1, parity_node)
+        has_z = state.graph.has_edge(3 * q, parity_node)
+        if has_x and has_z:
+            chars.append("Y")
+        elif has_x:
+            chars.append("X")
+        elif has_z:
+            chars.append("Z")
+        else:
+            chars.append("I")
+    return "".join(chars)
+
+
+def _pauli_template_node_color(node, input_nodes, output_nodes, parity_node, angle_node):
+    if node in input_nodes or node in output_nodes:
+        return INPUT_NODE_COLOR
+    if node == parity_node:
+        return "#F0D784"
+    if node == angle_node:
+        return DEFAULT_NODE_COLOR
+    return UNTRAINABLE_NODE_COLOR
 
 
 def process_labels(state: Union[MBQCircuit, GraphState], options: dict):

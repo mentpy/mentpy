@@ -10,11 +10,22 @@ import numpy as np
 
 from mentpy.simulators.base_simulator import BaseSimulator
 from mentpy.mbqc.mbqcircuit import MBQCircuit
+from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 
 import pennylane as qml
 import networkx as nx
 
 __all__ = ["PennylaneSimulator"]
+
+
+def _prepare_state(state, wires):
+    """Prepare an input state across PennyLane versions."""
+    if len(wires) == 0:
+        return
+    if hasattr(qml, "StatePrep"):
+        qml.StatePrep(state, wires=wires)
+    else:
+        qml.QubitStateVector(state, wires=wires)
 
 
 class PennylaneSimulator(BaseSimulator):
@@ -46,6 +57,7 @@ class PennylaneSimulator(BaseSimulator):
             p=kwargs.pop("p", 0),
         )
         super().__init__(mbqcircuit, input_state)
+        self._angle_resolver = MeasurementAngleResolver(mbqcircuit)
 
         if len(mbqcircuit.controlled_nodes) > 0:
             raise NotImplementedError(
@@ -53,7 +65,10 @@ class PennylaneSimulator(BaseSimulator):
             )
 
     def measure(self, angle: float, plane: str = "XY"):
-        raise NotImplementedError
+        raise NotImplementedError(
+            "PennylaneSimulator runs complete MBQC patterns; single-step "
+            "measurement is not exposed for this backend."
+        )
 
     def run(self, angles: List[float], **kwargs) -> Tuple[List[int], np.ndarray]:
         if len(angles) != len(self.mbqcircuit.trainable_nodes):
@@ -61,30 +76,10 @@ class PennylaneSimulator(BaseSimulator):
                 f"Number of angles ({len(angles)}) does not match number of trainable nodes ({len(self.mbqcircuit.trainable_nodes)})."
             )
 
-        # extend angles to all nodes
-
-        extended_angles = []
-
-        if len(self.mbqcircuit.trainable_nodes) != len(self.mbqcircuit.outputc):
-            for i in self.mbqcircuit.outputc:
-                if i in self.mbqcircuit.trainable_nodes:
-                    angle = angles[self.mbqcircuit.trainable_nodes.index(i)]
-                else:
-                    plane = self.mbqcircuit[i].plane
-                    if plane == "X":
-                        angle = 0
-                    elif plane == "Y":
-                        angle = np.pi / 2
-                    elif plane == "XY":
-                        angle = self.mbqcircuit[i].angle
-                    else:
-                        raise ValueError(
-                            f"Plane {plane} is not supported for pennylane simulator."
-                        )
-
-                extended_angles.append(angle)
-        else:
-            extended_angles = angles
+        extended_angles = [
+            self._angle_resolver.angle(i, angles, self.outcomes, xy=True)
+            for i in self.mbqcircuit.outputc
+        ]
 
         return self.circuit(extended_angles, st=self.input_state, **kwargs)
 
@@ -113,7 +108,7 @@ def mbqcircuit_to_circuit(
                 gsc.output_nodes
             ), f"Length of param is {len(param)}, but expected {N-len(gsc.output_nodes)}."
         input_v = st
-        qml.StatePrep(input_v, wires=gsc.input_nodes)
+        _prepare_state(input_v, wires=gsc.input_nodes)
 
         for j in gsc.inputc:
             qml.Hadamard(j)

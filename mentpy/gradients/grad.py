@@ -7,6 +7,13 @@ import numpy as np
 from ._finite_difference import fd_gradient, fd_hessian
 from ._parameter_shift import psr_gradient, psr_hessian
 
+try:
+    from ._jax_autodiff import jax_gradient, jax_hessian
+
+    _HAS_JAX = True
+except ImportError:
+    _HAS_JAX = False
+
 __all__ = ["get_gradient", "get_hessian"]
 
 
@@ -27,9 +34,16 @@ def get_gradient(cost, x, method="parameter-shift", *args, **kwargs):
             return psr_gradient(cost, x, *args, **kwargs)
         case "finite-differences" | "fd" | "finitedifferences":
             return fd_gradient(cost, x, *args, **kwargs)
+        case "jax" | "autodiff":
+            if not _HAS_JAX:
+                raise ImportError(
+                    "JAX is required for autodiff gradients. "
+                    "Install it with: pip install 'mentpy[jax]'"
+                )
+            return jax_gradient(cost, x, *args, **kwargs)
         case _:
             raise UserWarning(
-                f"Expected method to be 'parameter-shift' or 'finite-difference' but {method} was given"
+                f"Expected method to be 'parameter-shift', 'finite-difference', or 'jax' but {method} was given"
             )
 
 
@@ -50,7 +64,14 @@ def get_hessian(cost, x, method="parameter-shift", *args, **kwargs):
             return psr_hessian(cost, x, *args, **kwargs)
         case "finite-differences" | "fd" | "finitedifferences":
             return fd_hessian(cost, x, *args, **kwargs)
+        case "jax" | "autodiff":
+            if not _HAS_JAX:
+                raise ImportError(
+                    "JAX is required for autodiff Hessians. "
+                    "Install it with: pip install 'mentpy[jax]'"
+                )
+            return jax_hessian(cost, x, *args, **kwargs)
         case _:
             raise UserWarning(
-                f"Expected method to be 'parameter-shift' or 'finite-difference' but {method} was given"
+                f"Expected method to be 'parameter-shift', 'finite-difference', or 'jax' but {method} was given"
             )

@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module to study graphs with flow."""
+
 import itertools
 import networkx as nx
 
@@ -119,7 +120,6 @@ class FlowSpace:
 
 if __name__ == "__main__":
     import cProfile
-    import pstats
     import os
     import subprocess
 

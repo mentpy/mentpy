@@ -12,11 +12,11 @@ import networkx as nx
 
 from mentpy.operators import Ment
 from mentpy.mbqc.mbqcircuit import MBQCircuit
+from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 from mentpy.simulators.base_simulator import BaseSimulator
 
 from mentpy.operators import gates
 import mentpy.calculator as calc
-
 
 __all__ = ["NumpySimulatorSV"]
 
@@ -56,11 +56,15 @@ class NumpySimulatorSV(BaseSimulator):
             raise NotImplementedError("Numpy simulator does not support force0=False.")
 
         # Only support XY Measurements
+        zero_outcomes = {node: 0 for node in mbqcircuit.graph.nodes}
         for node in mbqcircuit.graph.nodes:
             if mbqcircuit[node] is not None:
-                if mbqcircuit[node].plane not in ["X", "Y", "XY"]:
+                plane = mbqcircuit[node].plane
+                if callable(plane):
+                    plane = plane(zero_outcomes)
+                if plane not in ["X", "Y", "XY"]:
                     raise ValueError(
-                        f"Node {node} has plane {mbqcircuit[node].plane}, but only XY plane is supported."
+                        f"Node {node} has plane {plane}, but only XY plane is supported."
                     )
 
         # TODO: FIND SCHEDULE IF NOT PROVIDED
@@ -82,6 +86,10 @@ class NumpySimulatorSV(BaseSimulator):
             raise ValueError(
                 "Schedule must be provided for numpy simulator as the MBQCircuit does not have a flow."
             )
+
+        self._angle_resolver = MeasurementAngleResolver(
+            mbqcircuit, schedule=self.schedule
+        )
 
         input_state = self.reorder_qubits(
             input_state,
@@ -248,10 +256,7 @@ class NumpySimulatorSV(BaseSimulator):
 
         if not self.dev_mode:
             for i in self.schedule_measure:
-                if i in self.mbqcircuit.trainable_nodes:
-                    angle = angles[self.mbqcircuit.trainable_nodes.index(i)]
-                else:
-                    angle = self.mbqcircuit[i].angle
+                angle = self._angle_resolver.angle(i, angles, self.outcomes)
 
                 self.qstate, outcome = self.measure(angle)
                 self.outcomes[i] = outcome
@@ -272,10 +277,7 @@ class NumpySimulatorSV(BaseSimulator):
 
                 if cond == False:
                     raise ValueError("WTF")
-                if node in self.mbqcircuit.trainable_nodes:
-                    angle = angles[self.mbqcircuit.trainable_nodes.index(node)]
-                else:
-                    angle = self.mbqcircuit[node].angle
+                angle = self._angle_resolver.angle(node, angles, self.outcomes)
 
                 self.qstate, outcome = self.measure(angle)
                 self.outcomes[node] = outcome
@@ -328,9 +330,12 @@ class NumpySimulatorSV(BaseSimulator):
         """
         Measures a ment
         """
-        if ment.plane not in ["X", "Y", "XY"]:
+        plane = ment.plane
+        if callable(plane):
+            plane = plane(self.outcomes)
+        if plane not in ["X", "Y", "XY"]:
             raise ValueError(
-                f"Plane {ment.plane} is not supported for state vector numpy simulator."
+                f"Plane {plane} is not supported for state vector numpy simulator."
             )
 
         op = ment.matrix(angle, self.outcomes)

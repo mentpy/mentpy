@@ -23,8 +23,11 @@
     </a>
 </div>
 
-The `mentpy` library is an open-source software for simulations of 
-measurement-based quantum computing circuits. Currently, this package is in its alpha version and many features are still in development.
+The `mentpy` library is open-source software for building, simulating, and
+training measurement-based quantum computing circuits. It includes graph-state
+tools, NumPy simulators, a JAX tensor-network backend with autodiff for
+supported forced-outcome patterns, chemistry/VQE helpers, circuit
+interoperability, and optional compiler integrations.
 
 ## Installation
 
