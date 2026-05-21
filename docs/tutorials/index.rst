@@ -27,3 +27,4 @@ Applications and interoperability
 
    intro-mb-vqe
    import-export-circuits
+   qpe-h2-pennylane

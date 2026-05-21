@@ -41,7 +41,8 @@ def build_graph_state_tensors(graph, node_order, input_nodes=None):
         Ordered list of all nodes (determines indexing).
     input_nodes : list, optional
         Nodes whose amplitudes are supplied by a separate input-state tensor.
-        These local tensors omit the default ``|+>`` normalization factor.
+        This argument is kept for the simulator call site; global ``|+>``
+        normalization factors are omitted for every local tensor.
 
     Returns
     -------
@@ -57,8 +58,6 @@ def build_graph_state_tensors(graph, node_order, input_nodes=None):
     bonds = []
 
     node_to_idx = {n: i for i, n in enumerate(node_order)}
-    input_nodes = set(input_nodes or [])
-
     for node in node_order:
         neighbors = sorted(graph.neighbors(node))
         degree = len(neighbors)
@@ -76,8 +75,9 @@ def build_graph_state_tensors(graph, node_order, input_nodes=None):
         # Tensor shape: (2,) * (1 + degree) = (physical, bond1, bond2, ...)
         # T[p, b1, ..., bd] = c * prod_{delta} delta(p, b_j)
         #                         * prod_{phase} (-1)^{p * b_j}
-        # where c is 1/sqrt(2) for |+> resource qubits and 1 for input
-        # qubits whose amplitudes are provided by a separate input tensor.
+        # Global graph-state normalization is omitted because JaxTNSimulator
+        # normalizes the final output state. Keeping the tensor network
+        # unnormalized avoids underflow in large fixed-outcome patterns.
         shape = [2] * (1 + degree)
         tensor = np.zeros(shape, dtype=np.complex128)
 
@@ -88,7 +88,7 @@ def build_graph_state_tensors(graph, node_order, input_nodes=None):
 
         for idx in np.ndindex(*shape):
             p = idx[0]
-            val = 1.0 if node in input_nodes else 1.0 / np.sqrt(2)
+            val = 1.0
 
             # Check delta constraints: for delta neighbors, b must equal p
             valid = True
@@ -123,12 +123,12 @@ def build_graph_state_tensors(graph, node_order, input_nodes=None):
 
 
 def measurement_vector(angle):
-    """Return the +1 eigenstate measurement vector for XY-plane measurement.
+    """Return the unnormalized +1 measurement vector for XY-plane measurement.
 
     For measurement angle theta in the XY plane, the observable is:
         M = cos(theta) X + sin(theta) Y
 
-    The +1 eigenstate (for force0=True) is:
+    The +1 eigenstate (for force0=True) is proportional to:
         |m> = (|0> + e^{-i*theta} |1>) / sqrt(2)
 
     Parameters
@@ -139,9 +139,9 @@ def measurement_vector(angle):
     Returns
     -------
     jnp.ndarray
-        The measurement vector of shape (2,).
+        The unnormalized measurement vector of shape (2,).
     """
-    return jnp.array([jnp.exp(1j * angle), 1.0]) / jnp.sqrt(2.0)
+    return jnp.array([jnp.exp(1j * angle), 1.0])
 
 
 def _axis_position_after_removal(orig_axis, removed_axis):

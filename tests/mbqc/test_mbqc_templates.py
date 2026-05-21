@@ -33,6 +33,18 @@ def test_from_pauli():
     assert gs.graph.number_of_nodes() == 5 * 3 + 2
 
 
+def test_hstack_can_skip_eager_flow_initialization():
+    left = mp.templates.linear_cluster(2)
+    right = mp.templates.linear_cluster(2)
+
+    stacked = mp.hstack([left, right], initialize_flow=False)
+
+    assert stacked.flow is not None
+    assert not stacked.flow.flow_initialized
+    assert stacked.measurement_order == list(stacked.graph.nodes)
+    assert not stacked.flow.flow_initialized
+
+
 class TestMuTA:
     """Test the MuTA template."""
 

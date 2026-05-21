@@ -34,6 +34,10 @@ class MBQCircuit:
         The measurements of the MBQC circuit. The keys are the nodes and the values are the measurements.
     default_measurement: mp.Ment
         The default measurement of the MBQC circuit if no `measurements` are given.
+    initialize_flow: bool
+        Whether to find a flow during construction. Set to ``False`` when a
+        caller only needs fixed-outcome tensor-network contraction and wants to
+        avoid eager flow solving for large generated patterns.
 
     Examples
     --------
@@ -63,6 +67,7 @@ class MBQCircuit:
         measurements: Optional[Dict[int, Ment]] = None,
         default_measurement: Optional[Ment] = Ment("XY"),
         relabel_indices: bool = True,
+        initialize_flow: bool = True,
     ) -> None:
         """Initializes a graph state"""
 
@@ -83,10 +88,16 @@ class MBQCircuit:
             output_nodes,
             {v: m.plane for v, m in self.measurements.items() if m is not None},
         )
-        self._flow.initialize_flow()
+        self._initialize_flow = initialize_flow
+        if initialize_flow:
+            self._flow.initialize_flow()
 
         # Temporary fix for controlled nodes
-        if self.partial_order is not None and self.controlled_nodes != []:
+        if (
+            initialize_flow
+            and self.partial_order is not None
+            and self.controlled_nodes != []
+        ):
             old_partial_order = self._partial_order
             self._partial_order = _create_new_partial_order(
                 self.controlled_nodes, self.measurements, old_partial_order
@@ -98,7 +109,7 @@ class MBQCircuit:
         ]
 
         self._quantum_output_nodes = quantum_output_nodes
-        self._measurement_order = None
+        self._measurement_order = None if initialize_flow else list(self.graph.nodes)
 
     def _relabel_graph(
         self,
@@ -297,16 +308,22 @@ class MBQCircuit:
     @property
     def partial_order(self) -> Callable:
         r"""Return the partial order function of the MBQC circuit."""
+        if not self._flow.flow_initialized:
+            self._flow.initialize_flow()
         return self._flow.partial_order
 
     @property
     def depth(self) -> int:
         r"""Return the depth of the MBQC circuit."""
+        if not self._flow.flow_initialized:
+            self._flow.initialize_flow()
         return self._flow.depth
 
     @property
     def measurement_order(self) -> List[int]:
         r"""Return the measurement order of the MBQC circuit."""
+        if not self._initialize_flow and self._measurement_order is not None:
+            return self._measurement_order
         if self._flow.flow_initialized is False:
             self._flow.initialize_flow()
         if self._measurement_order is None:
@@ -464,7 +481,12 @@ def _check_measurement_order(measurement_order: List, partial_order: Callable):
     return True
 
 
-def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
+def merge(
+    state1: MBQCircuit,
+    state2: MBQCircuit,
+    along=[],
+    initialize_flow: bool = True,
+) -> MBQCircuit:
     """Merge two MBQC circuits into a larger MBQC circuit. This is, the input and
     output of the new MBQC circuit will depend on the concat_indices.
 
@@ -510,10 +532,16 @@ def merge(state1: MBQCircuit, state2: MBQCircuit, along=[]) -> MBQCircuit:
         graph = nx.contracted_edge(graph, (j + len(state1.graph), i), self_loops=False)
         del measurements[i]
 
-    return MBQCircuit(graph, input_nodes, output_nodes, measurements=measurements)
+    return MBQCircuit(
+        graph,
+        input_nodes,
+        output_nodes,
+        measurements=measurements,
+        initialize_flow=initialize_flow,
+    )
 
 
-def vstack(states) -> MBQCircuit:
+def vstack(states, initialize_flow: bool = True) -> MBQCircuit:
     """Vertically stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
@@ -526,13 +554,23 @@ def vstack(states) -> MBQCircuit:
         raise ValueError("Cannot vertically stack an empty list of states.")
     if len(states) == 1:
         return states[0]
-    return reduce(_vstack2, states)
+    return reduce(
+        lambda state1, state2: _vstack2(
+            state1, state2, initialize_flow=initialize_flow
+        ),
+        states,
+    )
 
 
-def hstack(states) -> MBQCircuit:
+def hstack(states, initialize_flow: bool = True) -> MBQCircuit:
     """Horizontally stack a list of graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the output
     is the output of the last state.
+
+    Args
+    ----
+    initialize_flow: bool
+        Whether to find a flow while constructing intermediate stacked states.
 
     Group
     -----
@@ -542,10 +580,19 @@ def hstack(states) -> MBQCircuit:
         raise ValueError("Cannot horizontally stack an empty list of states.")
     if len(states) == 1:
         return states[0]
-    return reduce(_hstack2, states)
+    return reduce(
+        lambda state1, state2: _hstack2(
+            state1, state2, initialize_flow=initialize_flow
+        ),
+        states,
+    )
 
 
-def _vstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
+def _vstack2(
+    state1: MBQCircuit,
+    state2: MBQCircuit,
+    initialize_flow: bool = True,
+) -> MBQCircuit:
     """Vertically stack two graph states into a larger graph state. This is,
     the input of the new MBQC circuits is both the input of the first and second
     state, and the output is the output of the first and second state.
@@ -568,10 +615,20 @@ def _vstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
     )
 
     # TODO: Compute flow and partial order
-    return MBQCircuit(graph, input_nodes, output_nodes, measurements=measurements)
+    return MBQCircuit(
+        graph,
+        input_nodes,
+        output_nodes,
+        measurements=measurements,
+        initialize_flow=initialize_flow,
+    )
 
 
-def _hstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
+def _hstack2(
+    state1: MBQCircuit,
+    state2: MBQCircuit,
+    initialize_flow: bool = True,
+) -> MBQCircuit:
     """Horizontally stack two graph states into a larger graph state. This is,
     the input of the new MBQC circuit is the input of the first state, and the
     output is the output of the second state.
@@ -621,7 +678,13 @@ def _hstack2(state1: MBQCircuit, state2: MBQCircuit) -> MBQCircuit:
         del measurements[i]
 
     # TODO: Compute flow and partial order
-    return MBQCircuit(graph, input_nodes, output_nodes, measurements=measurements)
+    return MBQCircuit(
+        graph,
+        input_nodes,
+        output_nodes,
+        measurements=measurements,
+        initialize_flow=initialize_flow,
+    )
 
 
 def _create_new_partial_order(controlled_nodes, measurements, old_partial_order):

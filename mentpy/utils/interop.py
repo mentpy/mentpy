@@ -917,7 +917,9 @@ def _pauli_rotations_to_mbqc(rotations):
                 circuit[node] = Ment(angle, "XY")
         circuits.append(circuit)
 
-    return circuits[0] if len(circuits) == 1 else hstack(circuits)
+    return (
+        circuits[0] if len(circuits) == 1 else hstack(circuits, initialize_flow=False)
+    )
 
 
 def _pauli_to_pennylane_op(pauli, wire_order, qml):
