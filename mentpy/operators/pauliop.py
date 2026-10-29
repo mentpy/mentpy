@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Module for representing Pauli operators."""
+
 import numpy as np
 from typing import Union, List
 import galois

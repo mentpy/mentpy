@@ -12,6 +12,19 @@ The :obj:`mentpy` library requires Python 3.9 or above. It can be installed from
 
    python3 -m pip install mentpy
 
+Optional backends
+-----------------
+
+Install optional extras for the heavier integrations only when you need them:
+
+.. code-block:: bash
+
+   python3 -m pip install "mentpy[jax]"        # JAX tensor-network backend
+   python3 -m pip install "mentpy[compiler]"   # OpenQASM import and ZX simplification
+   python3 -m pip install "mentpy[synthesis]"  # pygridsynth Clifford+T synthesis
+   python3 -m pip install "mentpy[interop]"    # Cirq, Qiskit, and OpenFermion helpers
+   python3 -m pip install "mentpy[cudaq]"      # CUDA-Q helpers on supported platforms
+
 Install from Source
 -------------------
 
@@ -64,4 +77,10 @@ Additionally, you can build the documentation locally to check for any errors an
 
 This process generates HTML documentation in `docs/_build/html`, which you can open in a web browser to review.
 
-Contributors are encouraged to follow the :doc:`contributing guidelines <CONTRIBUTING>` to submit their enhancements or bug fixes.
+Contributors are encouraged to follow the repository contributing guidelines
+when submitting enhancements or bug fixes.
+
+Rust acceleration is optional. When a Rust toolchain is available, installation
+builds ``mentpy._rust`` to accelerate GF(2) linear algebra used in flow analysis.
+The source lives in ``mentpy/_native``; the same routines have a NumPy fallback.
+JAX tensor-network simulation and autodiff do not require Rust.

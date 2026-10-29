@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module to study the expressivity of a given MBQC circuit."""
+
 import numpy as np
 import networkx as nx
 
@@ -136,10 +137,16 @@ def sample_probability_density_of_fidelities(
 def digraph_expressivity_of_flow_space(flow_space: FlowSpace, method="KL", **kwargs):
     """Returns digraph given the expressivity of a ``FlowSpace`` object.
 
-    Args
-    ----
-        flow_space (FlowSpace): Graph for which we will calculate the expressivity
-        method (str): 'KL' for Kullback-Leiber entropy, 'RE' for relative entropy.
+    Parameters
+    ----------
+    flow_space : FlowSpace
+        Graph for which to calculate expressivity.
+    method : str
+        ``"KL"`` for Kullback-Leibler entropy or ``"RE"`` for relative entropy.
+
+    Group
+    -----
+    utils
     """
 
     expr_digraph = nx.DiGraph()

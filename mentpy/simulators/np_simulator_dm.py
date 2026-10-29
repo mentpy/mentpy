@@ -12,6 +12,7 @@ import networkx as nx
 
 from mentpy.operators import Ment, ControlledMent
 from mentpy.mbqc.mbqcircuit import MBQCircuit
+from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 from mentpy.simulators.base_simulator import BaseSimulator
 
 from mentpy.operators import gates
@@ -68,6 +69,10 @@ class NumpySimulatorDM(BaseSimulator):
             raise ValueError(
                 "Schedule must be provided for numpy simulator as the MBQCircuit does not have a flow."
             )
+
+        self._angle_resolver = MeasurementAngleResolver(
+            mbqcircuit, schedule=self.schedule
+        )
 
         input_state = self.reorder_qubits(
             input_state,
@@ -234,10 +239,7 @@ class NumpySimulatorDM(BaseSimulator):
 
         if not self.dev_mode:
             for i in self.schedule_measure:
-                if i in self.mbqcircuit.trainable_nodes:
-                    angle = angles[self.mbqcircuit.trainable_nodes.index(i)]
-                else:
-                    angle = self.mbqcircuit[i].angle
+                angle = self._angle_resolver.angle(i, angles, self.outcomes)
 
                 self.qstate, outcome = self.measure(angle, mode)
                 self.outcomes[i] = outcome
@@ -258,13 +260,7 @@ class NumpySimulatorDM(BaseSimulator):
 
                 if cond == False:
                     raise ValueError("WTF")
-                if node in self.mbqcircuit.trainable_nodes:
-                    angle = angles[self.mbqcircuit.trainable_nodes.index(node)]
-                    if isinstance(self.mbqcircuit[node], ControlledMent):
-                        cond_angle = self.mbqcircuit[node].angle(self.outcomes) or angle
-                        angle = cond_angle
-                elif isinstance(self.mbqcircuit[node], Ment):
-                    angle = self.mbqcircuit[node].angle
+                angle = self._angle_resolver.angle(node, angles, self.outcomes)
 
                 self.qstate, outcome = self.measure(angle, mode)
                 self.outcomes[node] = outcome
@@ -313,6 +309,9 @@ class NumpySimulatorDM(BaseSimulator):
         """
         Measures a ment
         """
+        plane = ment.plane
+        if callable(plane):
+            plane = plane(self.outcomes)
 
         op = ment.matrix(angle, self.outcomes)
         if op is None:
@@ -329,9 +328,9 @@ class NumpySimulatorDM(BaseSimulator):
         prob0 = np.real(np.trace(self.qstate @ p0_extended))
         prob1 = np.real(np.trace(self.qstate @ p1_extended))
 
-        COND = (mode == "expectation" or mode == "exp") and ment.plane == "Z"
+        COND = (mode == "expectation" or mode == "exp") and plane == "Z"
 
-        if not force0 or ment.plane == "Z":
+        if not force0 or plane == "Z":
             if COND:
                 outcome = prob1 / (prob0 + prob1)
             else:
