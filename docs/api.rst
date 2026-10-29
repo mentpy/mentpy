@@ -27,6 +27,16 @@ Simulators
 
 .. python-apigen-group:: simulators
 
+Compiler
+========
+
+.. python-apigen-group:: compiler
+
+Chemistry
+=========
+
+.. python-apigen-group:: chemistry
+
 Optimizers
 ==========
 
@@ -37,5 +47,9 @@ Utils
 
 .. python-apigen-group:: utils
 
+Other public objects
+====================
 
+.. python-apigen-group:: Functions
 
+.. python-apigen-group:: Classes

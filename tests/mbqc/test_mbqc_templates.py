@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Tests for the MBQC templates."""
+
 import pytest
 import mentpy as mp
 
@@ -30,6 +31,18 @@ def test_from_pauli():
     gs = mp.templates.from_pauli(mp.PauliOp("XYXZZ"))
     assert gs.flow is not None
     assert gs.graph.number_of_nodes() == 5 * 3 + 2
+
+
+def test_hstack_can_skip_eager_flow_initialization():
+    left = mp.templates.linear_cluster(2)
+    right = mp.templates.linear_cluster(2)
+
+    stacked = mp.hstack([left, right], initialize_flow=False)
+
+    assert stacked.flow is not None
+    assert not stacked.flow.flow_initialized
+    assert stacked.measurement_order == list(stacked.graph.nodes)
+    assert not stacked.flow.flow_initialized
 
 
 class TestMuTA:

@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Controlled measurement operator."""
+
 from typing import Optional, Union, Callable
 import numpy as np
 import warnings
@@ -87,7 +88,7 @@ class ControlMent(Ment):
 
     def copy(self):
         return ControlMent(
-            self.condition,
+            self._condition,
             self._true_ment.angle,
             self._true_ment.plane,
             self._angle,
@@ -97,7 +98,13 @@ class ControlMent(Ment):
     def matrix(self, angle: float | None = None, *args, **kwargs):
         """Return the matrix of the controlled measurement operator."""
         if (not self.is_trainable()) and (angle is not None):
-            raise ValueError("ControlledMent is not trainable, so angle must be None.")
+            selected_angle = self.angle(*args, **kwargs)
+            if selected_angle is not None and selected_angle != angle:
+                raise ValueError(
+                    "ControlledMent is not trainable, so angle must match "
+                    "the selected fixed branch."
+                )
+            angle = None
 
         if self.condition(*args, **kwargs):
             if self._true_ment.is_trainable():
