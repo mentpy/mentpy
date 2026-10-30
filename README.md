@@ -15,16 +15,16 @@
     <a href="https://codecov.io/gh/mentpy/mentpy" > 
         <img src="https://codecov.io/gh/mentpy/mentpy/graph/badge.svg?token=3EM0A3Q4MG"/> 
     </a>
-    <a href="https://x.com/mentpy">
-        <img alt="X (formerly Twitter) Follow" src="https://img.shields.io/twitter/follow/mentpy">
-    </a>
-    <a href="https://discord.gg/HNA36hmEE5">
-      <img alt="Discord" src="https://img.shields.io/discord/1158882999551676586?logo=discord&label=Chat&labelColor=ffffff">
+    <a href="https://journals.aps.org/pra/abstract/10.1103/2snk-m8c6">
+        <img alt="Paper" src="https://img.shields.io/badge/Paper-Physical%20Review%20A-blue">
     </a>
 </div>
 
-The `mentpy` library is an open-source software for simulations of 
-measurement-based quantum computing circuits. Currently, this package is in its alpha version and many features are still in development.
+The `mentpy` library is open-source software for building, simulating, and
+training measurement-based quantum computing circuits. It includes graph-state
+tools, NumPy simulators, a JAX tensor-network backend with autodiff for
+supported forced-outcome patterns, Pauli observables and chemistry utilities, circuit
+interoperability, and OpenQASM-to-MBQC compilation with optional ZX simplification.
 
 ## Installation
 
@@ -53,12 +53,35 @@ This command installs `mentpy` in editable mode with its additional development 
 ## Usage
 To simulate a measurement pattern, you can use the `mp.PatternSimulator`.
 ```python
+import numpy as np
 import mentpy as mp
 
 st = mp.templates.grid_cluster(2,4)
 ps = mp.PatternSimulator(st)
 output = ps(np.random.rand(len(st.outputc)))
 ```
+
+For differentiable costs, install `mentpy[jax]` and use the tensor-network backend:
+
+```python
+import jax
+import jax.numpy as jnp
+
+sim = mp.PatternSimulator(st, backend="jax-tn")
+observable = mp.Observable("ZZ")
+cost = lambda angles: sim.expectation(angles, observable)
+value_and_grad = jax.jit(jax.value_and_grad(cost))
+value, gradient = value_and_grad(jnp.zeros(len(st.trainable_nodes)))
+shots = sim.sample(np.zeros(len(st.trainable_nodes)), shots=1024, seed=7)
+print(shots.counts)
+```
+
+Install `mentpy[compiler]` to import a unitary OpenQASM 2 program with
+`pattern = mp.from_qasm(qasm)`. Use `mp.compile(qasm).pattern` to apply PyZX
+simplification first. The `trajectory` backend executes causal-flow XY patterns
+while keeping only the active frontier in memory. See the
+[Grover tutorial](docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,
+exact probabilities, finite shots, Pauli measurements, and output ordering.
 
 For visualization of circuits, you can use the `mp.draw(st)` function
 

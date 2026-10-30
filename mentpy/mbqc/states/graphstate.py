@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Graph state class and related functions."""
+
 import numpy as np
 from mentpy.operators import PauliOp
 import networkx as nx
@@ -68,46 +69,69 @@ class GraphState(nx.Graph):
         return _get_stabilizers(self)
 
 
-def lc_reduce(graph: GraphState):
-    """Reduce graph state
-
-    Group
-    -----
-    mbqc
-    """
-    raise NotImplementedError
-
-
-# TODO: Check if this is correct.
 def entanglement_entropy(
     state: GraphState, subRegionA: List, subRegionB: Optional[List] = None
 ) -> float:
-    """Calculate the entanglement entropy of a subregion of a graph state.
+    """Calculate bipartite entanglement entropy for a graph state.
+
+    For graph states, the entropy across a bipartition is the GF(2) rank of
+    the adjacency submatrix connecting the two regions.
 
     Group
     -----
     mbqc
     """
+    nodes = list(state.nodes())
+    node_index = {node: index for index, node in enumerate(nodes)}
+    subRegionA = _as_node_list(subRegionA)
+    subRegionB = (
+        [node for node in nodes if node not in set(subRegionA)]
+        if subRegionB is None
+        else _as_node_list(subRegionB)
+    )
 
-    G = state.copy()
+    overlap = set(subRegionA) & set(subRegionB)
+    if overlap:
+        raise ValueError(f"Subregions must be disjoint; overlap is {overlap}.")
 
-    # minimum_cut requires the capacity kwarg.
-    nx.set_edge_attributes(G, 1, name="capacity")
-    if subRegionB is None:
-        subRegionB = set(state.nodes()) - set(subRegionA)
+    missing = (set(subRegionA) | set(subRegionB)) - set(nodes)
+    if missing:
+        raise ValueError(f"Subregions contain nodes not in the graph: {missing}.")
 
-    # Allow subregions. These are merged into a supernode to calculate
-    # the minimum cut between them.
-    if isinstance(subRegionA, List):
-        for v in subRegionA:
-            G = nx.contracted_nodes(G, subRegionA[0], v)
-        subRegionA = subRegionA[0]
-    if isinstance(subRegionB, List):
-        for v in subRegionA:
-            G = nx.contracted_nodes(G, subRegionB[0], v)
-        subRegionB = subRegionB[0]
+    adjacency = nx.to_numpy_array(state, nodelist=nodes, dtype=np.uint8) % 2
+    rows = [node_index[node] for node in subRegionA]
+    cols = [node_index[node] for node in subRegionB]
+    cut_matrix = adjacency[np.ix_(rows, cols)]
+    return float(_gf2_rank(cut_matrix))
 
-    return nx.minimum_cut(G, subRegionA, subRegionB)[0]
+
+def _as_node_list(nodes):
+    if isinstance(nodes, (str, bytes)):
+        return [nodes]
+    try:
+        return list(nodes)
+    except TypeError:
+        return [nodes]
+
+
+def _gf2_rank(matrix):
+    matrix = np.array(matrix, dtype=np.uint8, copy=True) % 2
+    rows, cols = matrix.shape
+    rank = 0
+    for col in range(cols):
+        pivot_rows = np.flatnonzero(matrix[rank:, col])
+        if pivot_rows.size == 0:
+            continue
+        pivot = rank + pivot_rows[0]
+        if pivot != rank:
+            matrix[[rank, pivot]] = matrix[[pivot, rank]]
+        for row in range(rows):
+            if row != rank and matrix[row, col]:
+                matrix[row] ^= matrix[rank]
+        rank += 1
+        if rank == rows:
+            break
+    return rank
 
 
 def _get_stabilizers(graph: GraphState) -> List[PauliOp]:

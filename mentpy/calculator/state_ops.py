@@ -19,8 +19,8 @@ def pure2density(psi):
 
     Note
     ----
-    Given a pure state :math:`|\psi\rangle`, this function returns its density matrix
-    representation :math:`|\psi\\rangle\langle\psi|`.
+    Given a pure state :math:`|\\psi\\rangle`, this function returns its density matrix
+    representation :math:`|\\psi\\rangle\\langle\\psi|`.
 
     Args
     ----

@@ -9,9 +9,19 @@ import numpy as np
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 from mentpy.simulators.base_simulator import BaseSimulator
+from mentpy.simulators.trajectory_simulator import TrajectorySimulator
 from mentpy.simulators.pennylane_simulator import *
 from mentpy.simulators.np_simulator_dm import *
 from mentpy.simulators.np_simulator_sv import *
+
+try:
+    from mentpy.simulators.jax_tn_simulator import JaxTNSimulator
+
+    _HAS_JAX = True
+except ImportError as exc:
+    if exc.name not in {"jax", "jax.numpy", "opt_einsum"}:
+        raise
+    _HAS_JAX = False
 
 __all__ = ["PatternSimulator"]
 
@@ -47,7 +57,10 @@ class PatternSimulator:
             "pennylane": PennylaneSimulator,
             "numpy-dm": NumpySimulatorDM,
             "numpy-sv": NumpySimulatorSV,
+            "trajectory": TrajectorySimulator,
         }
+        if _HAS_JAX:
+            supported_backends["jax-tn"] = JaxTNSimulator
 
         backend = backend.lower()
         if backend not in supported_backends:
@@ -56,7 +69,7 @@ class PatternSimulator:
             )
 
         if input_state is None:
-            input_state = 1
+            input_state = np.array([1.0 + 0.0j])
             for i in range(len(mbqcircuit.input_nodes)):
                 input_state = np.kron(input_state, np.array([1, 1]) / np.sqrt(2))
         else:
@@ -83,6 +96,11 @@ class PatternSimulator:
 
     def run(self, angles: List[float], **kwargs) -> Tuple[List[int], np.ndarray]:
         return self.simulator.run(angles, **kwargs)
+
+    def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
+        return self.simulator.expectation(
+            angles, observable, shots=shots, seed=seed, **kwargs
+        )
 
     def reset(self, input_state: np.ndarray = None):
         return self.simulator.reset(input_state)

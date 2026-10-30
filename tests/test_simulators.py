@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Tests for the simulator module."""
+
 import pytest
 import numpy as np
 import mentpy as mp
@@ -62,3 +63,16 @@ def test_random_measurements_equal(templ):
             assert np.allclose(
                 results[j], results[j + 1]
             ), f"results not equal for {all_backends[j]} and {all_backends[j+1]}"
+
+
+def test_pattern_simulator_expectation_exact_and_shots():
+    gs = mp.templates.linear_cluster(3)
+    angles = np.zeros(len(gs.trainable_nodes))
+    observable = mp.Observable({"X": 1.0})
+    ps = mp.PatternSimulator(gs, backend="numpy-sv")
+
+    exact = ps.expectation(angles, observable)
+    sampled = ps.expectation(angles, observable, shots=100, seed=123)
+
+    assert np.allclose(exact, 1.0)
+    assert np.allclose(sampled, 1.0)
