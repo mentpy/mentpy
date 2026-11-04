@@ -5,6 +5,7 @@
 """
 The Measurement-Based Quantum computing simulator.
 """
+
 from . import calculator
 
 from .mbqc import *
@@ -14,6 +15,9 @@ from .simulators import *
 from . import gradients
 from . import optimizers
 from . import utils
+from . import chem
+from . import compiler
+from .compiler import CompileResult, compile, from_qasm
 
 from packaging.version import parse as parse_version
 

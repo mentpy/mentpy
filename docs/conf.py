@@ -63,6 +63,7 @@ python_apigen_modules = {
     "mentpy.mbqc.templates": "api/mentpy.mbqc.templates.",
     "mentpy.mbqc.flow": "api/mentpy.mbqc.flow.",
     "mentpy.utils": "api/mentpy.utils.",
+    "mentpy.chem": "api/mentpy.chem.",
     "mentpy.optimizers": "api/mentpy/optimizers.",
 }
 
@@ -195,6 +196,9 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
 }
+
+# Sphinx-Immaterial apigen uses autodoc's Documenter API.
+autodoc_use_legacy_class_based = True
 
 autodoc_default_options = {
     "imported-members": True,

@@ -10,15 +10,14 @@
 Welcome to MentPy's documentation
 =================================
 
-.. admonition:: Note
-   :class: warning
-   
-   MentPy is in its alpha version and is under active development.
-
 The :obj:`mentpy` library is an open-source Python package for creating and training quantum machine learning (QML) models 
 in the measurement-based quantum computing (MBQC) framework. This library contains functions
 to automatically calculate the causal flow or generalized flow of a graph and tools to analyze the 
-expressivity of the MBQC ansatzes.
+expressivity of the MBQC ansatzes. MentPy includes graph construction tools, NumPy simulators, a JAX
+tensor-network backend with autodiff, and a frontier-based trajectory backend.
+It supports fixed or trainable patterns, output sampling, Pauli observables,
+chemistry utilities, and OpenQASM import with optional ZX simplification. Public APIs may still
+evolve as the project grows.
 
 
 Features
@@ -26,18 +25,24 @@ Features
 
 * Manipulation of graph states.
 * Automatically calculate the causal flow or generalized flow of a graph.
-* Simulate MBQC circuits.
+* Simulate MBQC circuits with NumPy and JAX tensor-network backends.
+* Evaluate tensor-network observable costs with JAX autodiff.
 * Optimize measurement angles in MBQC ansatzes used for QML.
+* Build molecular Hamiltonians and optimize ansatzes with explicit training loops.
+* Import and export supported circuits with PennyLane, Cirq, Qiskit, and CUDA-Q.
+* Import unitary OpenQASM 2 circuits as executable MBQC patterns.
+* Simplify circuits with PyZX before compiling them to MBQC.
+* Collect output bitstrings, counts, and finite-shot Pauli estimates.
 * Create data and noisy data for training QML models.
 * Determine the lie algebra of an MBQC ansatz.
 
 Roadmap
 -------
-* Improve current simulators for MBQC circuits.
-* Increase code coverage.
-* Add autodiff support for MBQC circuits.
-* Add support for more general MBQC states.
-* Integrate with `pyzx` to optimize resources in MBQC circuits.
+* Stabilize compiler passes that convert between gate circuits, ZX diagrams, and MBQC resources.
+* Benchmark and optimize tensor-network contractions for larger low-treewidth patterns.
+* Broaden support for general MBQC resource states and non-forced measurement workflows.
+* Expand hardware-aware export paths and dynamic-circuit execution examples.
+* Continue increasing coverage around simulators, gradients, interop, chemistry, and compiler utilities.
 
 
 Contributing
@@ -113,12 +118,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
    :caption: Tutorials
    :hidden:
 
-   tutorials/intro-to-mbqml.rst
-   tutorials/intro-to-mbqml-parallel.rst
-   tutorials/classify-classical-data.rst
-   tutorials/classify-fisher.rst
-   tutorials/hea-discrete.rst
-   tutorials/learn-instrument.rst
+   tutorials/index.rst
 
 .. toctree::
    :caption: API Reference

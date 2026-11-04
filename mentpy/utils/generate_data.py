@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module for generating random quantum data."""
+
 import numpy as np
 import scipy
 

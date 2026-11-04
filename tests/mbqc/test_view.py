@@ -3,6 +3,7 @@
 # Licensed under the Apache License, Version 2.0.
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Tests for the MBQC view module."""
+
 import pytest
 import mentpy as mp
 
@@ -53,3 +54,23 @@ def test_draw_styles(style):
 
     # Close the plot after checking
     plt.close(fig)
+
+
+def test_draw_pauli_template_layout():
+    state = mp.templates.from_pauli(mp.PauliOp("YZXI"))
+
+    fig, ax = mp.draw(state, layout="pauli")
+
+    assert isinstance(fig, plt.Figure)
+    assert isinstance(ax, plt.Axes)
+    assert "YZXI" in ax.get_title()
+    labels = {text.get_text() for text in ax.texts}
+    assert {"q0", "q0'", "Y", "Z", "X", "I", "P", r"$\theta$"} <= labels
+    plt.close(fig)
+
+
+def test_draw_pauli_template_rejects_non_template():
+    state = mp.templates.linear_cluster(5)
+
+    with pytest.raises(ValueError, match="from_pauli"):
+        mp.draw(state, layout="pauli")

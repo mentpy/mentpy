@@ -1,0 +1,5 @@
+include Cargo.toml
+include Cargo.lock
+recursive-include mentpy/_native *.rs
+recursive-include examples *.py *.csv
+recursive-include benchmarks *.py

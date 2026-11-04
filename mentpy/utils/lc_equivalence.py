@@ -211,20 +211,24 @@ def clifford_vec_to_global(vec):
 
 
 def are_lc_equivalent(graph1, graph2, clifford_form="tensor"):
-    """Check if two EGraphs are LC equivalent, and return the Clifford
-    operation if so. Implemented as in arXiv:quant-ph/0405023.
-    Args:
-        graph1: the initial graph to check Clifford equivalence with.
-        graph2: the graph to check Clifford equivalence against.
-        clifford_form: a string describing the output form of local Clifford operation, if
-            it exists.
-            If 'tensor' (default), produce a list of length n of 2x2 numpy arrays corresponding to
-                single-qubit tensor factors.
-            If 'global', return a single 2nx2n numpy array corresponding to the global operator
-                acting on all n qubits.
-    Returns:
-        (bool, numpy.array): whether the states are LC equivalent, and if they are, the local
-            Clifford output according to 'clifford_form' specification.
+    """Check local Clifford equivalence, following arXiv:quant-ph/0405023.
+
+    Parameters
+    ----------
+    graph1, graph2 : GraphState
+        Graph states to compare.
+    clifford_form : str
+        ``"tensor"`` returns a list of single-qubit 2 by 2 factors.
+        ``"global"`` returns the full operator on all qubits.
+
+    Returns
+    -------
+    tuple
+        Equivalence flag and the Clifford operator, or ``None`` if inequivalent.
+
+    Group
+    -----
+    utils
     """
     # get adjacency matrices of input graphs
     G = nx.adjacency_matrix(graph1.graph)

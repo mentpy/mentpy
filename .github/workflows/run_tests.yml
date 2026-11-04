@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - main
+      - dev
   pull_request:
     branches:
       - main
+      - dev
 
 jobs:
   build:
@@ -29,15 +31,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         # This command installs your project in editable mode along with its 'dev' dependencies.
-        pip install -e '.[dev]'
+        pip install -e '.[dev,chem]'
 
     - name: Test with pytest
       run: |
         coverage run -m pytest
         coverage report
+        coverage xml
     
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4
+      with:
+        files: coverage.xml
+        flags: python-${{ matrix.python-version }}
+        fail_ci_if_error: true
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
