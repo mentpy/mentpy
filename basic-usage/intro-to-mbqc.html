@@ -42,7 +42,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.602f4ab41c875a680.min.css?v=464eef36" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.9b3ffca450a879226.min.css?v=ea98a94b" />
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -256,7 +256,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../tutorials/intro-to-mbqml.html" class="md-tabs__link">
+      <a href="../tutorials/index.html" class="md-tabs__link">
         
   
     
@@ -674,132 +674,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/intro-to-mbqml.html" class="md-nav__link">
+      <a href="../tutorials/index.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    <span>An introduction to MB-<wbr>QML</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/intro-to-mbqml-parallel.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Parallelizing MB-<wbr>QML protocols</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/classify-classical-data.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Classifying classical data</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/classify-fisher.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Fisher information classifier</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/hea-discrete.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Discrete optimization for HEA</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/learn-instrument.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Learning a quantum instrument</span>
+    <span>Tutorials</span>
     
   </span>
   
@@ -937,6 +817,54 @@
   
   
     <li class="md-nav__item">
+      <a href="../api.html#compiler" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Compiler</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#chemistry" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Chemistry</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api.html#optimizers" class="md-nav__link">
         
   
@@ -967,6 +895,30 @@
   
   <span class="md-ellipsis">
     <span>Utils</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#other-public-objects" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Other public objects</span>
     
   </span>
   
@@ -1101,15 +1053,15 @@ If not provided, it will be treated as a trainable parameter.</p>
 <p class="admonition-title">Note</p>
 <p>At the moment, only the “XY”, “X”, and “Y” measurement planes are supported.</p>
 </div>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [5]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [5]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'X'</span><span class="p">)</span>
 
-<span class="gp">In [6]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;XY&#39;</span><span class="p">)</span>
+<span class="gp">In [6]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'XY'</span><span class="p">)</span>
 
-<span class="gp">In [7]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;XY&#39;</span><span class="p">)</span>
+<span class="gp">In [7]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">'XY'</span><span class="p">)</span>
 
-<span class="gp">In [8]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)</span>
+<span class="gp">In [8]: </span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'X'</span><span class="p">)</span>
 
-<span class="gp">In [9]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;planes&#39;</span><span class="p">)</span>
+<span class="gp">In [9]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'planes'</span><span class="p">)</span>
 <span class="gh">Out[9]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
@@ -1117,11 +1069,11 @@ If not provided, it will be treated as a trainable parameter.</p>
 </a>
 <p>We can define the same circuit when creating the <code class="xref py py-obj docutils literal notranslate"><span class="pre">MBQCircuit</span></code> object with the
 <code class="docutils literal notranslate"><span class="pre">measurements</span></code> argument:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [10]: </span><span class="n">measurements</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;XY&#39;</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;XY&#39;</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">)}</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [10]: </span><span class="n">measurements</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'X'</span><span class="p">),</span> <span class="mi">1</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'XY'</span><span class="p">),</span> <span class="mi">2</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">'XY'</span><span class="p">),</span> <span class="mi">3</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'X'</span><span class="p">)}</span>
 
 <span class="gp">In [11]: </span><span class="n">mbcirc</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">MBQCircuit</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">input_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">output_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span> <span class="n">measurements</span><span class="o">=</span><span class="n">measurements</span><span class="p">)</span>
 
-<span class="gp">In [12]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;arrows&#39;</span><span class="p">)</span>
+<span class="gp">In [12]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'arrows'</span><span class="p">)</span>
 <span class="gh">Out[12]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
@@ -1130,8 +1082,8 @@ If not provided, it will be treated as a trainable parameter.</p>
 <p>The default measurement basis can be specified with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">default_measurement</span></code> kwarg. By default,
 it is set to <span class="math notranslate nohighlight">\(XY\)</span>, but we can change it to any other <code class="xref py py-obj docutils literal notranslate"><span class="pre">Ment</span></code> object. Let’s see an example:</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [13]: </span><span class="n">mbcirc</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">MBQCircuit</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">input_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">output_nodes</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span>
-<span class="gp">   ....: </span>                       <span class="n">measurements</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;XY&#39;</span><span class="p">)},</span>
-<span class="gp">   ....: </span>                       <span class="n">default_measurement</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">&#39;X&#39;</span><span class="p">))</span>
+<span class="gp">   ....: </span>                       <span class="n">measurements</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'XY'</span><span class="p">)},</span>
+<span class="gp">   ....: </span>                       <span class="n">default_measurement</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="s1">'X'</span><span class="p">))</span>
 <span class="gp">   ....: </span>
 
 <span class="gp">In [14]: </span><span class="nb">print</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="c1"># Not specified in the constructor</span>
@@ -1157,7 +1109,7 @@ vstack</label></div>
 <div class="tabbed-block docutils container">
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [17]: </span><span class="n">new_circ</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">mbcirc</span><span class="p">,</span> <span class="n">along</span><span class="o">=</span><span class="p">[(</span><span class="mi">4</span><span class="p">,</span><span class="mi">0</span><span class="p">)])</span>  <span class="c1"># specify nodes to merge</span>
 
-<span class="gp">In [18]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;angles&#39;</span><span class="p">)</span>
+<span class="gp">In [18]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'angles'</span><span class="p">)</span>
 <span class="gh">Out[18]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
@@ -1167,7 +1119,7 @@ vstack</label></div>
 <div class="tabbed-block docutils container">
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [19]: </span><span class="n">new_circ</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">hstack</span><span class="p">((</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">mbcirc</span><span class="p">))</span>
 
-<span class="gp">In [20]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;planes&#39;</span><span class="p">)</span>
+<span class="gp">In [20]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'planes'</span><span class="p">)</span>
 <span class="gh">Out[20]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>
@@ -1177,7 +1129,7 @@ vstack</label></div>
 <div class="tabbed-block docutils container">
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [21]: </span><span class="n">new_circ</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">mbcirc</span><span class="p">,</span> <span class="n">mbcirc</span><span class="p">))</span>
 
-<span class="gp">In [22]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;arrows&#39;</span><span class="p">)</span>
+<span class="gp">In [22]: </span><span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">new_circ</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'arrows'</span><span class="p">)</span>
 <span class="gh">Out[22]: </span><span class="go">(&lt;Figure size 800x300 with 1 Axes&gt;, &lt;Axes: &gt;)</span>
 </code></pre></div>
 </div>

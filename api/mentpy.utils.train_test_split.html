@@ -14,6 +14,8 @@
         <link rel="prev" href="mentpy.utils.lie_algebra_completion.html">
       
       
+        <link rel="next" href="mentpy.utils.draw_digraph_flow_space.html">
+      
       
       <link rel="icon" href="../_static/favicon-32x32.png">
     
@@ -40,7 +42,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.602f4ab41c875a680.min.css?v=464eef36" />
+        <link rel="stylesheet" type="text/css" href="../_static/sphinx_immaterial_theme.9b3ffca450a879226.min.css?v=ea98a94b" />
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -241,7 +243,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../tutorials/intro-to-mbqml.html" class="md-tabs__link">
+      <a href="../tutorials/index.html" class="md-tabs__link">
         
   
     
@@ -575,132 +577,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../tutorials/intro-to-mbqml.html" class="md-nav__link">
+      <a href="../tutorials/index.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    <span>An introduction to MB-<wbr>QML</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/intro-to-mbqml-parallel.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Parallelizing MB-<wbr>QML protocols</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/classify-classical-data.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Classifying classical data</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/classify-fisher.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Fisher information classifier</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/hea-discrete.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Discrete optimization for HEA</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tutorials/learn-instrument.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Learning a quantum instrument</span>
+    <span>Tutorials</span>
     
   </span>
   
@@ -843,6 +725,54 @@
   
   
     <li class="md-nav__item">
+      <a href="../api.html#compiler" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Compiler</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#chemistry" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Chemistry</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api.html#optimizers" class="md-nav__link">
         
   
@@ -877,7 +807,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_7" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -894,14 +824,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_7" id="__nav_4_7_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_5">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_7">
             <span class="md-nav__icon md-icon"></span>
             <span>Utils</span>
           </label>
@@ -923,6 +853,32 @@
   
   <span class="md-ellipsis">
     <span title="mentpy.utils.FlowSpace (Python class) — The flow space graph of a MBQCircuit."><span>Flow<wbr>Space</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mentpy.utils.are_lc_equivalent.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.utils.are_lc_equivalent (Python function) — Check local Clifford equivalence, following arXiv:quant-ph/0405023."><span>are_<wbr>lc_<wbr>equivalent</span></span>
     
   </span>
   
@@ -1027,6 +983,32 @@
   
   <span class="md-ellipsis">
     <span title="mentpy.utils.calculate_ordered_gens (Python function) — Calculates the generators of a given circuit in order. The i-th generator corresponds to the i-th trainable node in the circuit."><span>calculate_<wbr>ordered_<wbr>gens</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mentpy.utils.digraph_expressivity_of_flow_space.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.utils.digraph_expressivity_of_flow_space (Python function) — Returns digraph given the expressivity of a FlowSpace object."><span>digraph_<wbr>expressivity_<wbr>of_<wbr>flow_<wbr>space</span></span>
     
   </span>
   
@@ -1262,6 +1244,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api.html#other-public-objects" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Other public objects</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1303,7 +1309,7 @@
 
 <dl class="py function objdesc">
 <dt class="sig sig-object highlight sig-wrap py">
-<span class="sig-prename descclassname"><span class="pre">mentpy.utils.</span></span><span class="sig-name descname"><span class="pre">train_test_split</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.inputs (Python parameter)"><span class="n"><span class="pre">inputs</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.targets (Python parameter)"><span class="n"><span class="pre">targets</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.test_size (Python parameter)"><span class="n"><span class="pre">test_size</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.3</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.randomize (Python parameter)"><span class="n"><span class="pre">randomize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a></span></span></span></dt>
+<span class="sig-prename descclassname"><span class="pre">mentpy.utils.</span></span><span class="sig-name descname"><span class="pre">train_test_split</span></span><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.inputs (Python parameter)"><span class="n"><span class="pre">inputs</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.targets (Python parameter)"><span class="n"><span class="pre">targets</span></span></a></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.test_size (Python parameter)"><span class="n"><span class="pre">test_size</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><code class="code python default_value docutils literal highlight highlight-python"><span class="mf">0.3</span></code></em>, </span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="#" title="mentpy.utils.train_test_split.randomize (Python parameter)"><span class="n"><span class="pre">randomize</span></span></a><span class="o"><span class="pre">=</span></span><code class="code python default_value docutils literal highlight highlight-python"><span class="kc">False</span></code></em></span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a></span></span></span></dt>
 <dd><p>Split the data into training and test sets.</p>
 </dd></dl>
 

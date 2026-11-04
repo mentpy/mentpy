@@ -40,7 +40,7 @@
         <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
       
     
-        <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.602f4ab41c875a680.min.css?v=464eef36" />
+        <link rel="stylesheet" type="text/css" href="_static/sphinx_immaterial_theme.9b3ffca450a879226.min.css?v=ea98a94b" />
     <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
@@ -246,7 +246,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="tutorials/intro-to-mbqml.html" class="md-tabs__link">
+      <a href="tutorials/index.html" class="md-tabs__link">
         
   
     
@@ -578,132 +578,12 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/intro-to-mbqml.html" class="md-nav__link">
+      <a href="tutorials/index.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    <span>An introduction to MB-<wbr>QML</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tutorials/intro-to-mbqml-parallel.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Parallelizing MB-<wbr>QML protocols</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tutorials/classify-classical-data.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Classifying classical data</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tutorials/classify-fisher.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Fisher information classifier</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tutorials/hea-discrete.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Discrete optimization for HEA</span>
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="tutorials/learn-instrument.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    <span>Learning a quantum instrument</span>
+    <span>Tutorials</span>
     
   </span>
   
@@ -841,6 +721,54 @@
   
   
     <li class="md-nav__item">
+      <a href="api.html#compiler" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Compiler</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api.html#chemistry" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Chemistry</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api.html#optimizers" class="md-nav__link">
         
   
@@ -871,6 +799,30 @@
   
   <span class="md-ellipsis">
     <span>Utils</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api.html#other-public-objects" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Other public objects</span>
     
   </span>
   
@@ -983,30 +935,36 @@
 <a class="reference internal image-reference" href="_images/logo.png"><img alt="_images/logo.png" class="align-center" src="_images/logo.png" style="width: 70%;" />
 </a>
 <h1 id="welcome-to-mentpy-s-documentation">Welcome to MentPy’s documentation<a class="headerlink" href="#welcome-to-mentpy-s-documentation" title="Link to this heading">¶</a></h1>
-<div class="warning admonition">
-<p class="admonition-title">Note</p>
-<p>MentPy is in its alpha version and is under active development.</p>
-</div>
 <p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library is an open-source Python package for creating and training quantum machine learning (QML) models
 in the measurement-based quantum computing (MBQC) framework. This library contains functions
 to automatically calculate the causal flow or generalized flow of a graph and tools to analyze the
-expressivity of the MBQC ansatzes.</p>
+expressivity of the MBQC ansatzes. MentPy includes graph construction tools, NumPy simulators, a JAX
+tensor-network backend with autodiff, and a frontier-based trajectory backend.
+It supports fixed or trainable patterns, output sampling, Pauli observables,
+chemistry utilities, and OpenQASM import with optional ZX simplification. Public APIs may still
+evolve as the project grows.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Manipulation of graph states.</p></li>
 <li><p>Automatically calculate the causal flow or generalized flow of a graph.</p></li>
-<li><p>Simulate MBQC circuits.</p></li>
+<li><p>Simulate MBQC circuits with NumPy and JAX tensor-network backends.</p></li>
+<li><p>Evaluate tensor-network observable costs with JAX autodiff.</p></li>
 <li><p>Optimize measurement angles in MBQC ansatzes used for QML.</p></li>
+<li><p>Build molecular Hamiltonians and optimize ansatzes with explicit training loops.</p></li>
+<li><p>Import and export supported circuits with PennyLane, Cirq, Qiskit, and CUDA-Q.</p></li>
+<li><p>Import unitary OpenQASM 2 circuits as executable MBQC patterns.</p></li>
+<li><p>Simplify circuits with PyZX before compiling them to MBQC.</p></li>
+<li><p>Collect output bitstrings, counts, and finite-shot Pauli estimates.</p></li>
 <li><p>Create data and noisy data for training QML models.</p></li>
 <li><p>Determine the lie algebra of an MBQC ansatz.</p></li>
 </ul>
 <h2 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Improve current simulators for MBQC circuits.</p></li>
-<li><p>Increase code coverage.</p></li>
-<li><p>Add autodiff support for MBQC circuits.</p></li>
-<li><p>Add support for more general MBQC states.</p></li>
-<li><p>Integrate with <cite>pyzx</cite> to optimize resources in MBQC circuits.</p></li>
+<li><p>Stabilize compiler passes that convert between gate circuits, ZX diagrams, and MBQC resources.</p></li>
+<li><p>Benchmark and optimize tensor-network contractions for larger low-treewidth patterns.</p></li>
+<li><p>Broaden support for general MBQC resource states and non-forced measurement workflows.</p></li>
+<li><p>Expand hardware-aware export paths and dynamic-circuit execution examples.</p></li>
+<li><p>Continue increasing coverage around simulators, gradients, interop, chemistry, and compiler utilities.</p></li>
 </ul>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h2>
 <p>If you would like to contribute to this project, please feel free to open an issue or pull request 😄.</p>
@@ -1024,27 +982,34 @@ APA</label><label class="tabbed-label" for="__tabbed_1_4">
 MLA</label></div>
 <div class="tabbed-content docutils container">
 <div class="tabbed-block docutils container">
-<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><code>@software<span class="nb">{</span>mantilla2023mentpy,
-   title = <span class="nb">{{</span>MentPy: A Python package for parametrized MBQC circuits<span class="nb">}}</span>,
-   author = <span class="nb">{</span>Mantilla Calderón, Luis<span class="nb">}</span>,
-   year = <span class="nb">{</span>2023<span class="nb">}</span>,
-   url = <span class="nb">{</span>https://github.com/mentpy/mentpy<span class="nb">}</span>,
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><code>@article<span class="nb">{</span>mantilla2025mbqml,
+  title = <span class="nb">{</span>Measurement-based quantum machine learning<span class="nb">}</span>,
+  author = <span class="nb">{</span>Mantilla Calder<span class="k">\'</span>on, Luis and Raussendorf, Robert and Feldmann, Polina and Bondarenko, Dmytro<span class="nb">}</span>,
+  journal = <span class="nb">{</span>Phys. Rev. A<span class="nb">}</span>,
+  volume = <span class="nb">{</span>113<span class="nb">}</span>,
+  number = <span class="nb">{</span>4<span class="nb">}</span>,
+  pages = <span class="nb">{</span>042421<span class="nb">}</span>,
+  year = <span class="nb">{</span>2026<span class="nb">}</span>,
+  month = <span class="nb">{</span>Apr<span class="nb">}</span>,
+  publisher = <span class="nb">{</span>American Physical Society<span class="nb">}</span>,
+  doi = <span class="nb">{</span>10.1103/2snk-m8c6<span class="nb">}</span>,
+  url = <span class="nb">{</span>https://link.aps.org/doi/10.1103/2snk-m8c6<span class="nb">}</span>
 <span class="nb">}</span>
 </code></pre></div>
 </div>
 </div>
 <div class="tabbed-block docutils container">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>L. Mantilla Calderón, MentPy: A Python package for parametrized MBQC circuits, (2023). https://github.com/mentpy/mentpy
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>L. Mantilla Calderón, R. Raussendorf, P. Feldmann, and D. Bondarenko, Measurement-based quantum machine learning, Phys. Rev. A 113, 042421 (2026). https://doi.org/10.1103/2snk-m8c6
 </code></pre></div>
 </div>
 </div>
 <div class="tabbed-block docutils container">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>Mantilla Calderón, L. (2023). MentPy: A Python package for parametrized MBQC circuits. Retrieved from https://github.com/mentpy/mentpy
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>Mantilla Calderón, L., Raussendorf, R., Feldmann, P., &amp; Bondarenko, D. (2026). Measurement-based quantum machine learning. Physical Review A, 113(4), 042421. https://doi.org/10.1103/2snk-m8c6
 </code></pre></div>
 </div>
 </div>
 <div class="tabbed-block docutils container">
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>Mantilla Calderón, Luis. MentPy: A Python package for parametrized MBQC circuits. 2023. Web. https://github.com/mentpy/mentpy
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><code>Mantilla Calderón, Luis, et al. "Measurement-based quantum machine learning." Physical Review A, vol. 113, no. 4, 2026, p. 042421. https://doi.org/10.1103/2snk-m8c6
 </code></pre></div>
 </div>
 </div>
