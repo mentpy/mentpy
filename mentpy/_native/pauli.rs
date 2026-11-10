@@ -135,12 +135,14 @@ pub struct PauliCircuit {
     parameters: usize,
     max_terms: usize,
     max_tape: usize,
+    gpu: Option<(String, String, i32, usize)>,
 }
 
 #[pymethods]
 impl PauliCircuit {
     #[new]
-    #[pyo3(signature = (n, n_inputs, outputs, operations, parameters, max_terms=100000, max_tape=5000000))]
+    #[pyo3(signature = (n, n_inputs, outputs, operations, parameters, max_terms=100000, max_tape=5000000, gpu=None))]
+    #[allow(clippy::too_many_arguments)]
     fn new(
         n: usize,
         n_inputs: usize,
@@ -149,10 +151,18 @@ impl PauliCircuit {
         parameters: usize,
         max_terms: usize,
         max_tape: usize,
+        gpu: Option<(String, String, i32, usize)>,
     ) -> PyResult<Self> {
         if n > 1024 || n_inputs > n || max_terms == 0 || max_tape == 0 {
             return Err(PyValueError::new_err(
                 "Pauli circuits require at most 1024 wires and positive memory limits.",
+            ));
+        }
+        if gpu.as_ref().is_some_and(|(_, _, device, memory)| {
+            *device < 0 || *memory == 0 || *memory > i64::MAX as usize
+        }) {
+            return Err(PyValueError::new_err(
+                "CUDA requires a nonnegative device and a valid max_memory.",
             ));
         }
         let mut ordered = outputs.clone();
@@ -182,10 +192,11 @@ impl PauliCircuit {
             parameters,
             max_terms,
             max_tape,
+            gpu,
         })
     }
 
-    #[pyo3(signature = (angles, terms, constant=0., gradient=false, input_re=None, input_im=None))]
+    #[pyo3(signature = (angles, terms, constant=0., gradient=false, input_re=None, input_im=None, active=None))]
     #[allow(clippy::too_many_arguments)]
     fn expectation(
         &self,
@@ -196,6 +207,7 @@ impl PauliCircuit {
         gradient: bool,
         input_re: Option<Vec<f64>>,
         input_im: Option<Vec<f64>>,
+        active: Option<Vec<bool>>,
     ) -> PyResult<Evaluation> {
         if angles.len() != self.parameters
             || angles.iter().any(|x| !x.is_finite())
@@ -210,6 +222,14 @@ impl PauliCircuit {
         }) {
             return Err(PyValueError::new_err(
                 "Expected finite Pauli coefficients and one I/X/Y/Z per output.",
+            ));
+        }
+        if active
+            .as_ref()
+            .is_some_and(|mask| mask.len() != self.parameters)
+        {
+            return Err(PyValueError::new_err(
+                "active must have one entry per measurement.",
             ));
         }
         let input = match (input_re, input_im) {
@@ -236,12 +256,71 @@ impl PauliCircuit {
             }
             _ => return Err(PyValueError::new_err("Provide both input_re and input_im.")),
         };
+        if let Some((path, runtime, device, memory)) = &self.gpu {
+            let active = active.unwrap_or_else(|| vec![gradient; self.parameters]);
+            return py.allow_threads(|| {
+                super::cupauli::evaluate(
+                    super::cupauli::Request {
+                        n: self.n,
+                        outputs: &self.outputs,
+                        operations: &self.operations,
+                        angles: &angles,
+                        terms: &terms,
+                        constant,
+                        gradient,
+                        max_terms: self.max_terms,
+                        active: &active,
+                        input: input.as_deref(),
+                        n_inputs: self.n_inputs,
+                    },
+                    path,
+                    runtime,
+                    *device,
+                    *memory,
+                )
+            });
+        }
         py.allow_threads(|| match self.n {
-            0..=8 => self.evaluate::<1>(&angles, &terms, constant, gradient, input.as_deref()),
-            9..=32 => self.evaluate::<4>(&angles, &terms, constant, gradient, input.as_deref()),
-            33..=128 => self.evaluate::<16>(&angles, &terms, constant, gradient, input.as_deref()),
-            129..=512 => self.evaluate::<64>(&angles, &terms, constant, gradient, input.as_deref()),
-            _ => self.evaluate::<128>(&angles, &terms, constant, gradient, input.as_deref()),
+            0..=8 => self.evaluate::<1>(
+                &angles,
+                &terms,
+                constant,
+                gradient,
+                input.as_deref(),
+                active.as_deref(),
+            ),
+            9..=32 => self.evaluate::<4>(
+                &angles,
+                &terms,
+                constant,
+                gradient,
+                input.as_deref(),
+                active.as_deref(),
+            ),
+            33..=128 => self.evaluate::<16>(
+                &angles,
+                &terms,
+                constant,
+                gradient,
+                input.as_deref(),
+                active.as_deref(),
+            ),
+            129..=512 => self.evaluate::<64>(
+                &angles,
+                &terms,
+                constant,
+                gradient,
+                input.as_deref(),
+                active.as_deref(),
+            ),
+            _ => self.evaluate::<128>(
+                &angles,
+                &terms,
+                constant,
+                gradient,
+                input.as_deref(),
+                active.as_deref(),
+            ),
         })
     }
 }
@@ -293,6 +372,7 @@ impl PauliCircuit {
         constant: f64,
         gradient: bool,
         input: Option<&[C]>,
+        active: Option<&[bool]>,
     ) -> PyResult<Evaluation> {
         let mut tape = Tape::new(self.parameters, gradient, self.max_tape)?;
         let mut sum = Sum::<N>::default();
@@ -336,12 +416,17 @@ impl PauliCircuit {
                 let mut word = phased.word;
                 let term = term.sign(!phased.is_positive());
                 if kind == 0 && word.get_xbit(wire) {
-                    let same = tape.rotate(term, operand, cos, -sin)?;
+                    let parameter = if active.is_none_or(|mask| mask[operand]) {
+                        operand
+                    } else {
+                        NONE
+                    };
+                    let same = tape.rotate(term, parameter, cos, -sin)?;
                     insert(&mut scratch, word, same, &mut tape, self.max_terms)?;
                     let sign = if word.get_zbit(wire) { -1. } else { 1. };
                     word.set_zbit(wire, !word.get_zbit(wire));
                     word.rehash();
-                    let other = tape.rotate(term, operand, sign * sin, sign * cos)?;
+                    let other = tape.rotate(term, parameter, sign * sin, sign * cos)?;
                     insert(&mut scratch, word, other, &mut tape, self.max_terms)?;
                 } else {
                     insert(&mut scratch, word, term, &mut tape, self.max_terms)?;

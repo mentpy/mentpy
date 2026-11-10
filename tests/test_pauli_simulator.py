@@ -200,3 +200,50 @@ def test_long_chain_gradient_tape_is_iterative():
     expected, diff = ref.expectation_and_grad(angles, "Z")
     np.testing.assert_allclose(value, expected, atol=1e-11)
     np.testing.assert_allclose(gradient, diff, atol=1e-11)
+
+
+def test_device_validation_and_missing_libraries(monkeypatch):
+    import mentpy.simulators.pauli_simulator as module
+    from importlib.metadata import PackageNotFoundError
+
+    pattern = mp.templates.linear_cluster(2)
+    for device in ("cuda", "cuda:-1", "metal:0", 0):
+        with pytest.raises(ValueError, match="device"):
+            mp.PatternSimulator(pattern, backend="pauli", device=device)
+    with pytest.raises(ValueError, match="max_memory"):
+        mp.PatternSimulator(pattern, backend="pauli", device="cuda:0", max_memory=0)
+    monkeypatch.setattr(module.sys, "platform", "darwin")
+    with pytest.raises(ValueError, match="Linux"):
+        mp.PatternSimulator(pattern, backend="pauli", device="cuda:0")
+    monkeypatch.setattr(module.sys, "platform", "linux")
+
+    def missing(name):
+        raise PackageNotFoundError(name)
+
+    monkeypatch.setattr(module, "distribution", missing)
+    with pytest.raises(ImportError, match="libraries"):
+        mp.PatternSimulator(pattern, backend="pauli", device="cuda:0")
+    assert mp.PatternSimulator(pattern, backend="pauli").expectation([0], "Z") == 1
+
+
+def test_active_derivatives_and_native_gpu_boundaries():
+    core = _rust.PauliCircuit(1, 1, [0], [(0, 0, 0)], 1)
+    value, derivative, _ = core.expectation(
+        [0.3], [("Y", 1.0)], gradient=True, active=[False]
+    )
+    np.testing.assert_allclose(value, np.sin(0.3))
+    assert derivative == [0.0]
+    with pytest.raises(ValueError, match="active"):
+        core.expectation([0.3], [("Y", 1.0)], active=[])
+    with pytest.raises(ValueError, match="nonnegative"):
+        _rust.PauliCircuit(1, 1, [0], [], 0, gpu=("", "", -1, 1024))
+    gpu = _rust.PauliCircuit(
+        1,
+        1,
+        [0],
+        [],
+        0,
+        gpu=("/mentpy-missing-cupp.so", "/mentpy-missing-cudart.so", 0, 1024),
+    )
+    with pytest.raises(RuntimeError, match="CUDA Pauli"):
+        gpu.expectation([], [("Y", 1.0)])

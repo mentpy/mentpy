@@ -14,6 +14,11 @@ The standard install includes native flow algorithms, Rust tensor-network
 simulation and reverse-mode autodiff, OpenQASM/ZX compilation, and the existing
 JAX interface. No ``[jax]`` or ``[compiler]`` extra is needed.
 
+Linux x86-64 and ARM64 installations also include the cuPauliProp and CUDA 13
+runtime libraries. ``backend="pauli", device="cuda:0"`` uses them through
+Rust when an NVIDIA GPU and compatible driver are available. CPU use does not
+load CUDA. GPU Pauli propagation needs no CUDA toolkit or source build.
+
 Intel macOS installations use Numba 0.62, the last release providing binaries
 for that platform. Its Python support ends at 3.13. Other platforms use the
 current compatible dependency versions.

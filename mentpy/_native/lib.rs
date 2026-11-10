@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
 mod contract;
+mod cupauli;
 mod flow;
 mod pauli;
 mod tensor;
