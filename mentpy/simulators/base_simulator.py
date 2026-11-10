@@ -155,13 +155,21 @@ class BaseSimulator(abc.ABC):
         shots = validate_shots(shots)
         nodes = tuple(self.mbqcircuit.quantum_output_nodes)
         basis = "Z" * len(nodes) if basis is None else basis.upper()
+        rng = np.random.default_rng(
+            seed if seed is not None else getattr(self, "rng", None)
+        )
+        if not getattr(self, "force0", True):
+            self.reset(kwargs.pop("input_state", None))
+            indices = np.empty(shots, dtype=np.intp)
+            for i in range(shots):
+                probs = self.probabilities(angles, basis=basis, seed=rng, **kwargs)
+                indices[i] = rng.choice(len(probs), p=probs)
+            shifts = np.arange(len(nodes) - 1, -1, -1)
+            return Samples((indices[:, None] >> shifts) & 1, nodes, basis)
         probs = np.asarray(
             self.probabilities(angles, basis=basis, **kwargs), dtype=float
         )
         probs = probs / probs.sum()
-        rng = np.random.default_rng(
-            seed if seed is not None else getattr(self, "rng", None)
-        )
         indices = rng.choice(len(probs), size=shots, p=probs)
         shifts = np.arange(len(nodes) - 1, -1, -1)
         bits = (indices[:, None] >> shifts) & 1
@@ -171,6 +179,20 @@ class BaseSimulator(abc.ABC):
         """Evaluate an observable exactly or with finite synthetic shots."""
         if not isinstance(observable, Observable):
             observable = Observable(observable)
+
+        if shots is not None and not getattr(self, "force0", True):
+            shots = validate_shots(shots)
+            observable._validate_qubits(len(self.mbqcircuit.quantum_output_nodes))
+            rng = np.random.default_rng(
+                seed if seed is not None else getattr(self, "rng", None)
+            )
+            value = observable.constant
+            for basis, coefficient in observable.terms.items():
+                samples = self.sample(
+                    angles, basis=basis, shots=shots, seed=rng, **kwargs
+                )
+                value += coefficient * samples.expectation
+            return np.real(value)
 
         kwargs.pop("output_form", None)
         if self._statevector_output:

@@ -7,9 +7,9 @@
 import numpy as np
 
 from mentpy.mbqc.measurement_angles import MeasurementAngleResolver, xy_plane_angle
-from mentpy.operators import Ment, Observable
+from mentpy.operators import Ment
 from .base_simulator import BaseSimulator, _window_size
-from .results import Samples, normalize_output_form, validate_shots
+from .results import normalize_output_form
 
 __all__ = ["NumpySimulator"]
 
@@ -172,34 +172,3 @@ class NumpySimulator(BaseSimulator):
         ).reshape(-1)
         self.outcomes = outcomes
         return state if form == "sv" else np.outer(state, state.conj())
-
-    def sample(self, angles=(), *, shots=1024, basis=None, seed=None, **kwargs):
-        """Draw output shots, resampling intermediate outcomes when requested."""
-        if self.force0:
-            return super().sample(angles, shots=shots, basis=basis, seed=seed, **kwargs)
-        shots = validate_shots(shots)
-        nodes = tuple(self.mbqcircuit.quantum_output_nodes)
-        basis = "Z" * len(nodes) if basis is None else basis.upper()
-        rng = np.random.default_rng(seed) if seed is not None else self.rng
-        outcomes = np.empty(shots, dtype=np.intp)
-        self.reset(kwargs.pop("input_state", None))
-        for i in range(shots):
-            probabilities = self.probabilities(angles, basis=basis, seed=rng, **kwargs)
-            outcomes[i] = rng.choice(len(probabilities), p=probabilities)
-        shifts = np.arange(len(nodes) - 1, -1, -1)
-        return Samples((outcomes[:, None] >> shifts) & 1, nodes, basis)
-
-    def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
-        """Evaluate a branch exactly or estimate each Pauli term from shots."""
-        if self.force0 or shots is None:
-            return super().expectation(angles, observable, shots, seed, **kwargs)
-        shots = validate_shots(shots)
-        if not isinstance(observable, Observable):
-            observable = Observable(observable)
-        observable._validate_qubits(len(self.mbqcircuit.quantum_output_nodes))
-        rng = self.rng if seed is None else np.random.default_rng(seed)
-        value = observable.constant
-        for basis, coefficient in observable.terms.items():
-            samples = self.sample(angles, basis=basis, shots=shots, seed=rng, **kwargs)
-            value += coefficient * samples.expectation
-        return np.real(value)

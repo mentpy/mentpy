@@ -65,7 +65,7 @@ Native simulation, autodiff, OpenQASM compilation, and JAX compatibility are
 included in the standard install. For differentiable observable costs:
 
 ```python
-sim = mp.PatternSimulator(st, backend="rust")
+sim = mp.PatternSimulator(st)
 observable = mp.Observable("ZZ")
 value, gradient = sim.expectation_and_grad(
     np.zeros(len(st.trainable_nodes)), observable
@@ -76,7 +76,9 @@ print(shots.counts)
 
 Import a unitary OpenQASM 2 program with
 `pattern = mp.from_qasm(qasm)`. Use `mp.compile(qasm).pattern` to apply PyZX
-simplification first. The default NumPy backend keeps only the active qubits in memory. See the
+simplification first. The default Rust backend uses tensor contraction for
+postselected patterns and keeps only active qubits for sampled trajectories
+(`force0=False`). See the
 [Grover tutorial](https://github.com/mentpy/mentpy/blob/main/docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,
 exact probabilities, finite shots, Pauli measurements, and output ordering.
 
