@@ -136,7 +136,7 @@ html_theme_options = {
     "icon": {
         "repo": "fontawesome/brands/github",
     },
-    "site_url": "https://github.com/mentpy/mentpy",
+    "site_url": "https://docs.mentpy.com/en/latest/",
     "repo_url": "https://github.com/mentpy/mentpy",
     "repo_name": "MentPy",
     # "google_analytics": ["UA-XXXXX", "auto"],
@@ -213,6 +213,8 @@ autodoc_typehints_format = "short"
 myst_enable_extensions = ["dollarmath"]
 
 ipython_execlines = [
+    "import jax",
+    "jax.config.update('jax_enable_x64', True)",
     "import math",
     "import numpy as np",
     "import networkx as nx",

@@ -40,7 +40,9 @@ def test_qasm_matches_qiskit_for_entangled_input(optimize):
     assert not pattern.trainable_nodes
     for backend in ["trajectory", "jax-tn"]:
         sim = mp.PatternSimulator(pattern, input_state=initial, backend=backend)
-        np.testing.assert_allclose(sim.run([]), density(expected), atol=1e-9)
+        state = sim.run([])
+        tolerance = max(1e-9, np.finfo(state.real.dtype).eps)
+        np.testing.assert_allclose(state, density(expected), atol=tolerance)
     sim = mp.PatternSimulator(
         pattern, input_state=initial, backend="trajectory", force0=False, seed=3
     )

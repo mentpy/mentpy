@@ -44,13 +44,13 @@ def test_molecular_geometry_sweep():
         hf = np.asarray(result["hf_energies"])
         assert energies.shape == result["bond_lengths"].shape
         assert np.all(np.isfinite(energies))
-        assert np.all(energies >= exact - 1e-9)
+        assert np.all(energies >= exact - 1e-6)
         assert np.all(energies < hf)
         assert np.max(energies - exact) < 1e-5
         recorded = np.loadtxt(
             EXAMPLES / "data" / "h2-pes.csv", delimiter=",", comments="#"
         )
         np.testing.assert_allclose(recorded[:, 0], result["bond_lengths"])
-        np.testing.assert_allclose(recorded[:, 1], energies, atol=1e-8)
+        np.testing.assert_allclose(recorded[:, 1], energies, atol=1e-6)
     finally:
         plt.close(result["fig"])

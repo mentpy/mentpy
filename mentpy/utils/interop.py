@@ -4,6 +4,8 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Optional interoperability helpers."""
 
+from functools import reduce
+
 import numpy as np
 
 from mentpy.operators import Observable
@@ -365,6 +367,9 @@ def to_cudaq(obj, wire_order=None, parameters=None):
     lowered to a CUDA-Q kernel with graph preparation, adaptive measurements,
     and classically controlled flow corrections. Trainable measurement angles
     become a single list argument unless concrete ``parameters`` are supplied.
+    Execute the kernel with ``cudaq.run`` to get one bit list per shot. Each
+    list contains the intermediate outcomes in measurement order, followed by
+    measurements in the Z basis in quantum-output-node order.
     """
     cudaq = _require("cudaq", "CUDA-Q")
     if _is_mbqcircuit(obj):
@@ -753,11 +758,19 @@ def _qiskit_resolve_qubit_order(circuit, qubit_order):
 
 def _qiskit_circuit_operations(circuit):
     operations = []
+    measured = set()
     for instruction in circuit.data:
         operation, qubits = _qiskit_instruction_parts(instruction)
         name = _qiskit_operation_name(operation)
-        if name in {"barrier", "delay", "measure"}:
+        if name == "measure":
+            measured.update(qubits)
             continue
+        if name in {"barrier", "delay"}:
+            continue
+        if measured.intersection(qubits):
+            raise ValueError(
+                "Mid-circuit measurements cannot be imported as unitary gates."
+            )
         operations.append((operation, qubits))
     return operations
 
@@ -911,10 +924,11 @@ def _pauli_rotations_to_mbqc(rotations):
 
     circuits = []
     for pauli, angle in rotations:
+        if angle is None:
+            raise ValueError("Bind circuit parameters before importing into MentPy.")
         circuit = from_pauli(PauliOp(pauli))
-        if angle is not None:
-            for node in list(circuit.trainable_nodes):
-                circuit[node] = Ment(angle, "XY")
+        for node in list(circuit.trainable_nodes):
+            circuit[node] = Ment(angle, "XY")
         circuits.append(circuit)
 
     return (
@@ -940,7 +954,12 @@ def _pauli_to_pennylane_op(pauli, wire_order, qml):
 
 def _default_wire_order(observable, wire_order):
     if wire_order is not None:
-        return list(wire_order)
+        wires = list(wire_order)
+        if len(set(wires)) != len(wires) or (
+            observable.n_qubits is not None and len(wires) != observable.n_qubits
+        ):
+            raise ValueError("Provide one distinct wire per observable qubit.")
+        return wires
     if observable.n_qubits is None:
         raise ValueError("wire_order is required for an empty Observable.")
     return list(range(observable.n_qubits))
@@ -948,7 +967,7 @@ def _default_wire_order(observable, wire_order):
 
 def _default_cirq_qubits(cirq, observable, qubit_order):
     if qubit_order is not None:
-        return list(qubit_order)
+        return _default_wire_order(observable, qubit_order)
     if observable.n_qubits is None:
         raise ValueError("qubit_order is required for an empty Observable.")
     return cirq.LineQubit.range(observable.n_qubits)
@@ -971,6 +990,9 @@ def _mbqcircuit_to_cirq(cirq, mbqcircuit, qubit_order=None, parameter_prefix="th
             raise ValueError("qubit_order must provide one qubit per MBQC node.")
         qubits = dict(zip(nodes, qubit_order))
 
+    if set(qubits) != set(nodes) or len(set(qubits.values())) != len(nodes):
+        raise ValueError("qubit_order must assign a distinct qubit to every MBQC node.")
+
     out = cirq.Circuit()
     for node in mbqcircuit.inputc:
         out.append(cirq.H(qubits[node]))
@@ -978,48 +1000,27 @@ def _mbqcircuit_to_cirq(cirq, mbqcircuit, qubit_order=None, parameter_prefix="th
         out.append(cirq.CZ(qubits[u], qubits[v]))
 
     resolver = MeasurementAngleResolver(mbqcircuit)
-    outcomes = resolver.zero_outcomes()
-    order_index = {
-        node: index for index, node in enumerate(mbqcircuit.measurement_order)
-    }
-    measurement_nodes = [
-        node
-        for node in mbqcircuit.measurement_order
-        if mbqcircuit.measurements[node] is not None
+    resolver.validate_dependencies()
+    corrections = resolver._flow_corrections()
+    angles = [
+        sympy.Symbol(f"{parameter_prefix}{i}")
+        for i in range(len(mbqcircuit.trainable_nodes))
     ]
+    keys = {node: f"m{i}" for i, node in enumerate(resolver.measurement_nodes)}
 
-    for node in measurement_nodes:
-        command = resolver.resolve(
-            node, np.zeros(len(mbqcircuit.trainable_nodes)), outcomes
-        )
-        if command.plane not in {"X", "Y", "XY"}:
-            raise ValueError(
-                f"Cirq export currently supports X/Y/XY measurements, got {command.plane}."
-            )
-        if command.trainable:
-            angle = sympy.Symbol(f"{parameter_prefix}{command.trainable_index}")
-        elif command.plane == "X":
-            angle = 0.0
-        elif command.plane == "Y":
-            angle = np.pi / 2
-        else:
-            angle = command.angle
-
-        out.append(cirq.rz(-angle)(qubits[node]))
+    for node in resolver.measurement_nodes:
+        for angle, controls in resolver._xy_rotations(node, angles):
+            op = cirq.rz(angle)(qubits[node])
+            if controls:
+                op = op.with_classical_controls(
+                    *(keys[control] for control in controls)
+                )
+            out.append(op)
         out.append(cirq.H(qubits[node]))
-        key = f"m{node}"
-        out.append(cirq.measure(qubits[node], key=key))
-
-        correction = mbqcircuit.flow.correction_op(node).matrix[0]
-        n_nodes = mbqcircuit.graph.number_of_nodes()
-        x_targets = np.flatnonzero(correction[:n_nodes])
-        z_targets = np.flatnonzero(correction[n_nodes:])
-        for target in x_targets:
-            if _is_future_correction_target(int(target), node, order_index):
-                out.append(cirq.X(qubits[int(target)]).with_classical_controls(key))
-        for target in z_targets:
-            if _is_future_correction_target(int(target), node, order_index):
-                out.append(cirq.Z(qubits[int(target)]).with_classical_controls(key))
+        out.append(cirq.measure(qubits[node], key=keys[node]))
+        for target, pauli in corrections.get(node, ()):
+            gate = cirq.X if pauli == "x" else cirq.Z
+            out.append(gate(qubits[target]).with_classical_controls(keys[node]))
 
     return out
 
@@ -1030,17 +1031,17 @@ def _mbqcircuit_to_qiskit(
     """Lower an MBQC pattern to a dynamic Qiskit circuit."""
     from qiskit import QuantumCircuit
     from qiskit.circuit import ParameterVector
+    from qiskit.circuit.classical import expr
 
     from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 
     nodes = list(mbqcircuit.graph.nodes())
     node_to_qubit = _qiskit_mbqc_qubit_indices(nodes, qubit_order)
 
-    measurement_nodes = [
-        node
-        for node in mbqcircuit.measurement_order
-        if mbqcircuit.measurements[node] is not None
-    ]
+    resolver = MeasurementAngleResolver(mbqcircuit)
+    resolver.validate_dependencies()
+    corrections = resolver._flow_corrections()
+    measurement_nodes = resolver.measurement_nodes
     classical_bit = {node: index for index, node in enumerate(measurement_nodes)}
     out = QuantumCircuit(len(nodes), len(measurement_nodes))
 
@@ -1060,34 +1061,23 @@ def _mbqcircuit_to_qiskit(
     for u, v in mbqcircuit.graph.edges:
         out.cz(node_to_qubit[u], node_to_qubit[v])
 
-    resolver = MeasurementAngleResolver(mbqcircuit)
-    outcomes = resolver.zero_outcomes()
-    order_index = {
-        node: index for index, node in enumerate(mbqcircuit.measurement_order)
-    }
-
     for node in measurement_nodes:
-        command = resolver.resolve(node, angle_values, outcomes, xy=True)
-        out.rz(-command.angle, node_to_qubit[node])
-        out.h(node_to_qubit[node])
-        out.measure(node_to_qubit[node], classical_bit[node])
-
-        correction = mbqcircuit.flow.correction_op(node).matrix[0]
-        n_nodes = mbqcircuit.graph.number_of_nodes()
-        x_targets = np.flatnonzero(correction[:n_nodes])
-        z_targets = np.flatnonzero(correction[n_nodes:])
-        for target in x_targets:
-            target = int(target)
-            if _is_future_correction_target(target, node, order_index):
-                _qiskit_conditionally_apply(
-                    out, "x", node_to_qubit[target], classical_bit[node]
+        qubit = node_to_qubit[node]
+        for angle, controls in resolver._xy_rotations(node, angle_values):
+            bits = [out.clbits[classical_bit[control]] for control in controls]
+            if not bits:
+                out.rz(angle, qubit)
+            else:
+                condition = (
+                    (bits[0], 1) if len(bits) == 1 else reduce(expr.logic_and, bits)
                 )
-        for target in z_targets:
-            target = int(target)
-            if _is_future_correction_target(target, node, order_index):
-                _qiskit_conditionally_apply(
-                    out, "z", node_to_qubit[target], classical_bit[node]
-                )
+                with out.if_test(condition):
+                    out.rz(angle, qubit)
+        out.h(qubit)
+        out.measure(qubit, classical_bit[node])
+        for target, pauli in corrections.get(node, ()):
+            with out.if_test((out.clbits[classical_bit[node]], 1)):
+                getattr(out, pauli)(node_to_qubit[target])
 
     return out
 
@@ -1102,142 +1092,73 @@ def _qiskit_mbqc_qubit_indices(nodes, qubit_order):
     return {node: index for index, node in enumerate(ordered_nodes)}
 
 
-def _qiskit_conditionally_apply(circuit, gate_name, qubit, clbit_index):
-    clbit = circuit.clbits[clbit_index]
-    if hasattr(circuit, "if_test"):
-        with circuit.if_test((clbit, 1)):
-            getattr(circuit, gate_name)(qubit)
-        return
-
-    instruction_set = getattr(circuit, gate_name)(qubit)
-    if hasattr(instruction_set, "c_if"):
-        return instruction_set.c_if(clbit, 1)
-
-    raise NotImplementedError(
-        "Qiskit export requires QuantumCircuit.if_test or InstructionSet.c_if "
-        "support for adaptive MBQC corrections."
-    )
-
-
-def _is_future_correction_target(target, measured_node, order_index):
-    return (
-        target != measured_node
-        and order_index.get(target, np.inf) > order_index[measured_node]
-    )
-
-
 def _mbqcircuit_to_cudaq(cudaq, mbqcircuit, qubit_order=None, parameters=None):
-    """Lower an MBQC pattern to a CUDA-Q dynamic kernel."""
+    """Lower an MBQC pattern to a CUDA-Q kernel with native feed-forward."""
     from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 
-    if not hasattr(cudaq, "make_kernel"):
-        raise ImportError("CUDA-Q make_kernel API is required for MBQC export.")
+    n_angles = len(mbqcircuit.trainable_nodes)
+    signature = ""
+    if parameters is None and n_angles:
+        from sympy import Symbol
 
-    if parameters is None and len(mbqcircuit.trainable_nodes) > 0:
-        made = cudaq.make_kernel(list)
-        kernel, angle_values = made[0], made[1]
+        signature = "theta: list[float]"
+        angles = [Symbol(f"theta_{i}") for i in range(n_angles)]
     else:
-        kernel = cudaq.make_kernel()
-        if parameters is None:
-            angle_values = []
-        else:
-            angle_values = list(parameters)
-            if len(angle_values) != len(mbqcircuit.trainable_nodes):
-                raise ValueError(
-                    "parameters length must match the number of trainable nodes."
-                )
+        angles = [] if parameters is None else [float(angle) for angle in parameters]
+        if len(angles) != n_angles:
+            raise ValueError(
+                "parameters length must match the number of trainable nodes."
+            )
+        if not np.all(np.isfinite(angles)):
+            raise ValueError("parameters must contain finite angles.")
 
-    nodes = list(mbqcircuit.graph.nodes())
-    if qubit_order is not None and len(qubit_order) != len(nodes):
-        raise ValueError("wire_order must provide one CUDA-Q qubit per MBQC node.")
-
-    qubits = kernel.qalloc(len(nodes))
-    qubit_by_node = {node: qubits[index] for index, node in enumerate(nodes)}
-
-    for node in mbqcircuit.inputc:
-        _cudaq_apply_kernel_gate(kernel, "h", qubit_by_node[node])
-    for u, v in mbqcircuit.graph.edges:
-        _cudaq_apply_two_qubit_gate(kernel, "cz", qubit_by_node[u], qubit_by_node[v])
+    nodes = list(mbqcircuit.graph)
+    if not nodes:
+        raise ValueError("CUDA-Q export requires at least one qubit.")
+    indices = _qiskit_mbqc_qubit_indices(nodes, qubit_order)
+    qubits = {node: f"q[{index}]" for node, index in indices.items()}
+    lines = [
+        f"def mbqc({signature}) -> list[bool]:",
+        f"    q = cudaq.qvector({len(nodes)})",
+    ]
+    if signature:
+        lines.extend(f"    {angle} = theta[{i}]" for i, angle in enumerate(angles))
+    lines.extend(f"    h({qubits[node]})" for node in mbqcircuit.inputc)
+    lines.extend(
+        f"    z.ctrl({qubits[u]}, {qubits[v]})" for u, v in mbqcircuit.graph.edges
+    )
 
     resolver = MeasurementAngleResolver(mbqcircuit)
-    outcomes = resolver.zero_outcomes()
-    order_index = {
-        node: index for index, node in enumerate(mbqcircuit.measurement_order)
-    }
-    measurement_nodes = [
-        node
-        for node in mbqcircuit.measurement_order
-        if mbqcircuit.measurements[node] is not None
-    ]
+    resolver.validate_dependencies()
+    corrections = resolver._flow_corrections()
+    outcomes = {}
+    for i, node in enumerate(resolver.measurement_nodes):
+        qubit = qubits[node]
+        for angle, controls in resolver._xy_rotations(node, angles):
+            if controls:
+                condition = " and ".join(outcomes[control] for control in controls)
+                lines.extend([f"    if {condition}:", f"        rz({angle}, {qubit})"])
+            else:
+                lines.append(f"    rz({angle}, {qubit})")
+        outcome = f"m{i}"
+        lines.extend([f"    h({qubit})", f"    {outcome} = mz({qubit})"])
+        outcomes[node] = outcome
+        if corrections.get(node):
+            lines.append(f"    if {outcome}:")
+            lines.extend(
+                f"        {pauli}({qubits[target]})"
+                for target, pauli in corrections[node]
+            )
 
-    for node in measurement_nodes:
-        command = resolver.resolve(node, angle_values, outcomes, xy=True)
-        angle = command.angle
-        _cudaq_apply_kernel_gate(kernel, "rz", -angle, qubit_by_node[node])
-        _cudaq_apply_kernel_gate(kernel, "h", qubit_by_node[node])
-        measurement = _cudaq_measure_z(kernel, qubit_by_node[node], f"m{node}")
-
-        correction = mbqcircuit.flow.correction_op(node).matrix[0]
-        n_nodes = mbqcircuit.graph.number_of_nodes()
-        x_targets = np.flatnonzero(correction[:n_nodes])
-        z_targets = np.flatnonzero(correction[n_nodes:])
-        for target in x_targets:
-            target = int(target)
-            if _is_future_correction_target(target, node, order_index):
-                _cudaq_conditionally_apply(
-                    kernel, measurement, "x", qubit_by_node[target]
-                )
-        for target in z_targets:
-            target = int(target)
-            if _is_future_correction_target(target, node, order_index):
-                _cudaq_conditionally_apply(
-                    kernel, measurement, "z", qubit_by_node[target]
-                )
-
-    return kernel
-
-
-def _cudaq_apply_kernel_gate(kernel, name, *args):
-    gate = getattr(kernel, name, None)
-    if gate is None:
-        raise NotImplementedError(f"CUDA-Q Kernel API does not expose {name}.")
-    return gate(*args)
-
-
-def _cudaq_apply_two_qubit_gate(kernel, name, left, right):
-    gate = getattr(kernel, name, None)
-    if gate is not None:
-        return gate(left, right)
-
-    fallback = {
-        "cz": "z",
-        "cx": "x",
-    }.get(name)
-    if fallback is not None:
-        controlled_gate = getattr(kernel, fallback, None)
-        if controlled_gate is not None and hasattr(controlled_gate, "ctrl"):
-            return controlled_gate.ctrl(left, right)
-
-    raise NotImplementedError(f"CUDA-Q Kernel API does not expose {name}.")
-
-
-def _cudaq_measure_z(kernel, qubit, key):
-    try:
-        return kernel.mz(qubit, key)
-    except TypeError:
-        return kernel.mz(qubit)
-
-
-def _cudaq_conditionally_apply(kernel, measurement, gate_name, qubit):
-    if not hasattr(kernel, "c_if"):
-        raise NotImplementedError(
-            "CUDA-Q Kernel API c_if support is required for adaptive MBQC export."
-        )
-
-    def then_function():
-        _cudaq_apply_kernel_gate(kernel, gate_name, qubit)
-
-    return kernel.c_if(measurement, then_function)
+    result = list(outcomes.values())
+    for i, node in enumerate(mbqcircuit.quantum_output_nodes):
+        name = f"out{i}"
+        lines.append(f"    {name} = mz({qubits[node]})")
+        result.append(name)
+    lines.append(f"    return [{', '.join(result)}]")
+    return cudaq.PyKernelDecorator(
+        "\n".join(lines), kernelName="mbqc", location=("<MentPy CUDA-Q kernel>", 1)
+    )
 
 
 def _cudaq_kernel_to_mbqc(
@@ -1278,6 +1199,10 @@ def _cudaq_kernel_to_mbqc(
 
 
 def _cirq_without_measurements(cirq, circuit):
+    if not circuit.are_all_measurements_terminal():
+        raise ValueError(
+            "Mid-circuit measurements cannot be imported as unitary gates."
+        )
     return cirq.Circuit(
         op
         for op in circuit.all_operations()

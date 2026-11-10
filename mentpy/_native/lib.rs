@@ -3,45 +3,22 @@ use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
 type Matrix = Vec<Vec<u32>>;
+type PackedSolution = (Py<PyBytes>, usize, usize, Py<PyBytes>, usize, usize);
 
 struct PackedMatrix {
     rows: Vec<Vec<u64>>,
 }
 
-fn normalise_matrix(matrix: Matrix) -> PyResult<Matrix> {
-    if matrix.is_empty() {
-        return Ok(matrix);
-    }
-
-    let width = matrix[0].len();
+fn matrix_width(matrix: &Matrix) -> PyResult<usize> {
+    let width = matrix.first().map_or(0, Vec::len);
     if matrix.iter().any(|row| row.len() != width) {
         return Err(PyValueError::new_err("GF(2) matrices must be rectangular."));
     }
-
-    Ok(matrix
-        .into_iter()
-        .map(|row| row.into_iter().map(|value| value & 1).collect())
-        .collect())
+    Ok(width)
 }
 
 fn word_count(width: usize) -> usize {
     width.div_ceil(64)
-}
-
-fn identity(size: usize) -> Matrix {
-    let mut matrix = vec![vec![0; size]; size];
-    for i in 0..size {
-        matrix[i][i] = 1;
-    }
-    matrix
-}
-
-fn matrix_width(matrix: &Matrix) -> usize {
-    if matrix.is_empty() {
-        0
-    } else {
-        matrix[0].len()
-    }
 }
 
 fn set_bit(row: &mut [u64], col: usize) {
@@ -52,47 +29,32 @@ fn get_bit(row: &[u64], col: usize) -> u32 {
     ((row[col / 64] >> (col % 64)) & 1) as u32
 }
 
-fn pack_augmented(left: &Matrix, rhs: Option<&Matrix>) -> PyResult<PackedMatrix> {
-    if let Some(rhs) = rhs {
-        if left.len() != rhs.len() {
-            return Err(PyValueError::new_err(
-                "Cannot augment matrices with different row counts.",
-            ));
-        }
+fn pack_augmented(
+    row_count: usize,
+    col_count: usize,
+    is_one: impl Fn(usize, usize) -> bool,
+) -> PyResult<PackedMatrix> {
+    if row_count == 0 {
+        return Ok(PackedMatrix { rows: Vec::new() });
     }
+    let width = col_count
+        .checked_add(row_count)
+        .ok_or_else(|| PyValueError::new_err("Matrix dimensions overflow."))?;
+    let mut rows = vec![vec![0u64; word_count(width)]; row_count];
 
-    let left_width = matrix_width(left);
-    let right_width = rhs.map(matrix_width).unwrap_or(0);
-    let width = left_width + right_width;
-    let mut rows = vec![vec![0u64; word_count(width)]; left.len()];
-
-    for (row_index, row) in left.iter().enumerate() {
-        for (col, &value) in row.iter().enumerate() {
-            if value & 1 == 1 {
-                set_bit(&mut rows[row_index], col);
+    for (index, row) in rows.iter_mut().enumerate() {
+        for col in 0..col_count {
+            if is_one(index, col) {
+                set_bit(row, col);
             }
         }
-    }
-
-    if let Some(rhs) = rhs {
-        for (row_index, row) in rhs.iter().enumerate() {
-            for (col, &value) in row.iter().enumerate() {
-                if value & 1 == 1 {
-                    set_bit(&mut rows[row_index], left_width + col);
-                }
-            }
-        }
+        set_bit(row, col_count + index);
     }
 
     Ok(PackedMatrix { rows })
 }
 
-fn pack_augmented_bytes(
-    data: &[u8],
-    row_count: usize,
-    col_count: usize,
-    identity_rhs: bool,
-) -> PyResult<PackedMatrix> {
+fn pack_augmented_bytes(data: &[u8], row_count: usize, col_count: usize) -> PyResult<PackedMatrix> {
     let expected_len = row_count
         .checked_mul(col_count)
         .ok_or_else(|| PyValueError::new_err("Matrix dimensions overflow."))?;
@@ -102,25 +64,9 @@ fn pack_augmented_bytes(
         ));
     }
 
-    let rhs_width = if identity_rhs { row_count } else { 0 };
-    let width = col_count
-        .checked_add(rhs_width)
-        .ok_or_else(|| PyValueError::new_err("Matrix dimensions overflow."))?;
-    let mut rows = vec![vec![0u64; word_count(width)]; row_count];
-
-    for row in 0..row_count {
-        let row_offset = row * col_count;
-        for col in 0..col_count {
-            if data[row_offset + col] & 1 == 1 {
-                set_bit(&mut rows[row], col);
-            }
-        }
-        if identity_rhs {
-            set_bit(&mut rows[row], col_count + row);
-        }
-    }
-
-    Ok(PackedMatrix { rows })
+    pack_augmented(row_count, col_count, |row, col| {
+        data[row * col_count + col] & 1 == 1
+    })
 }
 
 fn xor_rows(matrix: &mut PackedMatrix, target: usize, source: usize, first_word: usize) {
@@ -153,6 +99,10 @@ fn gf2_rref_packed_impl(
     let mut pivot_cols = Vec::new();
     let mut pivot_row = 0usize;
 
+    if row_count == 0 {
+        return (packed, pivot_cols);
+    }
+
     for col in 0..max_cols {
         let pivot = (pivot_row..row_count).find(|&row| get_bit(&packed.rows[row], col) == 1);
         let Some(pivot) = pivot else {
@@ -180,40 +130,17 @@ fn gf2_rref_packed_impl(
     (packed, pivot_cols)
 }
 
-fn gf2_rref_augmented_impl(
-    matrix: Matrix,
-    rhs: Option<Matrix>,
-    max_cols: Option<usize>,
-) -> PyResult<(PackedMatrix, Vec<usize>)> {
-    let matrix = normalise_matrix(matrix)?;
-    let rhs = rhs.map(normalise_matrix).transpose()?;
-
-    let row_count = matrix.len();
-    let original_width = matrix_width(&matrix);
-    let max_cols = max_cols.unwrap_or(original_width);
-    if max_cols > original_width {
-        return Err(PyValueError::new_err("max_cols exceeds matrix width."));
-    }
-
-    Ok(gf2_rref_packed_impl(
-        pack_augmented(&matrix, rhs.as_ref())?,
-        row_count,
-        max_cols,
-    ))
-}
-
 #[pyfunction]
 fn gf2_inverse(matrix: Matrix) -> PyResult<Option<Matrix>> {
-    let matrix = normalise_matrix(matrix)?;
     let size = matrix.len();
-    if matrix.iter().any(|row| row.len() != size) {
+    if matrix_width(&matrix)? != size {
         return Err(PyValueError::new_err(
             "Only square matrices can be inverted.",
         ));
     }
 
-    let (augmented, pivot_cols) =
-        gf2_rref_augmented_impl(matrix, Some(identity(size)), Some(size))?;
+    let packed = pack_augmented(size, size, |row, col| matrix[row][col] & 1 == 1)?;
+    let (augmented, pivot_cols) = gf2_rref_packed_impl(packed, size, size);
     if pivot_cols.len() != size {
         return Ok(None);
     }
@@ -242,7 +169,7 @@ fn gf2_inverse_bytes<'py>(
     }
 
     let (augmented, pivot_cols) = gf2_rref_packed_impl(
-        pack_augmented_bytes(data.as_bytes(), row_count, col_count, true)?,
+        pack_augmented_bytes(data.as_bytes(), row_count, col_count)?,
         row_count,
         col_count,
     );
@@ -266,20 +193,18 @@ fn gf2_inverse_bytes<'py>(
 
 #[pyfunction]
 fn gf2_right_inverse_and_kernel(matrix: Matrix) -> PyResult<Option<(Matrix, Matrix)>> {
-    let matrix = normalise_matrix(matrix)?;
     let row_count = matrix.len();
-    let col_count = if row_count == 0 { 0 } else { matrix[0].len() };
-
-    let (augmented, pivot_cols) =
-        gf2_rref_augmented_impl(matrix, Some(identity(row_count)), Some(col_count))?;
+    let col_count = matrix_width(&matrix)?;
+    let packed = pack_augmented(row_count, col_count, |row, col| matrix[row][col] & 1 == 1)?;
+    let (augmented, pivot_cols) = gf2_rref_packed_impl(packed, row_count, col_count);
     if pivot_cols.len() != row_count {
         return Ok(None);
     }
 
     let mut right_inverse = vec![vec![0; row_count]; col_count];
     for (row, &pivot_col) in pivot_cols.iter().enumerate() {
-        for col in 0..row_count {
-            right_inverse[pivot_col][col] = get_bit(&augmented.rows[row], col_count + col);
+        for (col, entry) in right_inverse[pivot_col].iter_mut().enumerate() {
+            *entry = get_bit(&augmented.rows[row], col_count + col);
         }
     }
 
@@ -306,9 +231,9 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
     data: &Bound<'_, PyBytes>,
     row_count: usize,
     col_count: usize,
-) -> PyResult<Option<(Py<PyBytes>, usize, usize, Py<PyBytes>, usize, usize)>> {
+) -> PyResult<Option<PackedSolution>> {
     let (augmented, pivot_cols) = gf2_rref_packed_impl(
-        pack_augmented_bytes(data.as_bytes(), row_count, col_count, true)?,
+        pack_augmented_bytes(data.as_bytes(), row_count, col_count)?,
         row_count,
         col_count,
     );
@@ -324,13 +249,17 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
         }
     }
 
+    let kernel_size = col_count
+        .checked_mul(col_count - row_count)
+        .filter(|&size| size <= isize::MAX as usize)
+        .ok_or_else(|| PyValueError::new_err("Kernel dimensions overflow."))?;
     let mut is_pivot = vec![false; col_count];
     for &pivot_col in &pivot_cols {
         is_pivot[pivot_col] = true;
     }
     let free_cols: Vec<usize> = (0..col_count).filter(|&col| !is_pivot[col]).collect();
 
-    let mut kernel = vec![0u8; col_count * free_cols.len()];
+    let mut kernel = vec![0u8; kernel_size];
     for (basis_col, &free_col) in free_cols.iter().enumerate() {
         kernel[free_col * free_cols.len() + basis_col] = 1;
         for (row, &pivot_col) in pivot_cols.iter().enumerate() {

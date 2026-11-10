@@ -67,7 +67,7 @@ embeddings mentioned in [#suzuki2020]_ to define the measurement angles for each
 
    gs = mp.templates.muta(2,1, one_column=True)
    mp.draw(gs)
-   ps = mp.PatternSimulator(gs, backend='numpy-dm', window_size = 4)
+   ps = mp.PatternSimulator(gs, backend='numpy', window_size = 4)
 
    def quantum_kernel(X, Y=None):
 

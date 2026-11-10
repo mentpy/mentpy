@@ -31,7 +31,7 @@ interoperability, and OpenQASM-to-MBQC compilation with optional ZX simplificati
 You can install the latest published release of `mentpy` from PyPI using:
 
 ```bash
-pip install mentpy
+pip install --pre mentpy
 ```
 
 For the latest, potentially unstable version, you can install directly from the source:
@@ -58,7 +58,7 @@ import mentpy as mp
 
 st = mp.templates.grid_cluster(2,4)
 ps = mp.PatternSimulator(st)
-output = ps(np.random.rand(len(st.outputc)))
+output = ps(np.random.rand(len(st.trainable_nodes)))
 ```
 
 For differentiable costs, install `mentpy[jax]` and use the tensor-network backend:
@@ -78,9 +78,8 @@ print(shots.counts)
 
 Install `mentpy[compiler]` to import a unitary OpenQASM 2 program with
 `pattern = mp.from_qasm(qasm)`. Use `mp.compile(qasm).pattern` to apply PyZX
-simplification first. The `trajectory` backend executes causal-flow XY patterns
-while keeping only the active frontier in memory. See the
-[Grover tutorial](docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,
+simplification first. The default NumPy backend keeps only the active qubits in memory. See the
+[Grover tutorial](https://github.com/mentpy/mentpy/blob/main/docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,
 exact probabilities, finite shots, Pauli measurements, and output ordering.
 
 For visualization of circuits, you can use the `mp.draw(st)` function
@@ -97,11 +96,11 @@ len(lie_alg)
 
 ## Documentation
 
-The documentation for `mentpy` can be found <a href="https://mentpy.readthedocs.io/en/latest/" target="_blank">here</a>.
+The documentation for `mentpy` can be found <a href="https://docs.mentpy.com/en/latest/" target="_blank">here</a>.
 
 ## Contributing
 
-We welcome contributions to `mentpy`! Please see our [contributing guidelines](./CONTRIBUTING.md) for more information.
+We welcome contributions to `mentpy`! Please see our [contributing guidelines](https://github.com/mentpy/mentpy/blob/main/CONTRIBUTING.md) for more information.
 
 ## How to cite
 

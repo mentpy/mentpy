@@ -36,27 +36,13 @@ def random_su(n_qubits: int):
 
 def swap_qubits(state_vector, i, j):
     """Return state vector after swapping qubits i and j."""
-
-    n_qubits = int(np.log2(len(state_vector)))
-
-    swap_matrix = np.zeros((2, 2), dtype=int)
-    swap_matrix[0, 1] = swap_matrix[1, 0] = 1
-
-    identity = np.identity(2)
-    swap_operator = None
-    for k in range(n_qubits):
-        if k == i or k == j:
-            current_operator = swap_matrix
-        else:
-            current_operator = identity
-
-        if swap_operator is None:
-            swap_operator = current_operator
-        else:
-            swap_operator = np.kron(swap_operator, current_operator)
-
-    swapped_state_vector = swap_operator @ state_vector
-    return swapped_state_vector
+    state = np.asarray(state_vector)
+    if state.ndim != 1 or not state.size or state.size & (state.size - 1):
+        raise ValueError("Expected a state vector with a power-of-two length.")
+    n_qubits = state.size.bit_length() - 1
+    if not 0 <= i < n_qubits or not 0 <= j < n_qubits:
+        raise ValueError("Qubit index is out of range.")
+    return state.reshape((2,) * n_qubits).swapaxes(i, j).reshape(-1).copy()
 
 
 def arbitrary_qubit_gate(u, i, n):
@@ -76,7 +62,10 @@ def swap_ij(i, j, n):
     """
     Generate the swap operator for qubits i and j in a system of n qubits
     """
-    assert i < n and j < n
+    if not 0 <= i < n or not 0 <= j < n:
+        raise ValueError("Qubit index is out of range.")
+    if i == j:
+        return np.eye(2**n)
     op1, op2, op3, op4 = np.ones(4)
     for k in range(n):
         if k == i or k == j:
@@ -100,8 +89,10 @@ def swap_ij(i, j, n):
 
 def cnot_ij(i, j, n):
     """
-    Generate the CNOT operator for qubits i and j in a system of n qubits
+    Generate CNOT with one-based control ``i`` and target ``j``.
     """
+    if i == j or not 1 <= i <= n or not 1 <= j <= n:
+        raise ValueError("CNOT requires distinct qubit indices between 1 and n.")
     op1, op2, op3, op4 = np.ones(4)
     for k in range(1, n + 1):
         if k == i or k == j:

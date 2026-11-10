@@ -55,6 +55,28 @@ def test_gflow():
     assert cond
 
 
+def test_gflow_and_pflow_use_node_labels_as_labels():
+    graph = mp.GraphState([("right", "middle"), ("middle", "left")])
+    inputs, outputs = ["left"], ["right"]
+    generalized, _, _, _ = flow.find_gflow(graph, inputs, outputs)
+    exists, pauli, _ = flow.find_pflow(
+        graph, inputs, outputs, {"left": "XY", "middle": "XY"}
+    )
+    assert exists
+    for correction in (generalized, pauli):
+        np.testing.assert_array_equal(correction("left").ravel(), [0, 1, 0])
+        np.testing.assert_array_equal(correction("middle").ravel(), [1, 0, 0])
+
+
+def test_plane_change_invalidates_xy_flow():
+    circuit = mp.templates.linear_cluster(2)
+    assert circuit.flow.name == "cFlow"
+    circuit[0] = mp.Ment("XZ")
+    with pytest.warns(UserWarning, match="No flow found"):
+        assert circuit.measurement_order is None
+    assert circuit.flow(0) is None
+
+
 def test_pflow():
     """Test the pflow function."""
     gs = mp.templates.linear_cluster(5).graph
@@ -94,7 +116,11 @@ def test_pflow():
     )
 
     circ.flow.initialize_flow()
-    assert circ.flow.depth == 4
+    assert circ.flow.name == "pFlow"
+    assert circ.flow.depth == 3
+    _assert_valid_algebraic_pflow(
+        circ.graph, circ.input_nodes, circ.output_nodes, circ.flow.planes
+    )
 
     gs = mp.GraphState()
 

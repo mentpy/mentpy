@@ -9,15 +9,32 @@ import jax.numpy as jnp
 import numpy as np
 import opt_einsum as oe
 
-# Enable 64-bit precision in JAX (needed for matching numpy-sv accuracy)
-jax.config.update("jax_enable_x64", True)
-
 from mentpy.operators import Observable
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 from mentpy.simulators.base_simulator import BaseSimulator
+from .results import normalize_output_form
 
 __all__ = ["JaxTNSimulator"]
+
+
+def _raise_invalid_branch(valid):
+    if not bool(valid):
+        raise ValueError(
+            "Selected measurement branch has zero probability or nonfinite amplitudes."
+        )
+
+
+def _check_branch(valid):
+    if isinstance(valid, jax.core.Tracer):
+        # Only the failing branch calls back to Python in a compiled run.
+        # Under batching the callback still receives the per-branch predicate.
+        def fail(predicate):
+            jax.debug.callback(_raise_invalid_branch, predicate)
+
+        jax.lax.cond(valid, lambda _: None, fail, valid)
+    else:
+        _raise_invalid_branch(valid)
 
 
 class JaxTNSimulator(BaseSimulator):
@@ -57,7 +74,9 @@ class JaxTNSimulator(BaseSimulator):
         super().__init__(mbqcircuit, input_state)
 
         self.force0 = kwargs.pop("force0", True)
-        self._default_output_form = kwargs.pop("output_form", "dm")
+        self._default_output_form = normalize_output_form(
+            kwargs.pop("output_form", "dm")
+        )
 
         if not self.force0:
             raise NotImplementedError(
@@ -65,9 +84,10 @@ class JaxTNSimulator(BaseSimulator):
             )
 
         self._angle_resolver = MeasurementAngleResolver(mbqcircuit)
+        self._angle_resolver.validate_dependencies()
         self._schedule = self._angle_resolver.schedule
         self._schedule_measure = self._angle_resolver.measurement_nodes
-        self._forced_outcomes = self._angle_resolver.zero_outcomes()
+        self._forced_outcomes = dict.fromkeys(self._schedule_measure, 0)
 
         # Build static measurement info (node indices, angles, trainability)
         self._measurement_info = []
@@ -149,7 +169,7 @@ class JaxTNSimulator(BaseSimulator):
             self._operand_specs.append((kind, value))
             expression_args.extend([shape, indices])
 
-        cz = jnp.asarray([[1, 1], [1, -1]], dtype=jnp.complex128)
+        cz = jnp.asarray([[1, 1], [1, -1]], dtype=complex)
         copy3 = np.zeros((2, 2, 2), dtype=complex)
         copy3[0, 0, 0] = copy3[1, 1, 1] = 1
         copy3 = jnp.asarray(copy3)
@@ -161,7 +181,7 @@ class JaxTNSimulator(BaseSimulator):
         for node in self._all_nodes:
             indices = legs[node]
             if len(indices) == 1:
-                add("constant", jnp.ones(2, dtype=jnp.complex128), (2,), indices)
+                add("constant", jnp.ones(2, dtype=complex), (2,), indices)
             else:
                 # Equality of arbitrarily many legs is a chain of COPY tensors.
                 head = indices[0]
@@ -171,7 +191,7 @@ class JaxTNSimulator(BaseSimulator):
                     head = tail
                 add(
                     "constant",
-                    jnp.eye(2, dtype=jnp.complex128),
+                    jnp.eye(2, dtype=complex),
                     (2, 2),
                     [head, indices[-1]],
                 )
@@ -185,18 +205,26 @@ class JaxTNSimulator(BaseSimulator):
         for index, (node, *_rest) in enumerate(self._measurement_info):
             add("measurement", index, (2,), [physical[node]])
         outputs = [physical[node] for node in self._quantum_output_nodes]
-        self._contract_expression = oe.contract_expression(
-            *expression_args, outputs, optimize="auto"
-        )
+        if expression_args:
+            self._contract_expression = oe.contract_expression(
+                *expression_args, outputs, optimize="auto"
+            )
 
     def _contract(self, operands):
         """Rescale intermediate tensors to avoid long-pattern over/underflow."""
+        if not operands:
+            return jnp.array(1.0, dtype=complex)
         tensors = list(operands)
         for indices, _, equation, *_ in self._contract_expression.contraction_list:
             values = [tensors.pop(i) for i in indices]
             result = oe.contract(equation, *values, backend="jax", optimize="auto")
             scale = jax.lax.stop_gradient(jnp.max(jnp.abs(result)))
-            result = result / jnp.where(scale > 0, scale, 1)
+            # Operand scaling keeps the local amplitudes near unity. Avoid
+            # amplifying roundoff from cancellation into a valid-looking state.
+            tolerance = jnp.finfo(result.real.dtype).eps
+            result = jnp.where(
+                scale <= tolerance, 0, result / jnp.where(scale > 0, scale, 1)
+            )
             tensors.append(result)
         return tensors[0]
 
@@ -218,7 +246,7 @@ class JaxTNSimulator(BaseSimulator):
             "step-by-step measurement is not supported."
         )
 
-    def run(self, angles, output_form=None, **kwargs):
+    def run(self, angles=(), output_form=None, **kwargs):
         """Run the full simulation.
 
         Parameters
@@ -239,7 +267,7 @@ class JaxTNSimulator(BaseSimulator):
         if output_form is None:
             output_form = self._default_output_form
 
-        angles = jnp.asarray(angles, dtype=jnp.float64)
+        angles = jnp.asarray(angles, dtype=float)
 
         if len(angles) != len(self.mbqcircuit.trainable_nodes):
             raise ValueError(
@@ -250,8 +278,7 @@ class JaxTNSimulator(BaseSimulator):
         # Use pure forward pass for autodiff compatibility
         result = self._forward(angles, output_form)
 
-        # Reset internal state after run
-        self.reset()
+        self.outcomes = self._forced_outcomes.copy()
 
         return result
 
@@ -285,12 +312,14 @@ class JaxTNSimulator(BaseSimulator):
             if is_trainable:
                 angle = angles[trainable_idx]
             else:
-                angle = jnp.asarray(fixed_angle, dtype=jnp.float64)
+                angle = jnp.asarray(fixed_angle, dtype=float)
             if plane == "X":
-                angle = jnp.asarray(0.0, dtype=jnp.float64)
+                phase = 1.0
             elif plane == "Y":
-                angle = jnp.asarray(np.pi / 2, dtype=jnp.float64)
-            measurement_vectors.append(jnp.array([jnp.exp(1j * angle), 1.0]))
+                phase = 1j
+            else:
+                phase = jnp.exp(1j * angle)
+            measurement_vectors.append(jnp.asarray([phase, 1.0], dtype=complex))
 
         for kind, value in self._operand_specs:
             if kind == "constant":
@@ -305,15 +334,15 @@ class JaxTNSimulator(BaseSimulator):
         output_qubits = self._quantum_output_nodes
         output_tensor = self._contract(operands)
         sv = output_tensor.reshape(2 ** len(output_qubits))
-        # Normalize (measurement projections leave the state unnormalized)
-        sv = sv / jnp.linalg.norm(sv)
-
-        if output_form.lower() in ("dm", "densitymatrix"):
-            return jnp.outer(sv, jnp.conj(sv))
-        elif output_form.lower() in ("sv", "statevector"):
-            return sv
-        else:
-            raise ValueError(f"Output form {output_form} is not supported.")
+        norm_squared = jnp.real(jnp.vdot(sv, sv))
+        valid = jnp.isfinite(norm_squared) & (norm_squared > 0)
+        _check_branch(valid)
+        sv = sv / jnp.sqrt(jnp.where(valid, norm_squared, 1))
+        return (
+            sv
+            if normalize_output_form(output_form) == "sv"
+            else jnp.outer(sv, sv.conj())
+        )
 
     def reset(self, input_state=None):
         """Reset the simulator to the initial state.
@@ -347,13 +376,15 @@ class JaxTNSimulator(BaseSimulator):
             Gradient of the cost w.r.t. angles.
         """
         self._angle_resolver.validate_parameters(angles)
-        output_form = kwargs.get("output_form", self._default_output_form)
+        if kwargs.get("input_state") is not None:
+            self.reset(kwargs["input_state"])
+        output_form = kwargs.get("output_form") or self._default_output_form
 
         def full_cost(angles_):
             result = self._forward(angles_, output_form)
             return jnp.real(cost_fn(result))
 
-        angles = jnp.asarray(angles, dtype=jnp.float64)
+        angles = jnp.asarray(angles, dtype=float)
         cost_value, gradient = jax.value_and_grad(full_cost)(angles)
         return cost_value, gradient
 
@@ -363,6 +394,7 @@ class JaxTNSimulator(BaseSimulator):
         basis = "Z" * n if basis is None else basis.upper()
         if len(basis) != n or not set(basis) <= set("IXYZ"):
             raise ValueError("basis must contain one I, X, Y or Z per output.")
+        kwargs.pop("output_form", None)
         state = self.run(angles, output_form="sv", **kwargs).reshape((2,) * n)
         h = jnp.asarray([[1, 1], [1, -1]]) / jnp.sqrt(2)
         for axis, char in enumerate(basis):
@@ -371,7 +403,8 @@ class JaxTNSimulator(BaseSimulator):
                 state = jnp.moveaxis(
                     jnp.tensordot(rotation, state, axes=(1, axis)), 0, axis
                 )
-        return jnp.abs(state.reshape(-1)) ** 2
+        probabilities = jnp.abs(state.reshape(-1)) ** 2
+        return probabilities / probabilities.sum()
 
     def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
         """Evaluate an observable expectation value.
@@ -390,6 +423,7 @@ class JaxTNSimulator(BaseSimulator):
         """
         if not isinstance(observable, Observable):
             observable = Observable(observable)
+        kwargs.pop("output_form", None)
         state = self.run(angles, output_form="sv", **kwargs)
         if shots is not None:
             return observable.sample_expectation(np.asarray(state), shots, seed=seed)
@@ -424,5 +458,5 @@ class JaxTNSimulator(BaseSimulator):
                 )
 
             self._gradient_cache[key] = jax.jit(jax.value_and_grad(cost, argnums=0))
-        angles = jnp.asarray(angles, dtype=jnp.float64)
+        angles = jnp.asarray(angles, dtype=float)
         return self._gradient_cache[key](angles, self._input_state_tensor)

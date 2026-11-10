@@ -45,6 +45,33 @@ def test_hstack_can_skip_eager_flow_initialization():
     assert not stacked.flow.flow_initialized
 
 
+def test_single_site_clusters_have_one_input_and_output():
+    for pattern in (mp.templates.linear_cluster(1), mp.templates.grid_cluster(1, 1)):
+        assert len(pattern) == 1
+        assert pattern.input_nodes == pattern.output_nodes == [0]
+        assert not pattern.trainable_nodes
+
+
+def test_stack_preserves_named_nodes_and_idle_wires():
+    named = mp.MBQCircuit(
+        mp.GraphState([("left", "right")]),
+        ["left"],
+        ["right"],
+        {"left": mp.Ment(0.3, "XY")},
+        relabel_indices=False,
+    )
+    idle = mp.templates.linear_cluster(1)
+    composed = mp.hstack([idle, named])
+    assert len(composed) == len(named)
+    assert composed[composed.input_nodes[0]].angle == 0.3
+    disjoint = mp.vstack([named, named])
+    assert len(disjoint) == 4
+    assert [disjoint[i].angle for i in disjoint.input_nodes] == [0.3, 0.3]
+    merged = mp.merge(named, named, along=[("right", "left")])
+    assert len(merged) == 3
+    assert [merged[i].angle for i in merged.outputc] == [0.3, 0.3]
+
+
 class TestMuTA:
     """Test the MuTA template."""
 

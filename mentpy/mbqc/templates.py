@@ -47,7 +47,10 @@ def linear_cluster(n, **kwargs) -> MBQCircuit:
     -----
     templates
     """
+    if n < 1:
+        raise ValueError("A linear cluster needs at least one node.")
     g = GraphState()
+    g.add_nodes_from(range(n))
     g.add_edges_from([(i, i + 1) for i in range(n - 1)])
     gs = MBQCircuit(g, input_nodes=[0], output_nodes=[n - 1], **kwargs)
     return gs
@@ -129,7 +132,10 @@ def grid_cluster(n, m, periodic=False, **kwargs) -> MBQCircuit:
     -----
     templates
     """
+    if n < 1 or m < 1:
+        raise ValueError("Grid dimensions must be positive.")
     g = GraphState()
+    g.add_nodes_from(range(n * m))
     # add edges between rows
     n_wires = [m] * n
     for i, m in enumerate(n_wires):

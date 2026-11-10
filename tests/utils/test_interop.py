@@ -9,6 +9,21 @@ import pytest
 import mentpy as mp
 
 
+def test_qiskit_rejects_mid_circuit_measurements():
+    qiskit = pytest.importorskip("qiskit")
+    circuit = qiskit.QuantumCircuit(1, 1)
+    circuit.h(0)
+    circuit.measure(0, 0)
+    circuit.h(0)
+    with pytest.raises(ValueError, match="Mid-circuit measurements"):
+        mp.utils.from_qiskit(circuit)
+
+
+def test_pennylane_export_rejects_truncated_wire_order():
+    with pytest.raises(ValueError, match="distinct wire"):
+        mp.utils.to_pennylane(mp.Observable("ZX"), wire_order=[0])
+
+
 def _density(state):
     return np.outer(state, np.conj(state))
 
@@ -439,66 +454,11 @@ class _FakeCudaQSpin:
         return _FakeCudaQSpinTerm()
 
 
-class _FakeCudaQParameter:
-    def __init__(self, expression):
-        self.expression = expression
-
-    def __neg__(self):
-        return _FakeCudaQParameter(f"-({self.expression})")
-
-    def __repr__(self):
-        return self.expression
-
-
-class _FakeCudaQParameterList:
-    def __getitem__(self, index):
-        return _FakeCudaQParameter(f"theta[{index}]")
-
-
-class _FakeCudaQKernel:
-    def __init__(self):
-        self.operations = []
-
-    def qalloc(self, n_qubits):
-        self.operations.append(("qalloc", n_qubits))
-        return [f"q{i}" for i in range(n_qubits)]
-
-    def h(self, target):
-        self.operations.append(("h", target))
-
-    def rz(self, angle, target):
-        self.operations.append(("rz", angle, target))
-
-    def x(self, target):
-        self.operations.append(("x", target))
-
-    def z(self, target):
-        self.operations.append(("z", target))
-
-    def cz(self, left, right):
-        self.operations.append(("cz", left, right))
-
-    def mz(self, target, key=None):
-        measurement = f"m:{target}:{key}"
-        self.operations.append(("mz", target, key))
-        return measurement
-
-    def c_if(self, measurement, then_function):
-        self.operations.append(("c_if", measurement))
-        then_function()
-
-
 def _fake_cudaq_module(qasm=None):
     cudaq = types.ModuleType("cudaq")
     cudaq.spin = _FakeCudaQSpin
 
-    def make_kernel(*arg_types):
-        kernel = _FakeCudaQKernel()
-        if arg_types:
-            return kernel, _FakeCudaQParameterList()
-        return kernel
-
-    cudaq.make_kernel = make_kernel
+    cudaq.PyKernelDecorator = lambda source, **kwargs: source
     if qasm is not None:
         cudaq.translate = lambda _kernel, *args, **kwargs: qasm
     return cudaq
@@ -586,14 +546,15 @@ def test_mbqcircuit_to_cudaq_kernel(monkeypatch):
 
     circuit = mp.templates.linear_cluster(3)
     kernel = mp.utils.to_cudaq(circuit)
-    operations = kernel.operations
-
-    assert operations[0] == ("qalloc", circuit.graph.number_of_nodes())
-    assert any(op[0] == "cz" for op in operations)
-    assert any(op[0] == "rz" for op in operations)
-    assert any(op[0] == "mz" for op in operations)
-    assert any(op[0] == "c_if" for op in operations)
-    assert any(op[0] in {"x", "z"} for op in operations)
+    assert "def mbqc(theta: list[float]) -> list[bool]:" in kernel
+    assert "q = cudaq.qvector(3)" in kernel
+    assert "z.ctrl(q[0], q[1])" in kernel
+    assert "rz(-theta_0, q[0])" in kernel
+    assert "m0 = mz(q[0])" in kernel
+    assert "if m0:" in kernel
+    assert "x(q[1])" in kernel
+    assert "out0 = mz(q[2])" in kernel
+    assert "return [m0, m1, out0]" in kernel
 
 
 def test_mbqcircuit_to_cudaq_validates_parameter_count(monkeypatch):
@@ -619,3 +580,88 @@ def test_cudaq_kernel_openqasm_import(monkeypatch):
     assert isinstance(circuit, mp.MBQCircuit)
     assert len(circuit.input_nodes) == 2
     assert len(circuit.output_nodes) == 2
+
+
+def _named_adaptive_pattern():
+    graph = mp.GraphState([("first", "middle"), ("middle", "out")])
+    pattern = mp.MBQCircuit(graph, ["first"], ["out"], relabel_indices=False)
+    pattern["first"] = mp.Ment("X")
+    pattern["middle"] = mp.ControlMent(~pattern["first"].outcome, true_angle=np.pi)
+    return pattern
+
+
+def test_adaptive_cirq_export_uses_real_measurement_outcome():
+    cirq = pytest.importorskip("cirq")
+    pattern = _named_adaptive_pattern()
+    exported = mp.utils.to_cirq(pattern)
+    exported.append(cirq.measure(cirq.LineQubit(2), key="out"))
+    shots = cirq.Simulator(seed=17).run(exported, repetitions=64).measurements
+    assert set(shots["m0"].ravel()) == {0, 1}
+    np.testing.assert_array_equal(shots["out"], 1 - shots["m0"])
+
+
+def test_adaptive_qiskit_and_cudaq_export_condition_rotations(monkeypatch):
+    pytest.importorskip("qiskit")
+    pattern = _named_adaptive_pattern()
+    exported = mp.utils.to_qiskit(pattern)
+    assert any(
+        inst.operation.name == "if_else"
+        and inst.operation.blocks[0].count_ops().get("rz")
+        for inst in exported.data
+    )
+    monkeypatch.setitem(sys.modules, "cudaq", _fake_cudaq_module())
+    kernel = mp.utils.to_cudaq(pattern)
+    assert "if m0:\n        rz(" in kernel
+
+
+def test_adaptive_pennylane_export_uses_both_branches():
+    qnode = mp.utils.to_pennylane(_named_adaptive_pattern())
+    np.testing.assert_allclose(qnode([], st=np.array([1, 0])), np.eye(2) / 2, atol=1e-8)
+
+
+def _parity_pattern():
+    pattern = mp.templates.linear_cluster(4)
+    pattern[0] = mp.Ment("X")
+    pattern[1] = mp.Ment("X")
+    parity = mp.MentOutcome(lambda m: m[0] ^ m[1], cond_nodes={0, 1})
+    pattern[2] = mp.ControlMent(parity, true_angle=np.pi)
+    return pattern
+
+
+def test_adaptive_cirq_export_with_two_bit_parity():
+    cirq = pytest.importorskip("cirq")
+    pattern = _parity_pattern()
+    exported = cirq.Circuit(cirq.H(cirq.LineQubit(0))) + mp.utils.to_cirq(pattern)
+    exported.append(cirq.measure(cirq.LineQubit(3), key="out"))
+    shots = cirq.Simulator(seed=15).run(exported, repetitions=64).measurements
+    pairs = set(zip(shots["m0"].ravel(), shots["m1"].ravel()))
+    assert len(pairs) == 4
+    np.testing.assert_array_equal(shots["out"], shots["m0"] ^ shots["m1"])
+
+
+def test_adaptive_qiskit_export_combines_conditions():
+    pytest.importorskip("qiskit")
+    from qiskit.circuit.classical import expr
+
+    circuit = mp.utils.to_qiskit(_parity_pattern())
+    conditions = [
+        inst.operation.condition
+        for inst in circuit.data
+        if inst.operation.name == "if_else"
+        and isinstance(inst.operation.condition, expr.Expr)
+    ]
+    assert conditions
+    for condition in conditions:
+        assert {variable.var for variable in expr.iter_vars(condition)} == set(
+            circuit.clbits[:2]
+        )
+
+
+def test_real_cudaq_export_with_two_bit_parity():
+    cudaq = pytest.importorskip("cudaq")
+    pattern = _parity_pattern()
+    pattern = mp.MBQCircuit(pattern.graph, [], [3], measurements=pattern.measurements)
+    kernel = mp.utils.to_cudaq(pattern)
+    shots = cudaq.run(kernel, shots_count=64)
+    assert len({(m0, m1) for m0, m1, _, _ in shots}) == 4
+    assert all(out == (m0 ^ m1) for m0, m1, _, out in shots)

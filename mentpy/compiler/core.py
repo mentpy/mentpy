@@ -18,26 +18,10 @@ __all__ = ["CompileResult", "compile", "from_qasm"]
 class CompileResult:
     """Result returned by :func:`compile`.
 
-    Attributes
-    ----------
-    backend:
-        Compiler backend used for the reduction.
-    reduction:
-        Reduction strategy applied by the backend.
-    input_type:
-        Type of input accepted by the compiler.
-    before:
-        Structural graph statistics before reduction.
-    after:
-        Structural graph statistics after reduction.
-    reduced:
-        Reduced backend object. For the first PyZX-backed version this is a
-        PyZX graph reduced in place by PyZX.
-    circuit:
-        Optional extracted PyZX circuit. This is populated when ``extract=True``
-        and PyZX can extract a circuit from the reduced diagram.
-    pattern:
-        Executable MBQCircuit, unless ``to_mbqc=False``.
+    ``backend``, ``reduction``, and ``input_type`` describe the compilation.
+    ``before`` and ``after`` contain structural statistics. ``reduced`` is
+    the simplified PyZX graph. ``circuit`` is populated when extraction is
+    requested or needed to build an executable ``pattern``.
 
     Group
     -----
@@ -128,11 +112,12 @@ def from_qasm(source, *, optimize=False):
     -----
     compiler
     """
-    zx = _require_pyzx()
-    graph, _, circuit = _as_pyzx_graph(zx, source, copy_graph=True)
     if optimize:
-        graph = _reduce_graph(zx, graph, reduction="full_reduce", quiet=True)
-        circuit = _extract_circuit(zx, graph, quiet=True)
+        return compile(source).pattern
+    zx = _require_pyzx()
+    if isinstance(source, zx.Circuit):
+        return _circuit_to_mbqc(source)
+    circuit, _ = _parse_qasm(zx, source)
     return _circuit_to_mbqc(circuit)
 
 
@@ -229,32 +214,8 @@ def _as_pyzx_graph(zx, obj, *, copy_graph):
     circuit_type = getattr(zx, "Circuit", None)
 
     if isinstance(obj, (str, os.PathLike)):
-        is_path = isinstance(obj, os.PathLike) or (
-            "OPENQASM" not in obj and os.path.exists(obj)
-        )
-        source = Path(obj).read_text() if is_path else obj
-        source = re.sub(r"//[^\n]*", "", source)
-        if not re.match(r"\s*OPENQASM\s+2\.0\s*;", source):
-            raise ValueError("Only unitary OpenQASM 2.0 programs are supported.")
-        if re.search(r"\b(measure|reset|if)\b", source):
-            raise ValueError(
-                "Only unitary QASM is supported; remove measurements, resets and conditions."
-            )
-
-        # PennyLane emits top-level gphase statements. They have no effect on
-        # MBQC output probabilities or expectations. Never drop a phase inside
-        # a custom gate, where later controls could make it observable.
-        def drop_phase(match):
-            prefix = source[: match.start()]
-            if prefix.count("{") != prefix.count("}"):
-                raise ValueError("Unsupported global phase inside a custom gate.")
-            return ""
-
-        source = re.sub(r"\bgphase\s*\([^;]*?\)[^;]*;", drop_phase, source)
-        # PyZX expects the descriptor and include on separate lines.
-        source = re.sub(r";\s*", ";\n", source)
-        circuit = circuit_type.from_qasm(source)
-        return circuit.to_graph(), "path" if is_path else "qasm", circuit
+        circuit, input_type = _parse_qasm(zx, obj)
+        return circuit.to_graph(), input_type, circuit
 
     if circuit_type is not None and isinstance(obj, circuit_type):
         return obj.to_graph(), "pyzx.Circuit", obj
@@ -266,6 +227,36 @@ def _as_pyzx_graph(zx, obj, *, copy_graph):
         "Expected a QASM string, PyZX Circuit, or PyZX Graph; "
         f"got {type(obj).__name__}."
     )
+
+
+def _parse_qasm(zx, obj):
+    if not isinstance(obj, (str, os.PathLike)):
+        raise TypeError("Expected OpenQASM 2 text or a file path.")
+    is_path = isinstance(obj, os.PathLike) or (
+        "OPENQASM" not in obj and os.path.exists(obj)
+    )
+    source = Path(obj).read_text() if is_path else obj
+    source = re.sub(r"//[^\n]*", "", source)
+    if not re.match(r"\s*OPENQASM\s+2\.0\s*;", source):
+        raise ValueError("Only unitary OpenQASM 2.0 programs are supported.")
+    if re.search(r"\b(measure|reset|if)\b", source):
+        raise ValueError(
+            "Only unitary QASM is supported; remove measurements, resets and conditions."
+        )
+
+    # PennyLane emits top-level gphase statements. They have no effect on
+    # MBQC output probabilities or expectations. Never drop a phase inside
+    # a custom gate, where later controls could make it observable.
+    def drop_phase(match):
+        prefix = source[: match.start()]
+        if prefix.count("{") != prefix.count("}"):
+            raise ValueError("Unsupported global phase inside a custom gate.")
+        return ""
+
+    source = re.sub(r"\bgphase\s*\([^;]*?\)[^;]*;", drop_phase, source)
+    # PyZX expects the descriptor and include on separate lines.
+    source = re.sub(r";\s*", ";\n", source)
+    return zx.Circuit.from_qasm(source), "path" if is_path else "qasm"
 
 
 def _is_pyzx_graph(obj):

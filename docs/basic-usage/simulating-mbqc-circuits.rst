@@ -13,16 +13,11 @@ We will use the :obj:`PatternSimulator` class to create a simulator. Let's try i
 .. ipython:: python
 
     grid_cluster = mp.templates.grid_cluster(3, 5)
-    simulator = mp.PatternSimulator(grid_cluster, backend='numpy-dm')
+    simulator = mp.PatternSimulator(grid_cluster, backend='numpy')
     print(simulator)
 
-You can specify the backend you want to use with the keyword argument ``backend``.
-This can be useful if you want to run a circuit on real hardware.
-
-.. admonition:: Note
-   :class: warning
-   
-   Currently, ``mentpy`` does not support running circuits on real hardware. This feature will be added in the future.
+Choose ``backend="numpy"`` for general measurements and sampled branches.
+Use ``backend="jax-tn"`` for differentiating an X, Y, or XY postselected pattern.
 
 For larger forced-outcome patterns, the ``jax-tn`` backend contracts the MBQC
 graph as a tensor network with JAX arrays. This backend supports JAX autodiff and
@@ -39,7 +34,9 @@ small enough to materialize.
 Running the circuit
 -------------------
 
-To run the circuit, we can simply call ``simulator`` with the circuit as an argument.
+Pass the measurement angles in ``trainable_nodes`` order. The simulator returns
+a density matrix by default. Pass ``output_form="sv"`` for the statevector of
+the selected branch.
 If the measurement angle of a node is fixed (i.e. the measurement object :obj:`Ment` is
 not trainable), you will not need to specify the measurement angle in the call to the
 simulator.
@@ -281,9 +278,24 @@ and empirical frequencies. Output columns follow ``quantum_output_nodes``.
     x_samples = sample_sim.sample(angles, shots=1024, basis="X", seed=7)
     x_samples.expectation
 
-The ``trajectory`` backend executes XY patterns with causal flow using a state
-vector over the active frontier. Set ``force0=False`` to sample intermediate
-measurements and apply their flow corrections. Output measurements use the
-same ``sample`` and ``expectation`` interfaces on every backend. State evolution
-is exact; finite shots describe output measurement statistics. See
-:doc:`../tutorials/grover-qasm` for a fixed-angle algorithm example.
+Measurement branches
+--------------------
+
+Both backends default to ``force0=True``, which selects outcome zero at every
+intermediate measurement. A zero-probability branch raises an error. JAX raises
+a runtime error when compiled execution reaches an impossible branch. MentPy
+uses the precision configured by the application. Set ``JAX_ENABLE_X64=1`` before
+starting Python when the calculation needs double precision.
+
+Use ``backend="numpy", force0=False`` to sample intermediate outcomes. The
+simulator applies the pattern's available flow corrections and evaluates
+controlled measurements against the recorded outcomes. Each ``run()``
+returns a single trajectory and exposes its outcomes in ``sim.outcomes``.
+``probabilities()`` and exact ``expectation()`` refer to the state of that
+trajectory. ``sample()`` and ``expectation(..., shots=...)`` draw an independent
+trajectory for each shot in this mode.
+
+The legacy backend names ``numpy-sv``, ``numpy-dm``, ``trajectory``, and
+``pennylane`` select the unified NumPy simulator. Use
+:doc:`../tutorials/import-export-circuits` for native PennyLane execution or
+other framework exports.

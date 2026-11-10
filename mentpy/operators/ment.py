@@ -52,8 +52,8 @@ class MentOutcome:
     def __call__(self, *args, **kwargs):
         try:
             return self._outcome(*args, **kwargs)
-        except:
-            raise UserWarning("Could not evaluate callable at given")
+        except Exception as exc:
+            raise UserWarning("Could not evaluate measurement outcome.") from exc
 
     def _binary_operation(self, operation, other):
         if isinstance(other, (bool, int)):
@@ -123,7 +123,7 @@ class MentOutcome:
         return self._binary_operation(lambda x, y: x ^ y, other)
 
     def __invert__(self):
-        return MentOutcome(lambda x: not self._outcome(x))
+        return MentOutcome(lambda x: not self._outcome(x), cond_nodes=self.cond_nodes)
 
 
 class Ment:
@@ -210,7 +210,7 @@ class Ment:
     @node_id.setter
     def node_id(self, node_id: Any):
         self._node_id = node_id
-        self._outcome = MentOutcome(lambda x: x[self._node_id], self._node_id)
+        self._outcome = MentOutcome(lambda x: x[node_id], node_id)
 
     def set_angle(self, angle):
         "Sets the angle of the measurement."

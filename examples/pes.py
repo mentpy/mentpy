@@ -34,9 +34,9 @@ for distance in bond_lengths:
         """Return the energy at the current bond length."""
         return simulator.expectation(parameters, hamiltonian)
 
-    for iteration in range(steps):
+    for _ in range(steps):
         value, gradient = simulator.expectation_and_grad(angles, hamiltonian)
-        angles = optimizer.step(energy, angles, iteration, gradient=gradient)
+        angles = optimizer.step(energy, angles, gradient=gradient)
 
     energies.append(float(energy(angles)))
     hf_energies.append(float(hamiltonian.expectation(initial_state)))

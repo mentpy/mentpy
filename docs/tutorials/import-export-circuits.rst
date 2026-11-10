@@ -86,8 +86,8 @@ through the same supported gate subset:
 
    mbqc_circuit = mp.utils.from_cudaq(kernel, n_qubits=2, parameters=[0.2])
 
-Symbolic gate parameters in imported PennyLane, Cirq, or Qiskit circuits become
-trainable MentPy measurement angles.
+Bind symbolic gate parameters to numeric values before importing. To build a
+trainable MBQC pattern directly, use :mod:`mentpy.mbqc.templates`.
 
 Export MBQC circuits
 --------------------
@@ -105,9 +105,10 @@ An MBQC circuit can be exported to each supported backend:
    qiskit_circuit = mp.utils.to_qiskit(mbqc_circuit)
    cudaq_kernel = mp.utils.to_cudaq(mbqc_circuit)
 
-Cirq, Qiskit, and CUDA-Q exports preserve MBQC adaptivity with dynamic-circuit
-constructs. Trainable measurement angles are exported as backend parameters by
-default:
+The exporters implement feed-forward with classical controls on measurement
+outcomes. See :doc:`learn-instrument` for a pattern with an outcome-dependent
+measurement basis. Cirq and Qiskit expose trainable angles as named parameters
+by default. For example:
 
 .. code-block:: python
 
@@ -120,6 +121,15 @@ default:
        mbqc_circuit,
        parameters=[0.0] * len(mbqc_circuit.trainable_nodes),
    )
+
+CUDA-Q exports run with ``cudaq.run``. Each shot contains the intermediate
+outcomes in measurement order, followed by the Z-basis output bits in
+``quantum_output_nodes`` order. Pass the trainable angles as one list.
+
+.. code-block:: python
+
+   angles = [0.0] * len(mbqc_circuit.trainable_nodes)
+   shots = cudaq.run(cudaq_kernel, angles, shots_count=256)
 
 Compile circuits with PyZX
 --------------------------
@@ -200,3 +210,13 @@ Barriers and terminal measurements are skipped during unitary circuit import.
 
 ``from_cudaq`` supports CUDA-Q spin operators. Kernel import requires CUDA-Q's
 OpenQASM 2 translation API and the same imported gate subset used by Cirq.
+
+
+Outcome-controlled measurements
+-------------------------------
+
+When a measurement basis depends on earlier outcomes, the exported circuit
+contains classical controls on its basis rotation. MentPy keeps these controls
+separate from the Pauli corrections supplied by flow. The outcome dependencies
+must identify earlier measured nodes. The exporters support branches in X, Y,
+and XY. Bind the parameters of imported gate circuits before converting them.

@@ -7,7 +7,6 @@
 import numpy as np
 from typing import Union, List
 import galois
-import copy
 
 __all__ = ["PauliOp"]
 
@@ -54,16 +53,16 @@ class PauliOp:
         """Initialize a PauliOp object."""
 
         if isinstance(op, np.ndarray):
-            if op.shape[1] % 2 != 0:
+            if op.ndim != 2 or op.shape[1] % 2 != 0:
                 raise ValueError(
-                    "Tableau representation must have an even number of columns"
+                    "Tableau representation must be a matrix with an even number of columns"
                 )
             self.matrix = GF(op)
             self.txt = self._mat_to_txt(op)
 
         elif isinstance(op, str):
             op = op.replace(" ", "")
-            if op[-1] == ";":
+            if op.endswith(";"):
                 op = op[:-1]
 
             op_list = op.split(";")
@@ -89,7 +88,7 @@ class PauliOp:
         if self.matrix.shape[0] == 1:
             self._array = [self]
         else:
-            self._array = [PauliOp(op) for op in self.txt.split("\n") if op != ""]
+            self._array = [PauliOp(row[None, :]) for row in self.matrix]
 
     def __repr__(self):
         return self.txt
@@ -98,17 +97,23 @@ class PauliOp:
         return self.matrix.shape[0]
 
     def __getitem__(self, key):
-        paulis = self._array[key]
         if isinstance(key, slice):
-            return PauliOp(";".join([pauli.txt for pauli in paulis]))
-        return paulis
+            return PauliOp(self.matrix[key])
+        return self._array[key]
 
     def __mul__(self, other: "PauliOp"):
-        """Returns the product of two Pauli operators."""
+        """Return the product of two Pauli operators modulo global phase."""
+        if self.number_of_qubits != other.number_of_qubits:
+            raise ValueError("Pauli operators must act on the same number of qubits.")
         new_matrix = GF(self.matrix) + GF(other.matrix)
         return PauliOp(new_matrix)
 
     def __contains__(self, item: "PauliOp"):
+        if (
+            not isinstance(item, PauliOp)
+            or self.number_of_qubits != item.number_of_qubits
+        ):
+            return False
         for row in item.matrix:
             if not np.any((self.matrix == row).all(axis=1)):
                 return False
@@ -118,7 +123,9 @@ class PauliOp:
         return hash(str(self.matrix))
 
     def __eq__(self, other: "PauliOp"):
-        return np.all(self.matrix == other.matrix)
+        if not isinstance(other, PauliOp):
+            return NotImplemented
+        return np.array_equal(self.matrix, other.matrix)
 
     def _mat_to_txt(self, op):
         n_qubits = op.shape[1] // 2
@@ -138,6 +145,8 @@ class PauliOp:
         return txt
 
     def _txt_to_mat(self, op_list):
+        if not op_list or any(not set(op) <= set("IXYZ") for op in op_list):
+            raise ValueError("Pauli strings must contain only I, X, Y and Z.")
         n_qubits = len(op_list[0])
         n_ops = len(op_list)
 
@@ -204,8 +213,8 @@ class PauliOp:
             op = mp.PauliOp('XIZ;ZII;IIZ;IZI')
             print(op.get_subset([0, 2]))
         """
-        inds = indices.copy()
-        if max(inds) >= self.matrix.shape[1] // 2:
+        inds = list(indices)
+        if any(not 0 <= i < self.number_of_qubits for i in inds):
             raise ValueError("Index out of range")
 
         inds += [i + self.matrix.shape[1] // 2 for i in inds]

@@ -20,9 +20,7 @@ def jax_gradient(cost, x, *args, **kwargs):
     Returns:
         jnp.ndarray: Gradient of the cost function.
     """
-    return jax.grad(lambda x_: cost(x_, *args, **kwargs))(
-        jnp.asarray(x, dtype=jnp.float64)
-    )
+    return jax.grad(lambda x_: cost(x_, *args, **kwargs))(jnp.asarray(x, dtype=float))
 
 
 def jax_value_and_gradient(cost, x, *args, **kwargs):
@@ -36,7 +34,7 @@ def jax_value_and_gradient(cost, x, *args, **kwargs):
         tuple: (cost_value, gradient)
     """
     return jax.value_and_grad(lambda x_: cost(x_, *args, **kwargs))(
-        jnp.asarray(x, dtype=jnp.float64)
+        jnp.asarray(x, dtype=float)
     )
 
 
@@ -51,5 +49,5 @@ def jax_hessian(cost, x, *args, **kwargs):
         jnp.ndarray: Hessian matrix of the cost function.
     """
     return jax.hessian(lambda x_: cost(x_, *args, **kwargs))(
-        jnp.asarray(x, dtype=jnp.float64)
+        jnp.asarray(x, dtype=float)
     )

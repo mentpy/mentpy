@@ -338,7 +338,13 @@ def test_nontrivial_autodiff_jit_and_training():
     evaluate = jax.jit(jax.value_and_grad(cost))
     value, gradient = evaluate(angles)
     assert np.linalg.norm(gradient) > 0.1
-    reference = mp.gradients.get_gradient(cost, np.asarray(angles), method="fd", h=1e-5)
+    numpy_sim = mp.PatternSimulator(pattern)
+    reference = mp.gradients.get_gradient(
+        lambda a: numpy_sim.expectation(a, observable),
+        np.asarray(angles, dtype=float),
+        method="fd",
+        h=1e-5,
+    )
     shifted = mp.gradients.get_gradient(cost, np.asarray(angles), method="psr")
     np.testing.assert_allclose(gradient, reference, atol=1e-6)
     np.testing.assert_allclose(gradient, shifted, atol=1e-6)
@@ -382,11 +388,29 @@ def test_cached_gradient_respects_input_and_observable_changes():
     sim.reset(np.array([1.0, 0.0]))
     value, grad = sim.expectation_and_grad(angles, observable)
     np.testing.assert_allclose(value, sim.expectation(angles, observable))
+    numpy_sim = mp.PatternSimulator(pattern, input_state=np.array([1.0, 0.0]))
     reference = mp.gradients.get_gradient(
-        lambda a: sim.expectation(a, observable), angles, method="fd"
+        lambda a: numpy_sim.expectation(a, observable), angles, method="fd"
     )
     np.testing.assert_allclose(grad, reference, atol=1e-6)
     observable.add_term("Z", 1)
     changed, changed_grad = sim.expectation_and_grad(angles, observable)
     np.testing.assert_allclose(changed, 2 * value)
     np.testing.assert_allclose(changed_grad, 2 * grad)
+
+
+def test_impossible_postselection_fails_eager_and_compiled():
+    graph = mp.GraphState()
+    graph.add_nodes_from([0, 1])
+    pattern = mp.MBQCircuit(graph, [0], [1], initialize_flow=False)
+    sim = mp.PatternSimulator(
+        pattern, [1 / np.sqrt(2), -1 / np.sqrt(2)], backend="jax-tn"
+    )
+    with pytest.raises(ValueError, match="zero probability"):
+        sim.run([0.0])
+    execute = jax.jit(sim.run)
+    np.testing.assert_allclose(
+        execute(jnp.array([np.pi])).block_until_ready(), np.ones((2, 2)) / 2
+    )
+    with pytest.raises(RuntimeError, match="zero probability"):
+        execute(jnp.array([0.0])).block_until_ready()

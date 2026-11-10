@@ -7,10 +7,6 @@
 import numpy as np
 import scipy
 
-from functools import reduce
-
-from mentpy.operators import gates
-
 __all__ = [
     "generate_haar_random_states",
     "generate_random_dataset",
@@ -22,14 +18,13 @@ __all__ = [
 def _generate_haar_random_state(n_qubits: int) -> np.ndarray:
     r"""Makes one Haar random state over n_qubits"""
 
-    zero_list = n_qubits * [np.array([1, 0])]
-    ket_zeros = reduce(np.kron, zero_list).reshape((1, 2**n_qubits))
-    haar_random_u = gates.random_su(n_qubits)
-    return (haar_random_u @ ket_zeros.T).T[0]
+    real, imaginary = np.random.standard_normal((2, 2**n_qubits))
+    state = real + 1j * imaginary
+    return state / np.linalg.norm(state)
 
 
 def generate_haar_random_states(n_qubits: int, n_samples: int = 1) -> np.ndarray:
-    r"""Makes one Haar random state over n_qubits
+    r"""Return a Haar random state, or a list when requesting multiple states.
 
     Group
     -----
@@ -53,7 +48,7 @@ def generate_random_dataset(
     utils
     """
     n_qubits = int(np.log2(unitary.shape[0]))
-    random_inputs = generate_haar_random_states(n_qubits, n_samples=n_samples)
+    random_inputs = [_generate_haar_random_state(n_qubits) for _ in range(n_samples)]
     random_targets = [(unitary @ st.T).T for st in random_inputs]
     return train_test_split(random_inputs, random_targets, test_size=test_size)
 
@@ -66,13 +61,25 @@ def train_test_split(inputs, targets, test_size: float = 0.3, randomize=False) -
     utils
     """
     n_samples = len(inputs)
+    if len(targets) != n_samples:
+        raise ValueError("Inputs and targets must have the same length.")
+    if not 0 <= test_size <= 1:
+        raise ValueError("test_size must be between 0 and 1.")
     n_test_samples = int(n_samples * test_size)
     n_train_samples = n_samples - n_test_samples
 
     if randomize:
         shuffled_indices = np.random.permutation(n_samples)
-        inputs = inputs[shuffled_indices]
-        targets = targets[shuffled_indices]
+        inputs = (
+            inputs[shuffled_indices]
+            if isinstance(inputs, np.ndarray)
+            else [inputs[i] for i in shuffled_indices]
+        )
+        targets = (
+            targets[shuffled_indices]
+            if isinstance(targets, np.ndarray)
+            else [targets[i] for i in shuffled_indices]
+        )
 
     return (inputs[:n_train_samples], targets[:n_train_samples]), (
         inputs[n_train_samples:],
@@ -120,21 +127,22 @@ def generate_random_dataset_noisy(
     """
     if noise_level > 1 or noise_level < 0:
         raise ValueError("noise_level must be between 0 and 1")
+    if noise_type not in {"brownian", "bitflip"}:
+        raise ValueError(f"Unsupported noise type: {noise_type}.")
 
     n_qubits = int(np.log2(unitary.shape[0]))
-    random_inputs = generate_haar_random_states(n_qubits, n_samples=n_samples)
-    n_samples = len(random_inputs)
-    n_test_samples = int(n_samples * test_size)
-    n_train_samples = n_samples - n_test_samples
+    random_inputs = [_generate_haar_random_state(n_qubits) for _ in range(n_samples)]
+    targets = [unitary @ state for state in random_inputs]
+    (train_inputs, _), (test_inputs, test_targets) = train_test_split(
+        random_inputs, targets, test_size=test_size
+    )
 
     random_targets_train = []
 
-    for curr_st in range(n_train_samples):
+    for state, target in zip(train_inputs, targets):
         if noise_type == "brownian":
             noise_u = randomUnitary_closetoid(2**n_qubits, noise_level, 20)
-            random_targets_train += [
-                (noise_u @ unitary @ np.conj(noise_u.T) @ random_inputs[curr_st].T).T
-            ]
+            random_targets_train += [noise_u @ unitary @ noise_u.conj().T @ state]
 
         elif noise_type == "bitflip":
             noise_u = 1
@@ -143,11 +151,6 @@ def generate_random_dataset_noisy(
                     noise_u = np.kron(noise_u, np.array([[0, 1], [1, 0]]))
                 else:
                     noise_u = np.kron(noise_u, np.eye(2))
-            random_targets_train += [(noise_u @ unitary @ random_inputs[curr_st].T).T]
+            random_targets_train.append(noise_u @ target)
 
-    random_targets_test = [(unitary @ st.T).T for st in random_inputs[n_train_samples:]]
-
-    return (random_inputs[:n_train_samples], random_targets_train), (
-        random_inputs[n_train_samples:],
-        random_targets_test,
-    )
+    return (train_inputs, random_targets_train), (test_inputs, test_targets)

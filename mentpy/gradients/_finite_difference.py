@@ -8,6 +8,8 @@ import numpy as np
 
 
 def fd_gradient(f, x, h=1e-5, type="central"):
+    if not np.isfinite(h) or h == 0:
+        raise ValueError("Finite-difference step must be finite and nonzero.")
     if type not in ["central", "forward", "backward"]:
         raise UserWarning(
             f"Expected type to be 'central', 'forward', or 'backward' but {type} was given"
@@ -34,6 +36,8 @@ def fd_gradient(f, x, h=1e-5, type="central"):
 
 
 def fd_hessian(f, x, h=1e-5, type="central"):
+    if not np.isfinite(h) or h == 0:
+        raise ValueError("Finite-difference step must be finite and nonzero.")
     if type not in ["central", "forward", "backward"]:
         raise UserWarning(
             f"Expected type to be 'central', 'forward', or 'backward' but {type} was given"

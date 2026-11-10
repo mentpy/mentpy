@@ -4,16 +4,13 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """PennyLane simulator for MBQC circuits."""
 
-from typing import Union, List, Tuple, Optional
-
-import numpy as np
-
-from mentpy.simulators.base_simulator import BaseSimulator
-from mentpy.mbqc.mbqcircuit import MBQCircuit
-from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
+from functools import reduce
+from operator import and_
 
 import pennylane as qml
-import networkx as nx
+
+from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
+from .numpy_simulator import NumpySimulator as PennylaneSimulator
 
 __all__ = ["PennylaneSimulator"]
 
@@ -28,87 +25,31 @@ def _prepare_state(state, wires):
         qml.QubitStateVector(state, wires=wires)
 
 
-class PennylaneSimulator(BaseSimulator):
-    """Simulator for measuring patterns of MBQC circuits.
-
-    Args
-    ----
-    mbqcircuit: mp.MBQCircuit
-        The MBQC circuit used for the simulation.
-    input_state: np.ndarray
-        The input state of the simulator.
-
-    See Also
-    --------
-    :class:`mp.PatternSimulator`, :class:`mp.CirqSimulator`
-
-    Group
-    -----
-    simulators
-    """
-
-    def __init__(
-        self, mbqcircuit: MBQCircuit, input_state: np.ndarray, *args, **kwargs
-    ) -> None:
-        self.circuit = mbqcircuit_to_circuit(
-            mbqcircuit,
-            kwargs.pop("device", "default.qubit"),
-            kwargs.pop("circuit_noise", None),
-            p=kwargs.pop("p", 0),
-        )
-        super().__init__(mbqcircuit, input_state)
-        self._angle_resolver = MeasurementAngleResolver(mbqcircuit)
-
-        if len(mbqcircuit.controlled_nodes) > 0:
-            raise NotImplementedError(
-                "Controlled nodes are not supported with the PennyLane simulator."
-            )
-
-    def measure(self, angle: float, plane: str = "XY"):
-        raise NotImplementedError(
-            "PennylaneSimulator runs complete MBQC patterns; single-step "
-            "measurement is not exposed for this backend."
-        )
-
-    def run(self, angles: List[float], **kwargs) -> Tuple[List[int], np.ndarray]:
-        if len(angles) != len(self.mbqcircuit.trainable_nodes):
-            raise ValueError(
-                f"Number of angles ({len(angles)}) does not match number of trainable nodes ({len(self.mbqcircuit.trainable_nodes)})."
-            )
-
-        extended_angles = [
-            self._angle_resolver.angle(i, angles, self.outcomes, xy=True)
-            for i in self.mbqcircuit.outputc
-        ]
-
-        return self.circuit(extended_angles, st=self.input_state, **kwargs)
-
-    def reset(self, input_state=None):
-        if input_state is None:
-            input_state = self.input_state
-        self.input_state = input_state
-
-
-def mbqcircuit_to_circuit(
-    gsc, device="default.qubit", circuit_noise=None, *args, **kwargs
-):
+def mbqcircuit_to_circuit(gsc, device=None, circuit_noise=None, *args, **kwargs):
     """Converts a MBQCircuit to a PennyLane circuit."""
     gr = gsc.graph
-    N = gr.number_of_nodes()
-    dev = qml.device(device, wires=N)
+    resolver = MeasurementAngleResolver(gsc)
+    resolver.validate_dependencies()
+    corrections = resolver._flow_corrections()
+    device = device or ("default.mixed" if circuit_noise else "default.qubit")
+    dev = qml.device(device, wires=list(gr))
+    n_angles = len(gsc.trainable_nodes)
+    positions = {node: i for i, node in enumerate(resolver.measurement_nodes)}
 
     @qml.qnode(dev)
     def circuit(param, output="density", st=None):
         if output != "density":
-            assert (
-                len(param) == N
-            ), f"Length of param is {len(param)}, but expected {N}."
+            raise ValueError(f"Unsupported PennyLane output {output!r}.")
+        if len(param) != n_angles:
+            if len(param) != len(positions):
+                raise ValueError(f"Expected {n_angles} trainable measurement angles.")
+            # Older exports accepted one entry per measurement.
+            param = [param[positions[node]] for node in gsc.trainable_nodes]
+        if st is None:
+            for node in gsc.input_nodes:
+                qml.Hadamard(node)
         else:
-            assert len(param) == N - len(
-                gsc.output_nodes
-            ), f"Length of param is {len(param)}, but expected {N-len(gsc.output_nodes)}."
-        input_v = st
-        _prepare_state(input_v, wires=gsc.input_nodes)
+            _prepare_state(st, wires=gsc.input_nodes)
 
         for j in gsc.inputc:
             qml.Hadamard(j)
@@ -116,7 +57,7 @@ def mbqcircuit_to_circuit(
             qml.CZ(wires=[i, j])
 
         if circuit_noise is not None:
-            for i in range(N):
+            for i in gr:
                 if circuit_noise == "depolarizing":
                     qml.DepolarizingChannel(wires=i, *args, **kwargs)
                 elif circuit_noise == "amplitude_damping":
@@ -130,32 +71,22 @@ def mbqcircuit_to_circuit(
                 else:
                     raise ValueError(f"Unrecognized circuit noise: {circuit_noise}")
 
-        topord_no_output = [
-            x for x in gsc.measurement_order if (x not in gsc.output_nodes)
-        ]
-        for indx in topord_no_output:
-            p = param[gsc.outputc.index(indx)]
+        outcomes = {}
+        for node in resolver.measurement_nodes:
+            for angle, controls in resolver._xy_rotations(node, param):
+                if controls:
+                    condition = reduce(
+                        and_, (outcomes[control] for control in controls)
+                    )
+                    qml.cond(condition, qml.RZ)(angle, wires=node)
+                else:
+                    qml.RZ(angle, wires=node)
+            qml.Hadamard(wires=node)
+            outcomes[node] = qml.measure(node)
+            for target, pauli in corrections.get(node, ()):
+                gate = qml.PauliX if pauli == "x" else qml.PauliZ
+                qml.cond(outcomes[node], gate)(wires=target)
 
-            qml.RZ(-p, wires=indx)
-            qml.Hadamard(wires=indx)
-            m_0 = qml.measure(indx)
-            qml.cond(m_0, qml.PauliX)(wires=gsc.flow(indx))
-            for neigh in gr.neighbors(gsc.flow(indx)):
-                if neigh != indx and (
-                    gsc.measurement_order.index(neigh)
-                    > gsc.measurement_order.index(indx)
-                ):
-                    qml.cond(m_0, qml.PauliZ)(wires=neigh)
-
-        # if output == "expval":
-        #     for indx, p in zip(gsc.output_nodes, param[len(gsc.outputc) :]):
-        #         qml.RZ(-p, wires=indx)
-        #     return [qml.expval(qml.PauliX(j)) for j in gsc.output_nodes]
-        # elif output == "sample":
-        #     for indx, p in zip(gsc.output_nodes, param[len(gsc.outputc) :]):
-        #         qml.RZ(-p, wires=indx)
-        #     return [qml.sample(qml.PauliX(j)) for j in gsc.output_nodes]
-        if output == "density":
-            return qml.density_matrix(gsc.output_nodes)
+        return qml.density_matrix(gsc.quantum_output_nodes)
 
     return circuit

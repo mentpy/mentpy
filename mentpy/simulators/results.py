@@ -11,6 +11,16 @@ import numpy as np
 __all__ = ["Samples"]
 
 
+def normalize_output_form(output_form):
+    if isinstance(output_form, str):
+        form = output_form.lower()
+        if form in {"sv", "statevector"}:
+            return "sv"
+        if form in {"dm", "densitymatrix", "density"}:
+            return "dm"
+    raise ValueError(f"Unsupported output form {output_form!r}.")
+
+
 def validate_shots(shots):
     if (
         isinstance(shots, (bool, np.bool_))

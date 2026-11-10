@@ -59,3 +59,17 @@ def test_frontier_handles_thousands_of_graph_nodes():
         sim.probabilities(np.zeros(2000), basis="X"), [1, 0], atol=1e-8
     )
     assert sim.max_frontier <= 3
+
+
+def test_numpy_shots_resample_adaptive_branches():
+    graph = mp.GraphState([("first", "middle"), ("middle", "out")])
+    pattern = mp.MBQCircuit(graph, ["first"], ["out"], relabel_indices=False)
+    pattern["first"] = mp.Ment("X")
+    pattern["middle"] = mp.ControlMent(~pattern["first"].outcome, true_angle=np.pi)
+    sim = mp.PatternSimulator(pattern, [1, 0], force0=False)
+    shots = sim.sample(shots=64, seed=19)
+    assert set(shots.counts) == {"0", "1"}
+    assert shots.counts == sim.sample(shots=64, seed=19).counts
+    estimate = sim.expectation([], "Z", shots=512, seed=17)
+    assert abs(estimate) < 0.15
+    assert estimate == sim.expectation([], "Z", shots=512, seed=17)
