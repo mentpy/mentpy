@@ -3,9 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-.. image:: ./_static/logo.png
-   :align: center
-   :width: 70%
+.. container:: mentpy-logo-light
+
+   .. image:: _static/logo-light.png
+      :alt: MentPy
+      :align: center
+      :width: 70%
+
+.. container:: mentpy-logo-dark
+
+   .. image:: _static/logo.png
+      :alt: MentPy
+      :align: center
+      :width: 70%
 
 Welcome to MentPy's documentation
 =================================
