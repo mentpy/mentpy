@@ -122,6 +122,15 @@ by default. For example:
        parameters=[0.0] * len(mbqc_circuit.trainable_nodes),
    )
 
+CUDA-Q exports run with ``cudaq.run``. Each shot contains the intermediate
+outcomes in measurement order, followed by the Z-basis output bits in
+``quantum_output_nodes`` order. Pass the trainable angles as one list.
+
+.. code-block:: python
+
+   angles = [0.0] * len(mbqc_circuit.trainable_nodes)
+   shots = cudaq.run(cudaq_kernel, angles, shots_count=256)
+
 Compile circuits with PyZX
 --------------------------
 

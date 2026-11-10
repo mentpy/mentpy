@@ -45,6 +45,7 @@ cuda12 = [
     "opt-einsum>=3.3.0"
 ]
 cudaq = [
+    "sympy>=1.12",
     "cudaq>=0.14.2; python_version >= '3.11' and (platform_system == 'Linux' or (platform_system == 'Darwin' and platform_machine == 'arm64'))",
     "cuda-quantum-cu13>=0.14.2; python_version >= '3.11' and (platform_system == 'Linux' or (platform_system == 'Darwin' and platform_machine == 'arm64'))"
 ]

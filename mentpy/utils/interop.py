@@ -4,7 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Optional interoperability helpers."""
 
-from contextlib import ExitStack
+from functools import reduce
 
 import numpy as np
 
@@ -367,6 +367,9 @@ def to_cudaq(obj, wire_order=None, parameters=None):
     lowered to a CUDA-Q kernel with graph preparation, adaptive measurements,
     and classically controlled flow corrections. Trainable measurement angles
     become a single list argument unless concrete ``parameters`` are supplied.
+    Execute the kernel with ``cudaq.run`` to get one bit list per shot. Each
+    list contains the intermediate outcomes in measurement order, followed by
+    measurements in the Z basis in quantum-output-node order.
     """
     cudaq = _require("cudaq", "CUDA-Q")
     if _is_mbqcircuit(obj):
@@ -1028,6 +1031,7 @@ def _mbqcircuit_to_qiskit(
     """Lower an MBQC pattern to a dynamic Qiskit circuit."""
     from qiskit import QuantumCircuit
     from qiskit.circuit import ParameterVector
+    from qiskit.circuit.classical import expr
 
     from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 
@@ -1060,12 +1064,15 @@ def _mbqcircuit_to_qiskit(
     for node in measurement_nodes:
         qubit = node_to_qubit[node]
         for angle, controls in resolver._xy_rotations(node, angle_values):
-            with ExitStack() as conditions:
-                for control in controls:
-                    conditions.enter_context(
-                        out.if_test((out.clbits[classical_bit[control]], 1))
-                    )
+            bits = [out.clbits[classical_bit[control]] for control in controls]
+            if not bits:
                 out.rz(angle, qubit)
+            else:
+                condition = (
+                    (bits[0], 1) if len(bits) == 1 else reduce(expr.logic_and, bits)
+                )
+                with out.if_test(condition):
+                    out.rz(angle, qubit)
         out.h(qubit)
         out.measure(qubit, classical_bit[node])
         for target, pauli in corrections.get(node, ()):
@@ -1086,100 +1093,72 @@ def _qiskit_mbqc_qubit_indices(nodes, qubit_order):
 
 
 def _mbqcircuit_to_cudaq(cudaq, mbqcircuit, qubit_order=None, parameters=None):
-    """Lower an MBQC pattern to a CUDA-Q dynamic kernel."""
+    """Lower an MBQC pattern to a CUDA-Q kernel with native feed-forward."""
     from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 
-    if not hasattr(cudaq, "make_kernel"):
-        raise ImportError("CUDA-Q make_kernel API is required for MBQC export.")
+    n_angles = len(mbqcircuit.trainable_nodes)
+    signature = ""
+    if parameters is None and n_angles:
+        from sympy import Symbol
 
-    if parameters is None and len(mbqcircuit.trainable_nodes) > 0:
-        made = cudaq.make_kernel(list)
-        kernel, angle_values = made[0], made[1]
+        signature = "theta: list[float]"
+        angles = [Symbol(f"theta_{i}") for i in range(n_angles)]
     else:
-        kernel = cudaq.make_kernel()
-        if parameters is None:
-            angle_values = []
-        else:
-            angle_values = list(parameters)
-            if len(angle_values) != len(mbqcircuit.trainable_nodes):
-                raise ValueError(
-                    "parameters length must match the number of trainable nodes."
-                )
+        angles = [] if parameters is None else [float(angle) for angle in parameters]
+        if len(angles) != n_angles:
+            raise ValueError(
+                "parameters length must match the number of trainable nodes."
+            )
+        if not np.all(np.isfinite(angles)):
+            raise ValueError("parameters must contain finite angles.")
 
-    nodes = list(mbqcircuit.graph.nodes())
+    nodes = list(mbqcircuit.graph)
+    if not nodes:
+        raise ValueError("CUDA-Q export requires at least one qubit.")
     indices = _qiskit_mbqc_qubit_indices(nodes, qubit_order)
-    qubits = kernel.qalloc(len(nodes))
-    qubit_by_node = {node: qubits[index] for node, index in indices.items()}
-
-    for node in mbqcircuit.inputc:
-        _cudaq_apply_kernel_gate(kernel, "h", qubit_by_node[node])
-    for u, v in mbqcircuit.graph.edges:
-        _cudaq_apply_two_qubit_gate(kernel, "cz", qubit_by_node[u], qubit_by_node[v])
+    qubits = {node: f"q[{index}]" for node, index in indices.items()}
+    lines = [
+        f"def mbqc({signature}) -> list[bool]:",
+        f"    q = cudaq.qvector({len(nodes)})",
+    ]
+    if signature:
+        lines.extend(f"    {angle} = theta[{i}]" for i, angle in enumerate(angles))
+    lines.extend(f"    h({qubits[node]})" for node in mbqcircuit.inputc)
+    lines.extend(
+        f"    z.ctrl({qubits[u]}, {qubits[v]})" for u, v in mbqcircuit.graph.edges
+    )
 
     resolver = MeasurementAngleResolver(mbqcircuit)
     resolver.validate_dependencies()
     corrections = resolver._flow_corrections()
     outcomes = {}
     for i, node in enumerate(resolver.measurement_nodes):
-        qubit = qubit_by_node[node]
-        for angle, controls in resolver._xy_rotations(node, angle_values):
-            _cudaq_when(
-                kernel,
-                [outcomes[control] for control in controls],
-                lambda: _cudaq_apply_kernel_gate(kernel, "rz", angle, qubit),
+        qubit = qubits[node]
+        for angle, controls in resolver._xy_rotations(node, angles):
+            if controls:
+                condition = " and ".join(outcomes[control] for control in controls)
+                lines.extend([f"    if {condition}:", f"        rz({angle}, {qubit})"])
+            else:
+                lines.append(f"    rz({angle}, {qubit})")
+        outcome = f"m{i}"
+        lines.extend([f"    h({qubit})", f"    {outcome} = mz({qubit})"])
+        outcomes[node] = outcome
+        if corrections.get(node):
+            lines.append(f"    if {outcome}:")
+            lines.extend(
+                f"        {pauli}({qubits[target]})"
+                for target, pauli in corrections[node]
             )
-        _cudaq_apply_kernel_gate(kernel, "h", qubit)
-        outcomes[node] = _cudaq_measure_z(kernel, qubit, f"m{i}")
-        for target, pauli in corrections.get(node, ()):
-            _cudaq_when(
-                kernel,
-                [outcomes[node]],
-                lambda: _cudaq_apply_kernel_gate(kernel, pauli, qubit_by_node[target]),
-            )
 
-    return kernel
-
-
-def _cudaq_apply_kernel_gate(kernel, name, *args):
-    gate = getattr(kernel, name, None)
-    if gate is None:
-        raise NotImplementedError(f"CUDA-Q Kernel API does not expose {name}.")
-    return gate(*args)
-
-
-def _cudaq_apply_two_qubit_gate(kernel, name, left, right):
-    gate = getattr(kernel, name, None)
-    if gate is not None:
-        return gate(left, right)
-
-    fallback = {
-        "cz": "z",
-        "cx": "x",
-    }.get(name)
-    if fallback is not None:
-        controlled_gate = getattr(kernel, fallback, None)
-        if controlled_gate is not None and hasattr(controlled_gate, "ctrl"):
-            return controlled_gate.ctrl(left, right)
-
-    raise NotImplementedError(f"CUDA-Q Kernel API does not expose {name}.")
-
-
-def _cudaq_measure_z(kernel, qubit, key):
-    try:
-        return kernel.mz(qubit, key)
-    except TypeError:
-        return kernel.mz(qubit)
-
-
-def _cudaq_when(kernel, conditions, operation):
-    if not conditions:
-        return operation()
-    if not hasattr(kernel, "c_if"):
-        raise NotImplementedError(
-            "CUDA-Q export requires c_if for adaptive measurements."
-        )
-    first, *rest = conditions
-    return kernel.c_if(first, lambda: _cudaq_when(kernel, rest, operation))
+    result = list(outcomes.values())
+    for i, node in enumerate(mbqcircuit.quantum_output_nodes):
+        name = f"out{i}"
+        lines.append(f"    {name} = mz({qubits[node]})")
+        result.append(name)
+    lines.append(f"    return [{', '.join(result)}]")
+    return cudaq.PyKernelDecorator(
+        "\n".join(lines), kernelName="mbqc", location=("<MentPy CUDA-Q kernel>", 1)
+    )
 
 
 def _cudaq_kernel_to_mbqc(
