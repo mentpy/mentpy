@@ -19,6 +19,8 @@ classifiers = [
 ]
 dependencies = [
     "galois>=0.3.7", 
+    # Numba 0.62 is the last release with Intel macOS binary wheels.
+    "numba<0.63; platform_system == 'Darwin' and platform_machine == 'x86_64'",
     "matplotlib>=3.8.2",
     "networkx>=3.2.1",
     "numpy>=1.25.2",
