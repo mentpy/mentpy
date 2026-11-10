@@ -7,6 +7,7 @@ from itertools import combinations, product
 
 import numpy as np
 import networkx as nx
+from mentpy import _rust
 
 __all__ = ["are_lc_equivalent"]
 
@@ -196,6 +197,13 @@ def are_lc_equivalent(graph1, graph2, clifford_form="tensor"):
         ``"tensor"`` returns one binary symplectic matrix per qubit.
         ``"global"`` returns the combined binary symplectic matrix.
 
+    Notes
+    -----
+    The packed GF(2) solve and certificate search run in Rust. Matching node
+    labels specify the qubit correspondence; otherwise insertion order is used.
+    This does not search over vertex permutations. Returned matrices encode
+    Clifford action on Pauli labels modulo phase, not physical unitary matrices.
+
     Returns
     -------
     tuple
@@ -209,21 +217,21 @@ def are_lc_equivalent(graph1, graph2, clifford_form="tensor"):
         raise ValueError("clifford_form must be 'tensor' or 'global'.")
     graph1 = graph1 if isinstance(graph1, nx.Graph) else graph1.graph
     graph2 = graph2 if isinstance(graph2, nx.Graph) else graph2.graph
+    if any(
+        graph.is_directed() or graph.is_multigraph() or nx.number_of_selfloops(graph)
+        for graph in (graph1, graph2)
+    ):
+        raise ValueError(
+            "Local Clifford equivalence requires simple undirected graphs."
+        )
     if not len(graph1) or len(graph1) != len(graph2):
         return False, None
     nodes = list(graph1)
     matching_nodes = nodes if set(graph1) == set(graph2) else None
-    G = nx.to_numpy_array(graph1, nodelist=nodes, dtype=int, weight=None)
-    H = nx.to_numpy_array(graph2, nodelist=matching_nodes, dtype=int, weight=None)
-
-    # perform algorithm to search for solution
-    #
-    # construct system of constraints for two adjacency matrices G and H
-    system = lc_constraint_system(G, H)
-    # construct nullspace basis of system of constraints
-    nullspace = nullspace_basis(system)
-    # search nullspace for solution vector
-    solution_vector = search_nullspace(nullspace)
+    G = nx.to_numpy_array(graph1, nodelist=nodes, dtype=np.uint8, weight=None)
+    H = nx.to_numpy_array(graph2, nodelist=matching_nodes, dtype=np.uint8, weight=None)
+    result = _rust.lc_equivalent(G.tobytes(), H.tobytes(), len(nodes))
+    solution_vector = None if result is None else np.frombuffer(result, dtype=np.uint8)
 
     # if graphs are not equivalent set clifford_output to None
     if solution_vector is None:

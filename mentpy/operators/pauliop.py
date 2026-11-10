@@ -4,6 +4,8 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Module for representing Pauli operators."""
 
+import operator
+
 import numpy as np
 from typing import Union, List
 import galois
@@ -85,11 +87,6 @@ class PauliOp:
                 "PauliOp must be initialized with a string or a numpy array"
             )
 
-        if self.matrix.shape[0] == 1:
-            self._array = [self]
-        else:
-            self._array = [PauliOp(row[None, :]) for row in self.matrix]
-
     def __repr__(self):
         return self.txt
 
@@ -99,7 +96,12 @@ class PauliOp:
     def __getitem__(self, key):
         if isinstance(key, slice):
             return PauliOp(self.matrix[key])
-        return self._array[key]
+        index = operator.index(key)
+        if not -len(self) <= index < len(self):
+            raise IndexError("Pauli operator index out of range")
+        if len(self) == 1:
+            return self
+        return PauliOp(self.matrix[index][None, :])
 
     def __mul__(self, other: "PauliOp"):
         """Return the product of two Pauli operators modulo global phase."""
@@ -128,40 +130,20 @@ class PauliOp:
         return np.array_equal(self.matrix, other.matrix)
 
     def _mat_to_txt(self, op):
-        n_qubits = op.shape[1] // 2
-        txt = ""
-        for i in range(op.shape[0]):
-            for j in range(op.shape[1] // 2):
-                if op[i, j] == 1 and op[i, j + n_qubits] == 0:
-                    txt += "X"
-                elif op[i, j] == 0 and op[i, j + n_qubits] == 1:
-                    txt += "Z"
-                elif op[i, j] == 1 and op[i, j + n_qubits] == 1:
-                    txt += "Y"
-                else:
-                    txt += "I"
-                if j == n_qubits - 1 and i != op.shape[0] - 1:
-                    txt += "\n"
-        return txt
+        values = np.asarray(op, dtype=np.uint8)
+        n_qubits = values.shape[1] // 2
+        letters = np.frombuffer(b"IXZY", dtype=np.uint8)
+        text = letters[values[:, :n_qubits] + 2 * values[:, n_qubits:]]
+        return "\n".join(row.tobytes().decode("ascii") for row in text)
 
     def _txt_to_mat(self, op_list):
         if not op_list or any(not set(op) <= set("IXYZ") for op in op_list):
             raise ValueError("Pauli strings must contain only I, X, Y and Z.")
-        n_qubits = len(op_list[0])
-        n_ops = len(op_list)
-
-        mat = np.zeros((n_ops, 2 * n_qubits), dtype=int)
-
-        for i, op in enumerate(op_list):
-            for j, char in enumerate(op):
-                if char == "X":
-                    mat[i, j] = 1
-                elif char == "Z":
-                    mat[i, j + n_qubits] = 1
-                elif char == "Y":
-                    mat[i, j] = 1
-                    mat[i, j + n_qubits] = 1
-        return GF(mat)
+        letters = np.frombuffer("".join(op_list).encode("ascii"), dtype=np.uint8)
+        letters = letters.reshape(len(op_list), len(op_list[0]))
+        x = (letters == ord("X")) | (letters == ord("Y"))
+        z = (letters == ord("Z")) | (letters == ord("Y"))
+        return GF(np.concatenate((x, z), axis=1).astype(np.uint8))
 
     @property
     def number_of_qubits(self):

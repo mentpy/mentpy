@@ -84,3 +84,22 @@ def test_pauli_op_shapes_and_alphabet():
     assert PauliOp("X;Y")[:0].matrix.shape == (0, 2)
     with pytest.raises(ValueError, match="only I, X, Y and Z"):
         PauliOp("XA")
+
+
+def test_pauli_rows_round_trip_and_boundaries():
+    rng = np.random.default_rng(31)
+    matrix = rng.integers(0, 2, (100, 130), dtype=np.uint8)
+    op = PauliOp(matrix)
+    np.testing.assert_array_equal(PauliOp(op.txt.replace("\n", ";")).matrix, matrix)
+    assert len(list(op)) == 100
+    assert op[-1] == PauliOp(matrix[-1:])
+    assert op[np.int64(2)] == PauliOp(matrix[2:3])
+    np.testing.assert_array_equal(op[4:1:-1].matrix, matrix[4:1:-1])
+    for index in (-101, 100):
+        with pytest.raises(IndexError):
+            op[index]
+    with pytest.raises(TypeError):
+        op[0.5]
+    zero = PauliOp(np.empty((2, 0), dtype=int))
+    assert zero.txt == "\n"
+    assert len(list(zero)) == 2
