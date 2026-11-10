@@ -76,3 +76,45 @@ def test_pattern_simulator_expectation_exact_and_shots():
 
     assert np.allclose(exact, 1.0)
     assert np.allclose(sampled, 1.0)
+
+
+@pytest.mark.parametrize("backend", ["numpy-sv", "numpy-dm"])
+def test_numpy_minimal_pattern_and_repeated_runs(backend):
+    pattern = mp.templates.linear_cluster(2)
+    sim = mp.PatternSimulator(pattern, np.array([1, 0]), backend=backend)
+    expected = np.ones((2, 2)) / 2
+    np.testing.assert_allclose(sim.run([0.0]), expected)
+    np.testing.assert_allclose(sim.run([0.0]), expected)
+
+
+def test_numpy_sv_does_not_project_removed_qubit_twice():
+    pattern = mp.templates.linear_cluster(3)
+    sim = mp.PatternSimulator(pattern, np.array([1, 0]), backend="numpy-sv")
+    state = sim.run([np.pi, 0], output_form="sv")
+    np.testing.assert_allclose(np.abs(state) ** 2, [1, 0], atol=1e-12)
+
+
+@pytest.mark.parametrize("backend", ["numpy-sv", "numpy-dm"])
+def test_numpy_window_covers_all_graph_edges(backend):
+    pattern = mp.templates.muta(2, 1)
+    angles = np.linspace(0.2, 1.0, len(pattern.trainable_nodes))
+    expected = mp.PatternSimulator(pattern, backend="trajectory").run(angles)
+    sim = mp.PatternSimulator(pattern, backend=backend)
+    np.testing.assert_allclose(sim.run(angles), expected, atol=1e-12)
+    with pytest.raises(ValueError, match="invalid for this schedule"):
+        mp.PatternSimulator(pattern, backend=backend, window_size=3)
+
+
+def test_numpy_sv_reduces_measured_output():
+    pattern = mp.templates.linear_cluster(3)
+    pattern[2] = mp.Ment("X")
+    sim = mp.PatternSimulator(pattern, backend="numpy-sv")
+    np.testing.assert_allclose(sim.run([0, 0]), [[1]])
+    assert sim.outcomes == {0: 0, 1: 0, 2: 0}
+
+
+def test_pennylane_supports_named_nodes():
+    graph = mp.GraphState([("left", "middle"), ("middle", "right")])
+    pattern = mp.MBQCircuit(graph, ["left"], ["right"], relabel_indices=False)
+    sim = mp.PatternSimulator(pattern, np.array([1, 0]), backend="pennylane")
+    np.testing.assert_allclose(sim.run([0, 0]), [[1, 0], [0, 0]], atol=1e-12)

@@ -2,6 +2,7 @@
 .vscode/settings.json
 
 # docs
+.DS_Store
 docs/_build/
 docs/savefig/
 docs/api/

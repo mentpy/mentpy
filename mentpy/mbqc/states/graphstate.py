@@ -45,6 +45,8 @@ class GraphState(nx.Graph):
         return self.number_of_nodes()
 
     def __eq__(self, other):
+        if not isinstance(other, nx.Graph):
+            return NotImplemented
         return nx.is_isomorphic(self, other)
 
     def index_mapping(self):
@@ -82,10 +84,10 @@ def entanglement_entropy(
     mbqc
     """
     nodes = list(state.nodes())
-    node_index = {node: index for index, node in enumerate(nodes)}
     subRegionA = _as_node_list(subRegionA)
+    region_a = set(subRegionA)
     subRegionB = (
-        [node for node in nodes if node not in set(subRegionA)]
+        [node for node in nodes if node not in region_a]
         if subRegionB is None
         else _as_node_list(subRegionB)
     )
@@ -98,10 +100,10 @@ def entanglement_entropy(
     if missing:
         raise ValueError(f"Subregions contain nodes not in the graph: {missing}.")
 
-    adjacency = nx.to_numpy_array(state, nodelist=nodes, dtype=np.uint8) % 2
-    rows = [node_index[node] for node in subRegionA]
-    cols = [node_index[node] for node in subRegionB]
-    cut_matrix = adjacency[np.ix_(rows, cols)]
+    cut_matrix = np.zeros((len(subRegionA), len(subRegionB)), dtype=np.uint8)
+    columns = {node: i for i, node in enumerate(subRegionB)}
+    for i, node in enumerate(subRegionA):
+        cut_matrix[i, [columns[v] for v in state[node] if v in columns]] = 1
     return float(_gf2_rank(cut_matrix))
 
 
@@ -134,9 +136,9 @@ def _gf2_rank(matrix):
     return rank
 
 
-def _get_stabilizers(graph: GraphState) -> List[PauliOp]:
+def _get_stabilizers(graph: GraphState) -> PauliOp:
     """Generate the stabilizers of a graph state."""
-    z_mat = nx.adjacency_matrix(graph).todense()
+    z_mat = nx.to_numpy_array(graph, dtype=int, weight=None)
     x_mat = np.eye(graph.number_of_nodes(), dtype=int)
 
     return PauliOp(np.hstack((x_mat, z_mat)))

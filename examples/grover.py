@@ -62,7 +62,7 @@ def simulate(qasm, n=5):
     pattern = mp.from_qasm(qasm)
     initial = np.zeros(2**n)
     initial[0] = 1
-    sim = mp.PatternSimulator(pattern, input_state=initial, backend="trajectory")
+    sim = mp.PatternSimulator(pattern, input_state=initial, backend="numpy")
     probabilities = sim.probabilities()
     samples = sim.sample(shots=4096, seed=7)
     return pattern, probabilities, samples

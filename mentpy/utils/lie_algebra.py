@@ -5,6 +5,7 @@
 """A module for calculating the Lie algebra of a given MBQC circuit"""
 
 from itertools import combinations
+from collections import deque
 
 import numpy as np
 from mentpy import MBQCircuit, PauliOp
@@ -190,14 +191,14 @@ def lie_algebra_completion(generators: PauliOp, max_iter: int = 1000):
     """
     lieAlg = copy.deepcopy(generators)
     already_commutated = set()
-    queue = [(i, j) for i, j in combinations(lieAlg, 2)]
+    queue = deque(combinations(lieAlg, 2))
     iter = 0
     while iter < max_iter and queue:
         iter += 1
-        x, y = queue.pop(0)
-        if (x, y) not in already_commutated and (y, x) not in already_commutated:
-            already_commutated.add((x, y))
-            already_commutated.add((y, x))
+        x, y = queue.popleft()
+        pair = tuple(sorted((x.txt, y.txt)))
+        if pair not in already_commutated:
+            already_commutated.add(pair)
             newOp = x.commutator(y)
             if isinstance(newOp, PauliOp):
                 if newOp not in lieAlg:

@@ -15,6 +15,35 @@ from .results import Samples, measurement_probabilities, validate_shots
 __all__ = ["BaseSimulator"]
 
 
+def _window_size(circuit, schedule, measurements, size):
+    """Validate a sliding window and choose the smallest complete default."""
+    n = len(circuit)
+    if len(schedule) != n or set(schedule) != set(circuit.graph):
+        raise ValueError("Schedule must contain every graph node once.")
+    n_inputs = len(circuit.input_nodes)
+    if set(schedule[:n_inputs]) != set(circuit.input_nodes):
+        raise ValueError("NumPy schedules must start with all input nodes.")
+
+    if list(schedule[: len(measurements)]) != measurements:
+        raise ValueError(
+            "NumPy schedules must place measurements before quantum outputs."
+        )
+    positions = {node: i for i, node in enumerate(schedule)}
+    minimum = max(
+        n_inputs,
+        n - len(measurements),
+        max(
+            (abs(positions[u] - positions[v]) + 1 for u, v in circuit.graph.edges),
+            default=0,
+        ),
+    )
+    if not max(minimum, min(n, 1)) <= size <= n:
+        raise ValueError(
+            f"Window size {size} is invalid for this schedule; use {minimum} to {n} nodes."
+        )
+    return size
+
+
 class BaseSimulator(abc.ABC):
     """Base class for simulators.
 
@@ -31,7 +60,7 @@ class BaseSimulator(abc.ABC):
 
     See Also
     --------
-    :class:`mp.PatternSimulator`, :class:`mp.PennylaneSimulator`, :class:`mp.CirqSimulator`
+    :class:`mp.PatternSimulator`, :class:`mp.NumpySimulator`
 
     Group
     -----
@@ -111,15 +140,10 @@ class BaseSimulator(abc.ABC):
         basis = "Z" * n if basis is None else basis.upper()
         if len(basis) != n or not set(basis) <= set("IXYZ"):
             raise ValueError("basis must contain one I, X, Y or Z per output.")
-        self.reset()
-        try:
-            if not self._statevector_output:
-                state = self.run(angles, **kwargs)
-            else:
-                state = self.run(angles, output_form="sv", **kwargs)
-            return measurement_probabilities(state, basis)
-        finally:
-            self.reset()
+        kwargs.pop("output_form", None)
+        if self._statevector_output:
+            kwargs["output_form"] = "sv"
+        return measurement_probabilities(self.run(angles, **kwargs), basis)
 
     def sample(self, angles=(), *, shots=1024, basis=None, seed=None, **kwargs):
         """Draw finite output shots. Intermediate-state simulation remains exact.
@@ -131,7 +155,10 @@ class BaseSimulator(abc.ABC):
         shots = validate_shots(shots)
         nodes = tuple(self.mbqcircuit.quantum_output_nodes)
         basis = "Z" * len(nodes) if basis is None else basis.upper()
-        probs = self.probabilities(angles, basis=basis, **kwargs)
+        probs = np.asarray(
+            self.probabilities(angles, basis=basis, **kwargs), dtype=float
+        )
+        probs = probs / probs.sum()
         indices = np.random.default_rng(seed).choice(len(probs), size=shots, p=probs)
         shifts = np.arange(len(nodes) - 1, -1, -1)
         bits = (indices[:, None] >> shifts) & 1
@@ -142,17 +169,13 @@ class BaseSimulator(abc.ABC):
         if not isinstance(observable, Observable):
             observable = Observable(observable)
 
-        self.reset()
-        try:
-            if self._statevector_output:
-                state = self.run(angles, output_form="sv", **kwargs)
-            else:
-                state = self.run(angles, **kwargs)
-            if shots is None:
-                return observable.expectation(state)
-            return observable.sample_expectation(state, shots=shots, seed=seed)
-        finally:
-            self.reset()
+        kwargs.pop("output_form", None)
+        if self._statevector_output:
+            kwargs["output_form"] = "sv"
+        state = self.run(angles, **kwargs)
+        if shots is None:
+            return observable.expectation(state)
+        return observable.sample_expectation(state, shots=shots, seed=seed)
 
     @abc.abstractmethod
     def reset(self, input_state=None):

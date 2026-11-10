@@ -70,10 +70,9 @@ class Flow:
     def _initialize_layers(self, layers):
         """Initializes layers and measurement order based on the provided layers dict."""
         if layers:
-            self.layers = [
-                [n for n, l in layers.items() if l == j]
-                for j in range(max(layers.values()) + 1)
-            ][::-1]
+            self.layers = [[] for _ in range(max(layers.values()) + 1)]
+            for node, layer in layers.items():
+                self.layers[-1 - layer].append(node)
             order = [item for sublist in self.layers for item in sublist]
             for i in self.input_nodes[::-1]:
                 order.remove(i)
@@ -85,19 +84,27 @@ class Flow:
 
     def _find_flow(self):
         """Attempts to find various types of flow, prioritizing causal flow, then generalized, then pflow."""
-        flow_function, partial_order, depth, layers = find_cflow(
-            self.graph, self.input_nodes, self.output_nodes
-        )
-        name = "cFlow"
-
-        if flow_function is None:
-            flow_function, partial_order, depth, layers = find_gflow(
+        flow_function = partial_order = depth = layers = None
+        name = "No Flow "
+        planes = self.planes or {}
+        output_nodes = set(self.output_nodes)
+        if all(
+            callable(plane) or plane in {"XY", "X", "Y"}
+            for node, plane in planes.items()
+            if node not in output_nodes
+        ):
+            flow_function, partial_order, depth, layers = find_cflow(
                 self.graph, self.input_nodes, self.output_nodes
             )
-            name = "gFlow"
+            name = "cFlow"
+            if flow_function is None:
+                flow_function, partial_order, depth, layers = find_gflow(
+                    self.graph, self.input_nodes, self.output_nodes
+                )
+                name = "gFlow"
 
         if flow_function is None and self.planes is not None:
-            condition, flow_function, layers = find_pflow(
+            _, flow_function, layers = find_pflow(
                 self.graph, self.input_nodes, self.output_nodes, self.planes
             )
             partial_order = lambda u, v: layers[u] > layers[v]
@@ -106,9 +113,11 @@ class Flow:
 
         if flow_function is None:
             warnings.warn(
-                "No flow found. The flow function will return None for all nodes."
+                "No flow found. The flow function will return None for all nodes.",
+                stacklevel=2,
             )
             name = "No Flow "
+            partial_order = None
 
         self.func = flow_function
         self.partial_order = partial_order
@@ -116,36 +125,35 @@ class Flow:
         self.name = name
         self._initialize_layers(layers)
 
+    def _corrections(self, node):
+        target = self(node)
+        if target is None:
+            raise ValueError("Correction operators require a flow.")
+        if self.name == "cFlow":
+            return {target}, set(self.graph.neighbors(target))
+        nodes = _ordered_graph_nodes(self.graph)
+        x = {nodes[i] for i in np.flatnonzero(target)}
+        return x, odd_neighborhood(self.graph, x)
+
     def correction_op(self, node):
-        """Returns the correction operator for a given node."""
-        n_nodes = self.graph.number_of_nodes()
-
-        # X corrections
-        f_node = self(node)
-        x_corrections = (
-            {f_node}
-            if isinstance(f_node, int)
-            else set(np.where(f_node.flatten() != 0)[0])
-        )
-
-        # Z corrections
-        z_corrections = odd_neighborhood(self.graph, x_corrections)
-
-        # Pauli op
-        pauli_op = np.zeros((1, 2 * n_nodes), dtype=int)
-        pauli_op[0, list(x_corrections)] = 1
-        pauli_op[0, n_nodes + np.array(list(z_corrections))] = 1
-
-        return PauliOp(pauli_op)
+        """Return the correction operator for a given node."""
+        nodes = _ordered_graph_nodes(self.graph)
+        indices = {vertex: i for i, vertex in enumerate(nodes)}
+        n = len(nodes)
+        x, z = self._corrections(node)
+        pauli = np.zeros((1, 2 * n), dtype=int)
+        pauli[0, [indices[v] for v in x]] = 1
+        pauli[0, [n + indices[v] for v in z]] = 1
+        return PauliOp(pauli)
 
     def generator_op(self, node):
         """Returns the generator operator for a given node."""
+        nodes = _ordered_graph_nodes(self.graph)
         op = self.correction_op(node)
         cond = False
         while not cond:
-            z_places = set(
-                op.matrix[0, self.graph.number_of_nodes() :].nonzero()[0]
-            ) - set(op.matrix[0, : self.graph.number_of_nodes()].nonzero()[0])
+            x, z = np.split(op.matrix[0], 2)
+            z_places = {nodes[i] for i in np.flatnonzero((z != 0) & (x == 0))}
             nodes_allowed = set([node, *self.output_nodes])
 
             z_mult = None
@@ -208,16 +216,13 @@ def find_cflow(graph, input_nodes, output_nodes) -> object:
         l[v] = 0
         past[v] = 0
 
-    for v in set(output_nodes) - set(input_nodes):
-        past[v] = len(
-            set(graph.neighbors(v)) & (set(graph.nodes() - set(output_nodes)))
-        )
+    inputs, outputs = set(input_nodes), set(output_nodes)
+    for v in outputs - inputs:
+        past[v] = sum(u not in outputs for u in graph.neighbors(v))
         if past[v] == 1:
-            C_set = C_set.union({v})
+            C_set.add(v)
 
-    flow, ln = causal_flow_aux(
-        graph, set(input_nodes), set(output_nodes), C_set, past, 1, g, l
-    )
+    flow, ln = causal_flow_aux(graph, inputs, outputs, C_set, past, 1, g, l)
 
     if len(flow) != len(graph.nodes()) - len(output_nodes):
         return None, None, None, None
@@ -232,18 +237,17 @@ def find_cflow(graph, input_nodes, output_nodes) -> object:
 
 def causal_flow_aux(graph, inputs, outputs, C, past, k, g, l) -> object:
     """Aux function for causal_flow"""
-    V = set(graph.nodes())
     while C:
         C_prime = set()
         for v in C:
-            intersection = set(graph.neighbors(v)) & (V - outputs)
+            intersection = {u for u in graph.neighbors(v) if u not in outputs}
             if len(intersection) == 1:
                 u = intersection.pop()
                 g[u] = v
                 l[u] = k
                 outputs.add(u)
                 if u not in inputs:
-                    past[u] = len(set(graph.neighbors(u)) & (V - outputs))
+                    past[u] = sum(w not in outputs for w in graph.neighbors(u))
                     if past[u] == 1:
                         C_prime.add(u)
                 for w in graph.neighbors(u):
@@ -313,7 +317,8 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     -----
     flow
     """
-    gamma = nx.adjacency_matrix(graph).toarray()
+    nodes = _ordered_graph_nodes(graph)
+    gamma = nx.to_numpy_array(graph, nodelist=nodes, dtype=np.uint8, weight=None)
 
     l = {}
     g = {}
@@ -334,40 +339,40 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     if result == False:
         return None, None, None, None
 
-    return lambda x: gn[x], lambda u, v: ln[u] > ln[v], max(ln.values()), ln
+    return lambda x: gn[x], lambda u, v: ln[u] > ln[v], max(ln.values(), default=0), ln
 
 
 def gflowaux(graph, gamma, inputs, outputs, k, g, l) -> object:
     """Aux function for gFlow"""
 
-    V = set(graph.nodes())
-    C = set()
-    vmol = list(V - outputs)
-    for u in vmol:
-        submatrix = np.zeros((len(vmol), len(outputs - inputs)), dtype=int)
-        submatrix = gamma[np.ix_(vmol, list(outputs - inputs))]
-
-        b = np.zeros((len(vmol), 1), dtype=int)
-        b[vmol.index(u)] = 1
-
-        try:
-            solution = linalg2.solve(submatrix, b, check_solution=True).reshape(-1, 1)
-            l[u] = k
-            C.add(u)
-            sol_extended = np.zeros((len(V), 1), dtype=int)
-            sol_extended[list(outputs - inputs)] = solution
-            g[u] = sol_extended
-        except Exception as e:
-            pass
-
-    if len(C) == 0:
-        if set(outputs) == V:
-            return True, g, l
-        else:
+    nodes = _ordered_graph_nodes(graph)
+    while len(outputs) < len(nodes):
+        rows = [i for i, node in enumerate(nodes) if node not in outputs]
+        cols = [
+            i for i, node in enumerate(nodes) if node in outputs and node not in inputs
+        ]
+        submatrix = gamma[np.ix_(rows, cols)]
+        layer = set()
+        b = np.zeros(len(rows), dtype=int)
+        for i, row in enumerate(rows):
+            b[i] = 1
+            try:
+                solution = linalg2.solve(submatrix, b, check_solution=True)
+            except ValueError:
+                continue
+            finally:
+                b[i] = 0
+            node = nodes[row]
+            l[node] = k
+            layer.add(node)
+            correction = np.zeros((len(nodes), 1), dtype=int)
+            correction[cols] = solution
+            g[node] = correction
+        if not layer:
             return False, g, l
-
-    else:
-        return gflowaux(graph, gamma, inputs, outputs | C, k + 1, g, l)
+        outputs = outputs | layer
+        k += 1
+    return True, g, l
 
 
 # Implementation of PauliFlow. Time complexity: O(n^3)
@@ -416,6 +421,7 @@ def find_pflow(graph, I, O, planes):
 
     layers = _pflow_layers_from_relation(R, row_vertices, O)
     node_to_column = {node: i for i, node in enumerate(row_vertices)}
+    node_to_index = {node: i for i, node in enumerate(_ordered_graph_nodes(graph))}
     n_nodes = graph.number_of_nodes()
 
     def flow_fn(node):
@@ -423,7 +429,7 @@ def find_pflow(graph, I, O, planes):
         correction = np.zeros((n_nodes, 1), dtype=int)
         for row, vertex in enumerate(column_vertices):
             if C[row, column]:
-                correction[vertex] = 1
+                correction[node_to_index[vertex]] = 1
         return correction
 
     return True, flow_fn, layers
@@ -471,7 +477,6 @@ def _find_pflow_matrices(graph, I, O, planes):
 
     basis_change = np.hstack((C0, kernel)).astype(np.uint8, copy=False)
     changed_N = _gf2_matmul(N, basis_change)
-    free_dim = n_cols - n_rows
     NL = changed_N[:, :n_rows]
     NR = changed_N[:, n_rows:]
     P = _solve_dag_right_inverse(NL, NR)
@@ -493,7 +498,7 @@ def _pflow_demand_matrices(graph, I, O, planes):
     row_vertices = [node for node in nodes if node not in O]
     column_vertices = [node for node in nodes if node not in I]
 
-    adjacency = nx.to_numpy_array(graph, nodelist=nodes, dtype=np.uint8) % 2
+    adjacency = nx.to_numpy_array(graph, nodelist=nodes, dtype=np.uint8, weight=None)
     row_indices = [node_to_index[node] for node in row_vertices]
     column_indices = [node_to_index[node] for node in column_vertices]
     reduced_adjacency = adjacency[np.ix_(row_indices, column_indices)]
@@ -803,133 +808,6 @@ def _relation_digraph(relation):
     return graph
 
 
-def solve_constraints(u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, plane):
-    solution = None
-    KAu = get_KAu(Γ, A, u, V, I, B, planes)
-    PAu = get_PAu(Γ, A, u, V, I, B, planes)
-    YAu = get_YAu(Γ, A, u, V, I, B, planes)
-
-    MAu1, MAu2 = get_MAu1(Γ, KAu, PAu), get_MAu2(Γ, KAu, YAu)
-    SLambda1 = get_SLambda1(plane, u, V, I, O, planes, graph, Γ, A, KAu, PAu)
-    SLambda2 = get_SLambda2(plane, u, V, I, O, planes, graph, Γ, A, KAu, YAu)
-
-    MAu = np.vstack((MAu1.T, MAu2.T))
-    SLambda = np.vstack((SLambda1, SLambda2))
-
-    try:
-        solution = linalg2.solve(MAu, SLambda, check_solution=True).reshape(-1, 1)
-    except Exception as e:
-        pass
-
-    if solution is not None:
-        ext_solution = np.zeros((len(V), 1), dtype=int)
-        ext_solution[KAu] = solution
-
-        if plane in {"X", "Y", "Z", "XZ", "YZ"}:
-            ext_solution[u] = 1
-
-        solution = ext_solution
-
-    return solution
-
-
-def pflowaux(V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, p):
-    C = set()
-    for u in set(V) - B:
-        solution = None
-
-        if planes[u] in {"XY", "X", "Y"}:
-            solution = solve_constraints(
-                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XY"
-            )
-
-        if planes[u] in {"XZ", "X", "Z"} and solution is None:
-            solution = solve_constraints(
-                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "XZ"
-            )
-
-        if planes[u] in {"YZ", "Y", "Z"} and solution is None:
-            solution = solve_constraints(
-                u, V, Γ, I, O, planes, LX, LY, LZ, A, B, d, k, graph, "YZ"
-            )
-
-        if solution is not None:
-            C.add(u)
-            p[u] = solution
-            d[u] = k
-
-    if C == set() and k > 0:
-        if set(B) == set(V):
-            return True, lambda x: p[x], d
-        else:
-            return False, None, {}
-
-    Bprime = B | C
-    return pflowaux(V, Γ, I, O, planes, LX, LY, LZ, Bprime, Bprime, d, k + 1, graph, p)
-
-
-def get_MAu1(Gamma, KAu, PAu):
-    return Gamma[np.ix_(KAu, PAu)]
-
-
-def get_MAu2(Gamma, KAu, YAu):
-    return (Gamma + np.eye(Gamma.shape[0]))[np.ix_(KAu, YAu)]
-
-
-def get_SLambda1(plane, u, V, I, O, planes, graph, Gamma, A, KAu, PAu):
-    sl = set()
-    if plane == "XY":
-        sl = {u}
-    elif plane == "XZ":
-        neighbors = set(graph.neighbors(u))
-        PAu = get_PAu(Gamma, A, u, V, I, O, planes)
-        sl = (neighbors & set(PAu)) | {u}
-    elif plane == "YZ":
-        neighbors = set(graph.neighbors(u))
-        PAu = get_PAu(Gamma, A, u, V, I, O, planes)
-        sl = neighbors & set(PAu)
-
-    vec_sl = np.zeros((len(V), 1), dtype=int)
-    vec_sl[list(sl)] = 1
-    vec_sl = vec_sl[PAu]
-    return vec_sl
-
-
-def get_SLambda2(plane, u, V, I, O, planes, graph, Gamma, A, KAu, YAu):
-    sl = set()
-    if plane == "XY":
-        sl = set()
-    elif plane in {"XZ", "YZ"}:
-        neighbors = set(graph.neighbors(u))
-        YAu = get_YAu(Gamma, A, u, V, I, O, planes)
-        sl = neighbors & set(YAu)
-
-    vec_sl = np.zeros((len(V), 1), dtype=int)
-
-    vec_sl[list(sl)] = 1
-    vec_sl = vec_sl[YAu]
-    return vec_sl
-
-
-def get_KAu(Gamma, A, u, V, I, O, planes):
-    p = A | LambdaPu("X", u, V, O, planes) | LambdaPu("Y", u, V, O, planes)
-    return list(p & (V - I))
-
-
-def get_PAu(Gamma, A, u, V, I, O, planes):
-    p = A | LambdaPu("Y", u, V, O, planes) | LambdaPu("Z", u, V, O, planes)
-    return list(V - p)
-
-
-def get_YAu(Gamma, A, u, V, I, O, planes):
-    p = LambdaPu("Y", u, V, O, planes)
-    return list(p - A)
-
-
-def LambdaPu(plane, u, V, O, planes):
-    return {v for v in V - O if v != u and planes[v] == plane}
-
-
 def odd_neighborhood(graph, A):
     """Returns the set of nodes in the graph that have an odd number of neighbors in A.
 
@@ -938,38 +816,3 @@ def odd_neighborhood(graph, A):
     flow
     """
     return {w for w in graph.nodes() if len(set(graph.neighbors(w)) & A) % 2 == 1}
-
-
-if __name__ == "__main__":
-    import mentpy as mp
-
-    gs = mp.GraphState()
-
-    gs.add_edges_from(
-        [
-            (0, 3),
-            (1, 3),
-            (1, 4),
-            (2, 4),
-            (0, 5),
-            (2, 5),
-        ]
-    )
-
-    position = {
-        0: (0, 0),
-        1: (1, 0),
-        2: (2, 0),
-        3: (0.5, 0.5),
-        4: (1.5, 0.5),
-        5: (1, 1.5),
-    }
-
-    cond, p, d = find_pflow(
-        gs,
-        set([0, 1, 2]),
-        set([0, 1, 2]),
-        {v: "YZ" for v in set(gs.nodes()) - {0, 1, 2}},
-    )
-
-    print(cond, p, d)

@@ -17,7 +17,7 @@ class SGDOpt(BaseOpt):
     step_size : float, optional
         The step size of the optimizer, by default 0.1
     momentum : float, optional
-        The momentum of the optimizer, by default 0.9
+        The momentum of the optimizer, by default 0.0
     nesterov : bool, optional
         Whether to use Nesterov momentum, by default False
 
@@ -44,7 +44,7 @@ class SGDOpt(BaseOpt):
         step_size=0.1,
         momentum=0.0,
         nesterov=False,
-        gradient_method="parameter-shift",
+        gradient_method="finite-difference",
         gradient_kwargs=None,
     ) -> None:
         """Initialize the SGD optimizer."""
@@ -56,9 +56,8 @@ class SGDOpt(BaseOpt):
         self.nesterov = nesterov
         self.v = None
 
-    def step(self, f, x, i, **kwargs):
+    def _step(self, f, x, **kwargs):
         """Take a step of the SGD optimizer."""
-        x = np.asarray(x, dtype=float)
         g = self._gradient(f, x, **kwargs)
         if self.v is None:
             self.v = np.zeros_like(x, dtype=float)
@@ -67,39 +66,12 @@ class SGDOpt(BaseOpt):
             x = x + self.momentum * self.v - self.step_size * g
         else:
             x = x + self.v
-        return x
-
-    def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
-        """Optimize a function f using the SGD optimizer."""
-        x = np.asarray(x0, dtype=float)
-        for i in range(num_iters):
-            x = self.step(f, x, i, **kwargs)
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1}/{num_iters}")
-        return x
+        return x, np.linalg.norm(g)
 
     def update_step_size(self, x, i, factor=0.99):
         """Update the step size of the optimizer."""
         self.step_size = self.step_size * factor
 
-    def optimize_and_gradient_norm(
-        self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
-    ):
-        """Optimize a function f using the SGD optimizer."""
-        x = np.asarray(x0, dtype=float)
-        norm = []
-        for i in range(num_iters):
-            g = self._gradient(f, x, **kwargs)
-            norm.append(np.linalg.norm(g))
-            x = self.step(f, x, i, gradient=g)
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1} of {num_iters}: {x} with value {f(x)}")
-        return x, norm
-
-    def reset(self, *args, **kwargs):
-        """Reset the optimizer."""
+    def reset(self):
+        """Clear the momentum."""
         self.v = None

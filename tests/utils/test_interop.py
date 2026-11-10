@@ -9,6 +9,21 @@ import pytest
 import mentpy as mp
 
 
+def test_qiskit_rejects_mid_circuit_measurements():
+    qiskit = pytest.importorskip("qiskit")
+    circuit = qiskit.QuantumCircuit(1, 1)
+    circuit.h(0)
+    circuit.measure(0, 0)
+    circuit.h(0)
+    with pytest.raises(ValueError, match="Mid-circuit measurements"):
+        mp.utils.from_qiskit(circuit)
+
+
+def test_pennylane_export_rejects_truncated_wire_order():
+    with pytest.raises(ValueError, match="distinct wire"):
+        mp.utils.to_pennylane(mp.Observable("ZX"), wire_order=[0])
+
+
 def _density(state):
     return np.outer(state, np.conj(state))
 
@@ -619,3 +634,58 @@ def test_cudaq_kernel_openqasm_import(monkeypatch):
     assert isinstance(circuit, mp.MBQCircuit)
     assert len(circuit.input_nodes) == 2
     assert len(circuit.output_nodes) == 2
+
+
+def _named_adaptive_pattern():
+    graph = mp.GraphState([("first", "middle"), ("middle", "out")])
+    pattern = mp.MBQCircuit(graph, ["first"], ["out"], relabel_indices=False)
+    pattern["first"] = mp.Ment("X")
+    pattern["middle"] = mp.ControlMent(~pattern["first"].outcome, true_angle=np.pi)
+    return pattern
+
+
+def test_adaptive_cirq_export_uses_real_measurement_outcome():
+    cirq = pytest.importorskip("cirq")
+    pattern = _named_adaptive_pattern()
+    exported = mp.utils.to_cirq(pattern)
+    exported.append(cirq.measure(cirq.LineQubit(2), key="out"))
+    shots = cirq.Simulator(seed=17).run(exported, repetitions=64).measurements
+    assert set(shots["m0"].ravel()) == {0, 1}
+    np.testing.assert_array_equal(shots["out"], 1 - shots["m0"])
+
+
+def test_adaptive_qiskit_and_cudaq_export_condition_rotations(monkeypatch):
+    pytest.importorskip("qiskit")
+    pattern = _named_adaptive_pattern()
+    exported = mp.utils.to_qiskit(pattern)
+    assert any(
+        inst.operation.name == "if_else"
+        and inst.operation.blocks[0].count_ops().get("rz")
+        for inst in exported.data
+    )
+    monkeypatch.setitem(sys.modules, "cudaq", _fake_cudaq_module())
+    kernel = mp.utils.to_cudaq(pattern)
+    assert any(
+        a[0] == "c_if" and b[0] == "rz"
+        for a, b in zip(kernel.operations, kernel.operations[1:])
+    )
+
+
+def test_adaptive_pennylane_export_uses_both_branches():
+    qnode = mp.utils.to_pennylane(_named_adaptive_pattern())
+    np.testing.assert_allclose(qnode([], st=np.array([1, 0])), np.eye(2) / 2, atol=1e-8)
+
+
+def test_adaptive_cirq_export_with_two_bit_parity():
+    cirq = pytest.importorskip("cirq")
+    pattern = mp.templates.linear_cluster(4)
+    pattern[0] = mp.Ment("X")
+    pattern[1] = mp.Ment("X")
+    parity = mp.MentOutcome(lambda m: m[0] ^ m[1], cond_nodes={0, 1})
+    pattern[2] = mp.ControlMent(parity, true_angle=np.pi)
+    exported = cirq.Circuit(cirq.H(cirq.LineQubit(0))) + mp.utils.to_cirq(pattern)
+    exported.append(cirq.measure(cirq.LineQubit(3), key="out"))
+    shots = cirq.Simulator(seed=15).run(exported, repetitions=64).measurements
+    pairs = set(zip(shots["m0"].ravel(), shots["m1"].ravel()))
+    assert len(pairs) == 4
+    np.testing.assert_array_equal(shots["out"], shots["m0"] ^ shots["m1"])

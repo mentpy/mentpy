@@ -7,7 +7,6 @@
 from mentpy.optimizers.base import BaseOpt
 
 import numpy as np
-import random
 
 
 class RCDOpt(BaseOpt):
@@ -34,70 +33,40 @@ class RCDOpt(BaseOpt):
     optimizers
     """
 
-    def __init__(self, step_size=0.1, adaptive=False) -> None:
+    def __init__(self, step_size=0.1, adaptive=False, seed=None) -> None:
         """Initialize the random coordinate descent optimizer."""
+        super().__init__()
         self.step_size = step_size
         self.adaptive = adaptive
+        self._seed = seed
+        self.reset()
 
-    def step(self, f, x, i, **kwargs):
-        """Take a step using the random coordinate descent optimizer."""
-        coord_idx = random.randint(0, len(x) - 1)
-        delta = np.zeros_like(x)
-        delta[coord_idx] = 1e-5
-        partial_gradient = (f(x + delta) - f(x - delta)) / (2 * delta[coord_idx])
-
-        current_step_size = self.step_size
-        if self.adaptive:
-            current_step_size /= np.sqrt(i + 1)
-
-        x[coord_idx] -= current_step_size * partial_gradient
-
-        return x
-
-    def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
-        """Optimize a function f using the random coordinate descent optimizer."""
-        x = x0
-        for i in range(num_iters):
-            x = self.step(f, x, i, **kwargs)
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1}/{num_iters}")
-        return x
+    def _step(self, f, x, h=1e-5, **kwargs):
+        if not np.isfinite(h) or h <= 0:
+            raise ValueError("Finite-difference step must be positive and finite.")
+        if not x.size:
+            return x.copy(), 0.0
+        coordinate = self._rng.integers(x.size)
+        updated = x.copy()
+        if kwargs:
+            gradient = self._gradient(f, x, **kwargs).flat[coordinate]
+        else:
+            updated.flat[coordinate] += h
+            forward = f(updated)
+            updated.flat[coordinate] = x.flat[coordinate] - h
+            gradient = (forward - f(updated)) / (2 * h)
+        self._steps += 1
+        step_size = (
+            self.step_size / np.sqrt(self._steps) if self.adaptive else self.step_size
+        )
+        updated.flat[coordinate] = x.flat[coordinate] - step_size * gradient
+        return updated, abs(gradient)
 
     def update_step_size(self, x, i, factor=0.99):
         """Update the step size of the optimizer."""
         self.step_size = self.step_size * factor
 
-    def optimize_and_gradient_norm(
-        self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
-    ):
-        """Optimize a function f using the random coordinate descent optimizer."""
-        x = x0
-        coord_iters = np.zeros(len(x))
-        norm = []
-
-        for i in range(num_iters):
-            # Random coordinate descent optimizer
-            coord_idx = random.randint(0, len(x) - 1)
-            coord_iters[coord_idx] += 1
-            delta = np.zeros_like(x)
-            delta[coord_idx] = 1e-5
-            partial_gradient = (f(x + delta) - f(x - delta)) / (2 * delta[coord_idx])
-
-            current_step_size = self.step_size
-            if self.adaptive:
-                current_step_size /= np.sqrt(coord_iters[coord_idx])
-
-            x[coord_idx] -= current_step_size * partial_gradient
-
-            norm.append(np.linalg.norm(partial_gradient))
-
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1} of {num_iters}: {x} with value {f(x)}")
-        return x, norm
-
-    def reset(self, *args, **kwargs):
-        pass
+    def reset(self):
+        """Clear the schedule and restart the seeded random stream."""
+        self._steps = 0
+        self._rng = np.random.default_rng(self._seed)

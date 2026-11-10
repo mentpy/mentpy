@@ -51,5 +51,30 @@ def test_partial_trace():
     product_state = np.kron(psi, plus)
     result1 = mp.calculator.partial_trace(product_state, [0])
     result2 = mp.calculator.partial_trace(product_state, [1])
-    assert np.allclose(result1, plus)
-    assert np.allclose(result2, psi)
+    assert np.allclose(result1, sigma)
+    assert np.allclose(result2, mp.calculator.pure2density(psi))
+
+
+def test_partial_trace_entangled_and_multiple_axes():
+    bell = np.array([1, 0, 0, -1j]) / np.sqrt(2)
+    state = np.kron(bell, [0, 1])
+    rho = mp.calculator.pure2density(state)
+    for representation in (state, rho):
+        np.testing.assert_allclose(
+            mp.calculator.partial_trace(representation, [2, 0]), np.eye(2) / 2
+        )
+        np.testing.assert_allclose(mp.calculator.partial_trace(representation, []), rho)
+        with pytest.raises(ValueError, match="unique"):
+            mp.calculator.partial_trace(representation, [0, 0])
+
+
+@pytest.mark.parametrize("column", [False, True])
+def test_gf2_solver_handles_free_variables_and_rhs_shapes(column):
+    matrix = np.array([[1, 1, 0], [0, 1, 1], [0, 0, 0]])
+    rhs = np.array([0, 1, 0])
+    solution = mp.calculator.solve(
+        matrix, rhs[:, None] if column else rhs, check_solution=True
+    )
+    np.testing.assert_array_equal(solution[:, 0], [1, 1, 0])
+    with pytest.raises(ValueError, match="Solution not found"):
+        mp.calculator.solve(matrix, np.array([0, 1, 1]), check_solution=True)

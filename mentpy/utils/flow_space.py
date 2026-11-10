@@ -87,11 +87,10 @@ class FlowSpace:
         Returns:
             tuple: A tuple containing three nx.Graph objects (total_graph_space, flow_graph_space, no_flow_graph_space).
         """
-        graphs_list = list(self._generate_all_graphs())
         graph_space = nx.Graph()
         with_flow, without_flow = [], []
 
-        for idx, graph in enumerate(graphs_list):
+        for idx, graph in enumerate(self._generate_all_graphs()):
             mbqc_graph = MBQCircuit(
                 graph, input_nodes=self.input_nodes, output_nodes=self.output_nodes
             )
@@ -105,11 +104,14 @@ class FlowSpace:
                 graph_space.add_node(idx, flow=False, mbqc_circuit=mbqc_graph)
                 without_flow.append(idx)
 
-        for (idx1, graph1), (idx2, graph2) in itertools.combinations(
-            enumerate(graphs_list), 2
-        ):
-            if len(set(graph2.edges()).symmetric_difference(graph1.edges())) == 1:
-                graph_space.add_edge(idx1, idx2)
+        # Each node index is the binary mask of its graph's edge set.
+        # Flipping one bit finds its neighbors without comparing graph pairs.
+        n_edges = self.number_nodes * (self.number_nodes - 1) // 2
+        for index in graph_space.nodes:
+            for bit in range(n_edges):
+                neighbor = index ^ (1 << bit)
+                if index < neighbor:
+                    graph_space.add_edge(index, neighbor)
 
         return (
             graph_space,

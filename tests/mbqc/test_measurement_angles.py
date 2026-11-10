@@ -167,3 +167,52 @@ def test_numpy_sv_uses_resolver_for_fixed_controlment():
     plain_dm = mp.PatternSimulator(plain, backend="numpy-sv").run(angles)
 
     assert np.allclose(controlled_dm, plain_dm)
+
+
+def test_controlled_pattern_construction_and_schedule():
+    pattern = mp.templates.linear_cluster(3)
+    controlled = mp.ControlMent(~pattern[0].outcome, true_angle=0.25, false_plane="X")
+    circuit = mp.MBQCircuit(pattern.graph, [0], [2], measurements={1: controlled})
+    assert circuit[1].condition.cond_nodes == {0}
+    assert circuit.measurement_order == [0, 1, 2]
+    circuit.measurement_order = [0, 1, 2]
+    with pytest.raises(ValueError, match="Invalid measurement order"):
+        circuit.measurement_order = [1, 0, 2]
+    with pytest.raises(ValueError, match="Invalid measurement order"):
+        circuit.measurement_order = [0, 2]
+
+
+def test_controlled_dependencies_survive_relabeling():
+    graph = mp.GraphState([(10, 20), (20, 30)])
+    first = mp.Ment("X")
+    first.node_id = 10
+    circuit = mp.MBQCircuit(
+        graph,
+        [10],
+        [30],
+        {10: first, 20: mp.ControlMent(first.outcome, true_angle=0.2)},
+    )
+    resolver = mp.MeasurementAngleResolver(circuit)
+    assert circuit[1].condition.cond_nodes == {0}
+    assert resolver.angle(1, [], {0: 1}) == 0.2
+    assert resolver.angle(1, [], {0: 0}) == 0
+
+
+def test_circuit_edits_preserve_measurements_and_update_outputs():
+    graph = mp.GraphState([(0, 1), (1, 2)])
+    measurements = {0: mp.Ment(0.25, "XY")}
+    circuit = mp.MBQCircuit(
+        graph, [0], [2], measurements, relabel_indices=False, initialize_flow=False
+    )
+    assert set(measurements) == {0}
+    circuit.add_edge(2, 3)
+    assert circuit[0].angle == 0.25
+    assert not circuit.flow.flow_initialized
+    assert set(circuit.outputc) == {0, 1, 3}
+    circuit[2] = mp.Ment("Z")
+    assert circuit.classical_output_nodes == [2]
+    del circuit[2]
+    assert circuit.classical_output_nodes == []
+    assert circuit.quantum_output_nodes == [2]
+    circuit.measurements = {1: mp.Ment("Y"), 2: None}
+    assert circuit.trainable_nodes == [0, 3]

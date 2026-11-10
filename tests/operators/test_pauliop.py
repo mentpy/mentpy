@@ -75,3 +75,12 @@ def test_pauli_op_contains():
     op1 = PauliOp("XIZ;IZI")
     op2 = PauliOp("XIZ")
     assert op2 in op1
+
+
+def test_pauli_op_shapes_and_alphabet():
+    assert PauliOp("X") != PauliOp("X;X")
+    assert PauliOp("X") != "X"
+    assert PauliOp("X") not in PauliOp("XX")
+    assert PauliOp("X;Y")[:0].matrix.shape == (0, 2)
+    with pytest.raises(ValueError, match="only I, X, Y and Z"):
+        PauliOp("XA")

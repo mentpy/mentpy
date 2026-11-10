@@ -74,3 +74,30 @@ def test_draw_pauli_template_rejects_non_template():
 
     with pytest.raises(ValueError, match="from_pauli"):
         mp.draw(state, layout="pauli")
+
+
+@pytest.mark.parametrize("label", ["angle", "arrow", "plane"])
+def test_draw_controlled_measurement_with_title(label):
+    state = mp.templates.linear_cluster(3)
+    state[0] = mp.ControlMent(True, true_angle=0.2)
+    fig, ax = mp.draw(state, label=label, title="Controlled circuit")
+    assert ax.get_title() == "Controlled circuit"
+    assert "Ctrl" in {text.get_text() for text in ax.texts}
+    plt.close(fig)
+
+
+def test_draw_no_flow_and_idle_wire():
+    graph = mp.GraphState()
+    graph.add_nodes_from(["out", "isolated"])
+    circuit = mp.MBQCircuit(
+        graph, [], ["out"], relabel_indices=False, initialize_flow=False
+    )
+    with pytest.warns(UserWarning, match="No flow found"):
+        fig, _ = mp.draw(circuit)
+    plt.close(fig)
+
+    idle = mp.MBQCircuit(
+        graph.subgraph(["out"]).copy(), ["out"], ["out"], relabel_indices=False
+    )
+    fig, _ = mp.draw(idle)
+    plt.close(fig)

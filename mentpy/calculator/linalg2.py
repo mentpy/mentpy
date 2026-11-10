@@ -12,16 +12,20 @@ __all__ = ["solve"]
 
 def solve(A, b, check_solution=False):
     """
-    Solve a linear system of equations Ax = b for x.
+    Solve a linear system of equations Ax = b over GF(2).
+
+    Free variables are set to zero. With ``check_solution=True``, return a
+    column vector and raise ValueError if the system is inconsistent.
     """
     GF = galois.GF(2)
     A = GF(A.astype(np.uint8))
-    b = GF(b.astype(np.uint8))
+    b = GF(b.astype(np.uint8)).reshape(-1)
 
     rows, cols = A.shape
     augmented_matrix = np.hstack((A, b.reshape(-1, 1)))
 
     row = 0
+    pivot_columns = []
     for col in range(cols):
         # Find pivot in current column
         for pivot_row in range(row, rows):
@@ -39,23 +43,22 @@ def solve(A, b, check_solution=False):
             if augmented_matrix[i, col]:
                 augmented_matrix[i] ^= augmented_matrix[row]
 
+        pivot_columns.append(col)
         row += 1
 
         if row >= rows:
             break
 
     # Back-substitution
-    x = np.zeros(cols, dtype=int)
-    for row in range(min(rows, cols) - 1, -1, -1):
-        col = np.argmax(augmented_matrix[row, :cols])
-        x[col] = augmented_matrix[row, -1] ^ np.sum(
+    x = GF.Zeros(cols)
+    for row, col in reversed(list(enumerate(pivot_columns))):
+        x[col] = augmented_matrix[row, -1] - np.sum(
             augmented_matrix[row, col + 1 : cols] * x[col + 1 : cols]
         )
 
-    x = GF(x)
     if check_solution:
-        x = x.reshape(-1, 1)
-        if not np.linalg.norm(A @ x - b) < 1e-9:
+        if not np.array_equal(A @ x, b):
             raise ValueError("Solution not found")
+        return x.reshape(-1, 1)
 
     return x

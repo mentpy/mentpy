@@ -5,12 +5,12 @@ The :doc:`getting-started` guide is intended to assist users with installing the
 
 Install using ``pip``
 ---------------------
-The :obj:`mentpy` library requires Python 3.9 or above. It can be installed from 
+The :obj:`mentpy` library requires Python 3.10 or above. It can be installed from
 `PyPI <https://pypi.org/project/mentpy/>`_ using ``pip``.
 
 .. code-block:: bash
 
-   python3 -m pip install mentpy
+   python3 -m pip install --pre mentpy
 
 Optional backends
 -----------------
@@ -52,10 +52,10 @@ Developers who wish to contribute to :obj:`mentpy` or use the development versio
 
    git clone https://github.com/mentpy/mentpy
    cd mentpy
-   python3 -m pip install -e '.[dev]'
+   python3 -m pip install -e '.[dev,chem]'
 
 
-This command installs :obj:`mentpy` in an "editable" mode and also installs additional development dependencies specified under `[dev-dependencies]` in `pyproject.toml`. Now, you are set up to make changes, run tests, and build documentation.
+This installs MentPy in editable mode with the development and chemistry extras used by CI.
 
 Testing and Development
 -----------------------

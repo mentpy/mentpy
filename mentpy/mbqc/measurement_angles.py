@@ -5,6 +5,7 @@
 """Measurement-angle resolution utilities."""
 
 from dataclasses import dataclass
+from itertools import product
 from typing import Any, Optional, Sequence
 
 import numpy as np
@@ -104,6 +105,123 @@ class MeasurementAngleResolver:
         nodes = self.measurement_nodes if nodes is None else nodes
         return [self.resolve(node, angles, outcomes=outcomes, xy=xy) for node in nodes]
 
+    def validate_dependencies(self):
+        """Check that conditions only reference already measured nodes."""
+        if len(self.schedule) != len(self.mbqcircuit.graph) or set(
+            self.schedule
+        ) != set(self.mbqcircuit.graph):
+            raise ValueError("Schedule must contain each graph node exactly once.")
+        measured = set()
+        for node in self.measurement_nodes:
+            dependencies = self._dependencies(node)
+            if not dependencies <= measured:
+                raise ValueError(
+                    f"Measurement at node {node!r} depends on outcomes that are not yet available."
+                )
+            measured.add(node)
+
+    def _flow_corrections(self):
+        """Return the X and Z corrections for future nodes in the schedule."""
+        flow = self.mbqcircuit.flow
+        flow.initialize_flow()
+        if flow.func is None:
+            return {}
+        order = {node: i for i, node in enumerate(self.schedule)}
+        outputs = set(self.mbqcircuit.output_nodes)
+        corrections = {}
+        for node in self.measurement_nodes:
+            if node not in outputs:
+                x, z = flow._corrections(node)
+                if flow.name in {"cFlow", "gFlow"} and any(
+                    order[target] < order[node] for target in x | z
+                ):
+                    raise ValueError("Measurement order must respect flow corrections.")
+                corrections[node] = tuple(
+                    (target, pauli)
+                    for pauli, targets in (("x", x), ("z", z))
+                    for target in sorted(targets, key=order.__getitem__)
+                    if order[target] > order[node]
+                )
+        return corrections
+
+    def _dependencies(self, node):
+        condition = getattr(self.mbqcircuit[node], "condition", None)
+        return set(getattr(condition, "cond_nodes", ()))
+
+    def _xy_rotations(self, node, angles):
+        """Yield the RZ angle and its earlier measurement controls.
+
+        Expand a Boolean condition into products of measured bits. This
+        uses only controls on outcome one, including for negated predicates.
+        """
+        measurement = self.mbqcircuit[node]
+        condition = getattr(measurement, "condition", None)
+        if condition is None:
+            yield -self.angle(node, angles, xy=True), ()
+            return
+        dependencies = self._dependencies(node)
+        controls = [
+            candidate
+            for candidate in self.measurement_nodes
+            if candidate in dependencies
+        ]
+        if not controls:
+            yield -self.angle(node, angles, {}, xy=True), ()
+            return
+        # Boolean Möbius transform. The coefficient for a bit mask controls
+        # a rotation on precisely the measurements selected by that mask.
+        width = len(controls)
+        coefficients = [
+            int(bool(condition(dict(zip(controls, reversed(bits))))))
+            for bits in product((0, 1), repeat=width)
+        ]
+        false_angle = self.angle(node, angles, dict.fromkeys(controls, 0), xy=True)
+        true_outcomes = next(
+            (bits for bits, value in enumerate(coefficients) if value), None
+        )
+        if true_outcomes is None:
+            yield -false_angle, ()
+            return
+        true_angle = self.angle(
+            node,
+            angles,
+            {control: (true_outcomes >> i) & 1 for i, control in enumerate(controls)},
+            xy=True,
+        )
+        if coefficients[0]:
+            # Use any false assignment when the condition is true at zero.
+            false_outcomes = next(
+                (bits for bits, value in enumerate(coefficients) if not value), None
+            )
+            yield -true_angle, ()
+            if false_outcomes is None:
+                return
+            false_angle = self.angle(
+                node,
+                angles,
+                {
+                    control: (false_outcomes >> i) & 1
+                    for i, control in enumerate(controls)
+                },
+                xy=True,
+            )
+        else:
+            yield -false_angle, ()
+        for i in range(width):
+            for mask in range(1 << width):
+                if mask & (1 << i):
+                    coefficients[mask] -= coefficients[mask ^ (1 << i)]
+        for mask, coefficient in enumerate(coefficients[1:], start=1):
+            if coefficient:
+                selected = tuple(
+                    control for i, control in enumerate(controls) if mask & (1 << i)
+                )
+                # Keep separate rotations so backends need only negation of
+                # symbolic angles, including CUDA-Q kernel arguments.
+                for _ in range(abs(coefficient)):
+                    yield (-true_angle if coefficient > 0 else true_angle), selected
+                    yield (false_angle if coefficient > 0 else -false_angle), selected
+
     def zero_outcomes(self):
         """Return deterministic force-zero outcomes for every circuit node."""
         return {node: 0 for node in self.mbqcircuit.graph.nodes}
@@ -111,10 +229,8 @@ class MeasurementAngleResolver:
     def _resolve_schedule(self, schedule):
         if schedule is not None:
             return list(schedule)
-        try:
-            return list(self.mbqcircuit.measurement_order)
-        except Exception:
-            return list(self.mbqcircuit.graph.nodes)
+        order = getattr(self.mbqcircuit, "measurement_order", None)
+        return list(self.mbqcircuit.graph.nodes if order is None else order)
 
     def _measurement_nodes(self):
         scheduled = [

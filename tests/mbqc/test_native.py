@@ -77,3 +77,5 @@ def test_native_rejects_invalid_dimensions():
         native.gf2_inverse_bytes(b"", 3, 3)
     with pytest.raises(ValueError, match="overflow"):
         native.gf2_right_inverse_and_kernel_bytes(b"", 2**63, 2)
+    with pytest.raises(ValueError, match="overflow"):
+        native.gf2_right_inverse_and_kernel_bytes(b"", 0, 2**63)

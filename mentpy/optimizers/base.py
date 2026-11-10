@@ -27,7 +27,7 @@ class BaseOpt(abc.ABC):
     optimizers
     """
 
-    def __init__(self, gradient_method="parameter-shift", gradient_kwargs=None):
+    def __init__(self, gradient_method="finite-difference", gradient_kwargs=None):
         self.gradient_method = gradient_method
         self.gradient_kwargs = {} if gradient_kwargs is None else dict(gradient_kwargs)
 
@@ -72,18 +72,35 @@ class BaseOpt(abc.ABC):
             get_gradient(f, x, method=resolved_method, **resolved_kwargs), dtype=float
         )
 
-    @abc.abstractmethod
-    def step(self, *args, **kwargs):
-        pass
+    def step(self, f, x, i=None, **kwargs):
+        """Update the parameters once using the optimizer's current state."""
+        return self._step(f, np.asarray(x, dtype=float), **kwargs)[0]
 
     @abc.abstractmethod
-    def optimize(self, *args, **kwargs):
-        pass
+    def _step(self, f, x, **kwargs):
+        """Return the updated parameters and the norm of the gradient used."""
 
-    @abc.abstractmethod
-    def optimize_and_gradient_norm(self, *args, **kwargs):
-        pass
+    def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
+        """Run consecutive steps, continuing state until reset() is called."""
+        return self._optimize(f, x0, num_iters, callback, verbose, kwargs)[0]
+
+    def optimize_and_gradient_norm(
+        self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
+    ):
+        """Run consecutive steps and return one gradient norm per update."""
+        return self._optimize(f, x0, num_iters, callback, verbose, kwargs)
+
+    def _optimize(self, f, x0, num_iters, callback, verbose, kwargs):
+        x = np.array(x0, dtype=float, copy=True)
+        norms = np.empty(num_iters)
+        for i in range(num_iters):
+            x, norms[i] = self._step(f, x, **kwargs)
+            if callback is not None:
+                callback(x, i)
+            if verbose:
+                print(f"Iteration {i + 1}/{num_iters}, x = {x}")
+        return x, norms
 
     @abc.abstractmethod
     def reset(self, *args, **kwargs):
-        pass
+        """Clear the optimizer state for a new run."""

@@ -4,15 +4,11 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Simulator for measuring patterns of MBQC circuits."""
 
-from typing import Union, List, Tuple, Optional
+from typing import List
 import numpy as np
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
-from mentpy.simulators.base_simulator import BaseSimulator
-from mentpy.simulators.trajectory_simulator import TrajectorySimulator
-from mentpy.simulators.pennylane_simulator import *
-from mentpy.simulators.np_simulator_dm import *
-from mentpy.simulators.np_simulator_sv import *
+from .numpy_simulator import NumpySimulator
 
 try:
     from mentpy.simulators.jax_tn_simulator import JaxTNSimulator
@@ -34,11 +30,12 @@ class PatternSimulator:
     mbqcircuit: mp.MBQCircuit
         The MBQC circuit used for the simulation.
     backend: str
-        The simulator to use. Currently only 'pennylane-default.qubit' is supported.
+        Use "numpy" for branch simulation or "jax-tn" for differentiable
+        zero-outcome tensor contraction. "jax-tn" requires the JAX extra.
 
     See Also
     --------
-    :class:`mp.PennylaneSimulator`, :class:`mp.CirqSimulator`
+    :class:`mp.NumpySimulator`, :class:`mp.JaxTNSimulator`
 
     Group
     -----
@@ -49,34 +46,23 @@ class PatternSimulator:
         self,
         mbqcircuit: MBQCircuit,
         input_state: np.ndarray = None,
-        backend="pennylane",
+        backend="numpy",
         *args,
         **kwargs,
     ) -> None:
-        supported_backends = {
-            "pennylane": PennylaneSimulator,
-            "numpy-dm": NumpySimulatorDM,
-            "numpy-sv": NumpySimulatorSV,
-            "trajectory": TrajectorySimulator,
-        }
+        supported_backends = {"numpy": NumpySimulator}
         if _HAS_JAX:
             supported_backends["jax-tn"] = JaxTNSimulator
 
         backend = backend.lower()
+        if backend in {"numpy-dm", "numpy-sv", "trajectory", "pennylane"}:
+            backend = "numpy"
+        if backend == "jax-tn" and not _HAS_JAX:
+            raise ImportError("Install 'mentpy[jax]' to use the jax-tn backend.")
         if backend not in supported_backends:
             raise ValueError(
                 f"Backend {backend} not supported. Supported backends are {supported_backends.keys()}"
             )
-
-        if input_state is None:
-            input_state = np.array([1.0 + 0.0j])
-            for i in range(len(mbqcircuit.input_nodes)):
-                input_state = np.kron(input_state, np.array([1, 1]) / np.sqrt(2))
-        else:
-            if not isinstance(input_state, np.ndarray):
-                raise TypeError(
-                    f"Input state must be a numpy array, not {type(input_state)}"
-                )
 
         self.simulator = supported_backends[backend](
             mbqcircuit, input_state, *args, **kwargs
@@ -85,7 +71,7 @@ class PatternSimulator:
     def __getattr__(self, name):
         return getattr(self.simulator, name)
 
-    def __call__(self, angles: List[float], **kwargs):
+    def __call__(self, angles: List[float] = (), **kwargs):
         return self.run(angles, **kwargs)
 
     def __repr__(self) -> str:
@@ -94,7 +80,7 @@ class PatternSimulator:
     def measure(self, angle: float, **kwargs):
         return self.simulator.measure(angle, **kwargs)
 
-    def run(self, angles: List[float], **kwargs) -> Tuple[List[int], np.ndarray]:
+    def run(self, angles: List[float] = (), **kwargs) -> np.ndarray:
         return self.simulator.run(angles, **kwargs)
 
     def expectation(self, angles, observable, shots=None, seed=None, **kwargs):

@@ -165,10 +165,8 @@ class Observable:
         for pauli, coeff in self.terms.items():
             mean = np.real(self._pauli_expectation(pauli, state))
             p_plus = np.clip((1.0 + mean) / 2.0, 0.0, 1.0)
-            samples = rng.choice(
-                np.array([1.0, -1.0]), size=shots, p=[p_plus, 1.0 - p_plus]
-            )
-            total = total + np.asarray(coeff, dtype=dtype) * np.mean(samples)
+            sample_mean = 2.0 * rng.binomial(shots, p_plus) / shots - 1.0
+            total = total + np.asarray(coeff, dtype=dtype) * sample_mean
 
         return np.real(total) if real else total
 
@@ -177,7 +175,8 @@ class Observable:
         if pauli is not None:
             return self._pauli_matrix(pauli, xp=xp, dtype=dtype)
 
-        self._validate_qubits(self.n_qubits)
+        if self.n_qubits is None:
+            raise ValueError("Set the observable size with Observable.identity().")
         dim = 2**self.n_qubits
         out = xp.asarray(self.constant, dtype=dtype) * xp.eye(dim, dtype=dtype)
         for term, coeff in self.terms.items():
@@ -213,6 +212,9 @@ class Observable:
             return new
         if not isinstance(other, Observable):
             return NotImplemented
+        if other.n_qubits is not None:
+            if self.n_qubits is not None and self.n_qubits != other.n_qubits:
+                raise ValueError("Observables must act on the same number of qubits.")
         new = self.copy()
         new.constant = new.constant + other.constant
         for pauli, coeff in other.terms.items():
@@ -267,10 +269,9 @@ class Observable:
         else:
             raise ValueError("State must be a statevector or square density matrix.")
 
-        n_qubits = int(np.log2(dim))
-        if 2**n_qubits != dim:
+        if not dim or dim & (dim - 1):
             raise ValueError("State dimension must be a power of two.")
-        return n_qubits
+        return dim.bit_length() - 1
 
     def _validate_qubits(self, n_qubits):
         if self.n_qubits is None:

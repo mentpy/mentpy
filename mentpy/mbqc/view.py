@@ -6,15 +6,13 @@
 
 from typing import Union, Tuple
 
-import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
+from mentpy.mbqc.flow import _ordered_graph_nodes
 from mentpy.mbqc.states.graphstate import GraphState
-
-import warnings
 
 __all__ = ["draw", "draw_with_wires"]
 
@@ -29,9 +27,11 @@ def get_node_colors(state, style="default"):
     """Return node colors based on the state and style."""
 
     possible_styles = ("default", "black_and_white", "blue_inputs")
-    assert style in possible_styles, f"Style must be one of {possible_styles}"
+    if style not in possible_styles:
+        raise ValueError(f"Style must be one of {possible_styles}.")
 
     node_colors = {}
+    trainable = set(state.trainable_nodes)
 
     # Base Coloring
     for i in state.graph.nodes():
@@ -39,7 +39,7 @@ def get_node_colors(state, style="default"):
             node_colors[i] = CONTROLLED_NODE_COLOR
         elif i in state.quantum_output_nodes:
             node_colors[i] = OUTPUT_NODE_COLOR
-        elif i in set(state.nodes()) - set(state.trainable_nodes):
+        elif i not in trainable:
             node_colors[i] = UNTRAINABLE_NODE_COLOR
         else:
             node_colors[i] = DEFAULT_NODE_COLOR
@@ -121,6 +121,7 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
         options["labels"] = process_labels(state, options)
     else:
         options.pop("pauliop")
+        options.pop("label")
 
     transp = options.pop("transparent")
     fig, ax = plt.subplots(figsize=options.pop("figsize"))
@@ -141,7 +142,8 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
                 pauliop=pauliop,
                 options=options,
             )
-        if state.flow is None:
+        state.flow.initialize_flow()
+        if state.flow.layers is None:
             nx.draw(state.graph, position, ax=ax, **options)
         elif state.flow.name.lower() == "cflow":
             plt.close(fig)
@@ -156,6 +158,7 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
                 for j, node in enumerate(layer):
                     position_xy[node] = (i, -j)
 
+            position_xy = position_xy if position is None else position
             nx.draw(state.graph, ax=ax, pos=position_xy, **options)
 
             if show_flow:
@@ -164,7 +167,7 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
             if show_controls:
                 dashed_edges = []
                 for node in state.controlled_nodes:
-                    for k in state.measurements[node].condition.cond_nodes:
+                    for k in getattr(state[node].condition, "cond_nodes", ()):
                         dashed_edges.append((node, k))
                 nx.draw_networkx_edges(
                     state.graph,
@@ -173,8 +176,11 @@ def draw(state: Union[MBQCircuit, GraphState], **kwargs) -> Tuple[plt.Figure, pl
                     width=1.5,
                     edgelist=dashed_edges,
                     style="dashed",
+                    ax=ax,
                 )
 
+    if title is not None:
+        ax.set_title(title)
     return fig, ax
 
 
@@ -210,6 +216,7 @@ def draw_with_wires(
         options["labels"] = process_labels(state, options)
     else:
         options.pop("pauliop")
+        options.pop("label")
 
     transp = options.pop("transparent")
     fig, ax = plt.subplots(figsize=options.pop("figsize"))
@@ -219,18 +226,15 @@ def draw_with_wires(
         ax.patch.set_alpha(0)
 
     if fix_wires is None and isinstance(state, MBQCircuit):
+        state.flow.initialize_flow()
         if state.flow.name.lower() != "cflow":
             raise ValueError("Only cflow is supported at the moment")
         if state.flow is not None:
             fix_wires = []
             for inp in state.input_nodes:
-                is_output = False
                 wire = [inp]
-                while not is_output:
-                    out = state.flow(wire[-1])
-                    wire.append(out)
-                    if out in state.output_nodes:
-                        is_output = True
+                while wire[-1] not in state.output_nodes:
+                    wire.append(state.flow(wire[-1]))
                 fix_wires.append(tuple(wire))
 
     if isinstance(state, GraphState):
@@ -248,7 +252,7 @@ def draw_with_wires(
         for indx, p in enumerate(state.input_nodes):
             position_xy[p] = (0, -1 * indx)
 
-        separation = len(state.outputc) // len(state.output_nodes)
+        separation = len(state.outputc) // max(1, len(state.output_nodes))
         if fix_wires is not None:
             for wire in fix_wires:
                 if len(wire) + 2 > separation:
@@ -269,9 +273,14 @@ def draw_with_wires(
         # remove all '*' from fixed_nodes
         fixed_nodes = [x for x in fixed_nodes if x != "*"]
 
-        node_pos = nx.spring_layout(
-            state.graph, pos=position_xy, fixed=fixed_nodes, k=1 / len(state.graph)
-        )
+        node_pos = position
+        if node_pos is None:
+            node_pos = nx.spring_layout(
+                state.graph,
+                pos=position_xy,
+                fixed=fixed_nodes or None,
+                k=1 / max(1, len(state.graph)),
+            )
 
         nx.draw(state.graph, ax=ax, pos=node_pos, **options)
         if state.flow is not None and show_flow:
@@ -279,7 +288,7 @@ def draw_with_wires(
         if show_controls:
             dashed_edges = []
             for node in state.controlled_nodes:
-                for k in state.measurements[node].condition.cond_nodes:
+                for k in getattr(state[node].condition, "cond_nodes", ()):
                     dashed_edges.append((node, k))
             nx.draw_networkx_edges(
                 state.graph,
@@ -288,8 +297,11 @@ def draw_with_wires(
                 width=1.5,
                 edgelist=dashed_edges,
                 style="dashed",
+                ax=ax,
             )
 
+    if title is not None:
+        ax.set_title(title)
     return fig, ax
 
 
@@ -414,13 +426,14 @@ def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
     if label_option in ("index", "indices"):
         return None  # No modification necessary
     elif label_option in ("plane", "planes"):
-        labels = {
-            node: ("" if state[node] is None else state[node].plane)
-            for node in state.graph.nodes()
+        return {
+            node: (
+                ""
+                if state[node] is None
+                else ("Ctrl" if node in state.controlled_nodes else state[node].plane)
+            )
+            for node in state.graph
         }
-        for node in state.controlled_nodes:
-            labels[node] = "Ctrl"
-        return labels
     elif label_option in ("arrow", "arrows"):
         plane2arrow = {
             "X": r"$\uparrow$",
@@ -433,29 +446,35 @@ def process_labels(state: Union[MBQCircuit, GraphState], options: dict):
             "": "",
         }
         labels = {
-            node: plane2arrow[("" if state[node] is None else state[node].plane)]
-            for node in state.graph.nodes()
+            node: (
+                "Ctrl"
+                if node in state.controlled_nodes
+                else plane2arrow["" if state[node] is None else state[node].plane]
+            )
+            for node in state.graph
         }
-        for node in state.controlled_nodes:
-            labels[node] = "Ctrl"
         return labels
     elif label_option in ("angles", "angle"):
         labels = {}
         for node in state.graph.nodes():
-            if state.measurements[node] is not None:
-                if state.measurements[node].angle is not None:
-                    labels[node] = round(state.measurements[node].angle, 3)
-                else:
-                    labels[node] = r"$\theta$"
-            else:
+            if state[node] is None:
                 labels[node] = ""
+            elif node in state.controlled_nodes:
+                labels[node] = "Ctrl"
+            elif state[node].angle is None:
+                labels[node] = r"$\theta$"
+            elif isinstance(state[node].angle, tuple):
+                labels[node] = str(
+                    tuple(round(angle, 3) for angle in state[node].angle)
+                )
+            else:
+                labels[node] = round(state[node].angle, 3)
         return labels
     elif label_option == "pauliop":
-        obj_nodes = (
-            state.graph.nodes() if isinstance(state, MBQCircuit) else state.nodes()
-        )
-        labels = {node: pauliop.txt[node] for node in obj_nodes}
-        return labels
+        graph = state.graph if isinstance(state, MBQCircuit) else state
+        if pauliop is None or pauliop.number_of_qubits != len(graph):
+            raise ValueError("Pauli labels require one character per graph node.")
+        return dict(zip(_ordered_graph_nodes(graph), pauliop.txt))
     else:
         raise ValueError(
             f"label must be one of ['index', 'plane', 'arrow', 'angles', 'pauliop'], not {label_option}"
@@ -470,14 +489,5 @@ def _graph_with_flow(state):
     dflow = nx.DiGraph()
     dflow.add_nodes_from(g.nodes())
     for node in state.outputc:
-        next_nodes = state.flow(node)
-        vs = []
-        if isinstance(next_nodes, int):
-            vs = [next_nodes]
-        else:
-            # check indx where the flow is 1
-            vs = [i for i, x in enumerate(next_nodes) if x == 1]
-
-        for v in vs:
-            dflow.add_edge(node, v)
+        dflow.add_edge(node, state.flow(node))
     return dflow

@@ -48,7 +48,7 @@ class AdamOpt(BaseOpt):
         b1=0.9,
         b2=0.999,
         eps=10**-8,
-        gradient_method="parameter-shift",
+        gradient_method="finite-difference",
         gradient_kwargs=None,
     ) -> None:
         """Initialize the Adam optimizer."""
@@ -59,58 +59,26 @@ class AdamOpt(BaseOpt):
         self.b1 = b1
         self.b2 = b2
         self.eps = eps
-        self.m = None
-        self.v = None
+        self.reset()
 
-    def step(self, f, x, i, **kwargs):
-        """Take a step of the optimizer."""
-        x = np.asarray(x, dtype=float)
+    def _step(self, f, x, **kwargs):
         g = self._gradient(f, x, **kwargs)
         if self.m is None:
-            self.m = np.zeros_like(x, dtype=float)
-        if self.v is None:
-            self.v = np.zeros_like(x, dtype=float)
+            self.m = np.zeros_like(x)
+            self.v = np.zeros_like(x)
         self.m = self.b1 * self.m + (1 - self.b1) * g
         self.v = self.b2 * self.v + (1 - self.b2) * g**2
-        m_hat = self.m / (1 - self.b1 ** (i + 1))
-        v_hat = self.v / (1 - self.b2 ** (i + 1))
+        self._steps += 1
+        m_hat = self.m / (1 - self.b1**self._steps)
+        v_hat = self.v / (1 - self.b2**self._steps)
         x = x - self.step_size * m_hat / (np.sqrt(v_hat) + self.eps)
-        return x
-
-    def optimize(self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs):
-        """Optimize a function f using the Adam optimizer."""
-        x = np.asarray(x0, dtype=float)
-        for i in range(num_iters):
-            x = self.step(f, x, i, **kwargs)
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1}/{num_iters} - x: {x}")
-        return x
+        return x, np.linalg.norm(g)
 
     def update_step_size(self, x, i, factor=0.99):
         """Update the step size of the optimizer."""
         self.step_size = self.step_size * factor
 
-    def optimize_and_gradient_norm(
-        self, f, x0, num_iters=100, callback=None, verbose=False, **kwargs
-    ):
-        """Optimize a function f using the Adam optimizer."""
-        x = np.asarray(x0, dtype=float)
-        norm = np.zeros(num_iters)
-
-        for i in range(num_iters):
-            g = self._gradient(f, x, **kwargs)
-            x = self.step(f, x, i, gradient=g)
-            norm[i] = np.linalg.norm(g)
-            if callback is not None:
-                callback(x, i)
-            if verbose:
-                print(f"Iteration {i+1} of {num_iters}: {x} with value {f(x)}")
-
-        return x, norm
-
     def reset(self):
-        """Reset the optimizer."""
-        self.m = None
-        self.v = None
+        """Clear the moments and step count."""
+        self.m = self.v = None
+        self._steps = 0

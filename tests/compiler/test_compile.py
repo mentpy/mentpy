@@ -68,3 +68,13 @@ def test_compile_rejects_unknown_reduction():
 def test_compile_rejects_unknown_backend():
     with pytest.raises(ValueError, match="'pyzx'"):
         mp.compile(QASM_HH, backend="other")
+
+
+def test_from_qasm_without_optimization_skips_zx_graph(monkeypatch):
+    zx = pytest.importorskip("pyzx")
+
+    def unexpected_graph(*args, **kwargs):
+        pytest.fail("Direct QASM import should not build a ZX graph.")
+
+    monkeypatch.setattr(zx.Circuit, "to_graph", unexpected_graph)
+    assert len(mp.from_qasm(QASM_HH).trainable_nodes) == 0

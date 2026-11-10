@@ -3,6 +3,8 @@
 TAKEN FROM: https://github.com/XanaduAI/flamingpy/blob/main/flamingpy/utils/linalg.py
 """
 
+from itertools import combinations, product
+
 import numpy as np
 import networkx as nx
 
@@ -116,46 +118,19 @@ def search_nullspace(basis):
     Returns:
         NoneType or numpy.array: None if no solution, or the solution array.
     """
-    # number of basis vectors of null space
-    d = basis.shape[0]
-    # number of nodes/qubits
-    n = int(basis.shape[1] / 4)
-    # boolean for LC equivalence
-    equivalent = False
-    # array to store potential solutions
-    sols = []
-    # search through distinct pairs of basis vectors
-    for i in range(d):
-        for j in range(i):
-            # boolean for checking solution constraints
-            sat = True
-            # potential solution as sum (modulo 2) of basis pair
-            sol = np.vectorize(lambda x: x % 2)(np.add(basis[i], basis[j]))
-            # store potential solution
-            sols.append(sol)
-            for k in range(n):
-                # check the determinants (modulo 2)
-                det = (sol[k] * sol[k + 3 * n] + sol[k + n] * sol[k + 2 * n]) % 2
-                if det != 1:
-                    # constraints not satisfied
-                    sat = False
-                    # remove the false solution
-                    sols.pop()
-                    break
-            # if solution found, set equivalent to True
-            if sat:
-                # equivalence is satisfied
-                equivalent = sat
-                break
-        # end search loop
-        if equivalent:
-            break
-    # if no solution found, return None
-    if not equivalent:
-        return None
-    # if solution found, return clifford in vector form
-    solution_vector = np.array(sols[0]).astype(int)
-    return solution_vector
+    dimension = len(basis)
+    if dimension <= 4:
+        candidates = (
+            np.asarray(bits, dtype=int) @ basis % 2
+            for bits in product((0, 1), repeat=dimension)
+        )
+    else:
+        candidates = (left ^ right for left, right in combinations(basis, 2))
+    for candidate in candidates:
+        a, b, c, d = candidate.reshape(4, -1)
+        if np.all((a * d + b * c) % 2 == 1):
+            return candidate
+    return None
 
 
 def clifford_vec_to_tensors(vec):
@@ -218,8 +193,8 @@ def are_lc_equivalent(graph1, graph2, clifford_form="tensor"):
     graph1, graph2 : GraphState
         Graph states to compare.
     clifford_form : str
-        ``"tensor"`` returns a list of single-qubit 2 by 2 factors.
-        ``"global"`` returns the full operator on all qubits.
+        ``"tensor"`` returns one binary symplectic matrix per qubit.
+        ``"global"`` returns the combined binary symplectic matrix.
 
     Returns
     -------
@@ -230,22 +205,16 @@ def are_lc_equivalent(graph1, graph2, clifford_form="tensor"):
     -----
     utils
     """
-    # get adjacency matrices of input graphs
-    G = nx.adjacency_matrix(graph1.graph)
-    H = nx.adjacency_matrix(graph2.graph)
-
-    # check adjacency matrices for same non-empty square shape
-    if np.shape(G) == (0, 0) or np.shape(H) == (0, 0):
-        # raise ValueError('Input Graphs must be non-empty')
-        # Mark this case as not equivalent
+    if clifford_form not in {"tensor", "global"}:
+        raise ValueError("clifford_form must be 'tensor' or 'global'.")
+    graph1 = graph1 if isinstance(graph1, nx.Graph) else graph1.graph
+    graph2 = graph2 if isinstance(graph2, nx.Graph) else graph2.graph
+    if not len(graph1) or len(graph1) != len(graph2):
         return False, None
-    if np.shape(G) != np.shape(H):
-        # raise ValueError('Input Graphs must have same number of nodes.')
-        # Mark this case as not equivalent
-        return False, None
-    # adjacency matrices must be square
-    if np.shape(G)[0] != np.shape(G)[1]:
-        raise ValueError("Input matrices must be square.")
+    nodes = list(graph1)
+    matching_nodes = nodes if set(graph1) == set(graph2) else None
+    G = nx.to_numpy_array(graph1, nodelist=nodes, dtype=int, weight=None)
+    H = nx.to_numpy_array(graph2, nodelist=matching_nodes, dtype=int, weight=None)
 
     # perform algorithm to search for solution
     #
