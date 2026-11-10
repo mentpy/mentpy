@@ -127,6 +127,7 @@ mathjax3_config = {
 
 html_theme = "sphinx_immaterial"
 html_static_path = ["_static"]
+html_css_files = ["logo.css"]
 
 html_title = "MentPy"
 html_favicon = "_static/favicon-32x32.png"
