@@ -17,7 +17,9 @@ We will use the :obj:`PatternSimulator` class to create a simulator. Let's try i
     print(simulator)
 
 Choose ``backend="numpy"`` for general measurements and sampled branches.
-Use ``backend="jax-tn"`` for differentiating an X, Y, or XY postselected pattern.
+Use ``backend="rust"`` for native tensor contraction and gradients of
+postselected patterns, including XY, XZ, YZ, XYZ and Pauli measurements.
+``backend="jax-tn"`` remains available for code using JAX transformations.
 
 For larger forced-outcome patterns, the ``jax-tn`` backend contracts the MBQC
 graph as a tensor network with JAX arrays. This backend supports JAX autodiff and
@@ -63,14 +65,14 @@ keyword argument ``input_state``.
 Observable costs
 ----------------
 
-The JAX tensor-network backend can evaluate Pauli-sum observables directly,
+The Rust tensor-network backend can evaluate Pauli-sum observables directly,
 which is useful for variational algorithms.
 
 .. ipython:: python
 
     wire = mp.templates.linear_cluster(5)
     observable = mp.Observable({"Z": 1.0})
-    simulator = mp.PatternSimulator(wire, backend='jax-tn')
+    simulator = mp.PatternSimulator(wire, backend='rust')
     value, gradient = simulator.expectation_and_grad(
         np.zeros(len(wire.trainable_nodes)),
         observable,
@@ -95,11 +97,24 @@ shot count to the same observable API:
     )
     print(exact_value, shot_value)
 
-Use ``expectation_and_grad`` for exact JAX objectives. For finite-shot
+Use ``expectation_and_grad`` for exact observable objectives. For finite-shot
 objectives, differentiate a cost function with
 ``mp.gradients.get_gradient(cost, angles, method="parameter-shift")`` instead.
 See :doc:`../tutorials/intro-mb-vqe` for an ansatz, a molecular Hamiltonian, and
 an explicit optimization loop.
+
+The Rust backend differentiates the normalized branch, so it includes changes
+in postselection probability. Parameters follow ``trainable_nodes`` order;
+XYZ measurements use a pair of angles and return a pair of derivatives.
+Both tensor backends currently require ``force0=True``. ``sample`` draws output
+shots from that selected branch; use the NumPy backend with ``force0=False``
+to resample intermediate measurements and apply feed-forward.
+
+Native contractions represent default plus-state inputs implicitly and split
+high-degree copy tensors into rank-three factors. ``max_elements`` limits the
+size of an individual planned tensor; it is not a bound on total memory used
+by the gradient tape. Returning a statevector still requires exponential
+memory in the number of quantum outputs.
 
 .. _clifford-t-long-wire:
 

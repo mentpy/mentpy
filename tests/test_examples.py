@@ -15,7 +15,6 @@ EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
 
 def test_molecular_energy_loop():
-    pytest.importorskip("jax")
     result = runpy.run_path(str(EXAMPLES / "vqe.py"))
     try:
         energies = np.asarray(result["energies"])
@@ -29,7 +28,6 @@ def test_molecular_energy_loop():
 
 
 def test_molecular_geometry_sweep():
-    pytest.importorskip("jax")
     pyscf = pytest.importorskip("pyscf")
     pytest.importorskip("openfermionpyscf")
     previous_threads = pyscf.lib.num_threads()

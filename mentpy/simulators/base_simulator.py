@@ -159,7 +159,10 @@ class BaseSimulator(abc.ABC):
             self.probabilities(angles, basis=basis, **kwargs), dtype=float
         )
         probs = probs / probs.sum()
-        indices = np.random.default_rng(seed).choice(len(probs), size=shots, p=probs)
+        rng = np.random.default_rng(
+            seed if seed is not None else getattr(self, "rng", None)
+        )
+        indices = rng.choice(len(probs), size=shots, p=probs)
         shifts = np.arange(len(nodes) - 1, -1, -1)
         bits = (indices[:, None] >> shifts) & 1
         return Samples(bits, nodes, basis)
@@ -172,9 +175,10 @@ class BaseSimulator(abc.ABC):
         kwargs.pop("output_form", None)
         if self._statevector_output:
             kwargs["output_form"] = "sv"
-        state = self.run(angles, **kwargs)
+        state = self.run(angles, seed=seed, **kwargs)
         if shots is None:
             return observable.expectation(state)
+        seed = seed if seed is not None else getattr(self, "rng", None)
         return observable.sample_expectation(state, shots=shots, seed=seed)
 
     @abc.abstractmethod

@@ -4,7 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Optimize an H2 energy with an MBQC ansatz and plot its convergence.
 
-Run ``python examples/vqe.py`` with ``mentpy[jax]`` installed.
+Run ``python examples/vqe.py`` with ``mentpy`` installed.
 The Hamiltonian was generated with OpenFermion/PySCF for H2 at 0.74 Angstrom,
 STO-3G, Jordan-Wigner mapping, including nuclear repulsion.
 """
@@ -41,7 +41,7 @@ hamiltonian = mp.Observable(
 )
 
 # Simulator
-simulator = mp.PatternSimulator(ansatz, input_state=initial_state, backend="jax-tn")
+simulator = mp.PatternSimulator(ansatz, input_state=initial_state, backend="rust")
 
 
 def energy(parameters):

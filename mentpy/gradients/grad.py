@@ -52,7 +52,7 @@ def get_gradient(cost, x, method="parameter-shift", *args, **kwargs):
             if not _HAS_JAX:
                 raise ImportError(
                     "JAX is required for autodiff gradients. "
-                    "Install it with: pip install 'mentpy[jax]'"
+                    "Reinstall mentpy to restore its standard dependencies."
                 )
             return jax_gradient(cost, x, *args, **kwargs)
         case _:
@@ -73,7 +73,7 @@ def get_value_and_gradient(cost, x, method="auto", *args, **kwargs):
         if not _HAS_JAX:
             raise ImportError(
                 "JAX is required for autodiff gradients. "
-                "Install it with: pip install 'mentpy[jax]'"
+                "Reinstall mentpy to restore its standard dependencies."
             )
         return jax_value_and_gradient(cost, x, *args, **kwargs)
 
@@ -105,7 +105,7 @@ def get_hessian(cost, x, method="parameter-shift", *args, **kwargs):
             if not _HAS_JAX:
                 raise ImportError(
                     "JAX is required for autodiff Hessians. "
-                    "Install it with: pip install 'mentpy[jax]'"
+                    "Reinstall mentpy to restore its standard dependencies."
                 )
             return jax_hessian(cost, x, *args, **kwargs)
         case _:

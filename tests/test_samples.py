@@ -10,6 +10,21 @@ import mentpy as mp
 from mentpy.simulators.results import measurement_probabilities
 
 
+@pytest.mark.parametrize("backend", ["numpy", "jax-tn", "rust"])
+def test_constructor_seed_controls_output_stream(backend):
+    pattern = mp.templates.linear_cluster(3)
+    first = mp.PatternSimulator(pattern, backend=backend, seed=51)
+    second = mp.PatternSimulator(pattern, backend=backend, seed=51)
+    for _ in range(2):
+        np.testing.assert_array_equal(
+            first.sample([0.2, 0.3], shots=30).bitstrings,
+            second.sample([0.2, 0.3], shots=30).bitstrings,
+        )
+        assert first.expectation([0.2, 0.3], "Z", shots=30) == second.expectation(
+            [0.2, 0.3], "Z", shots=30
+        )
+
+
 @pytest.mark.parametrize(
     "backend", ["trajectory", "numpy-sv", "numpy-dm", "jax-tn", "pennylane"]
 )
