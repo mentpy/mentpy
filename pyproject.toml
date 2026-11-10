@@ -13,7 +13,7 @@ description = "A Python library for simulating MBQC circuits"
 readme = "README.md"
 authors = [{name = "Luis Mantilla", email = "contact@mentpy.com"}]
 license = "Apache-2.0"
-license-files = ["LICENSE"]
+license-files = ["LICENSE", "NOTICE"]
 classifiers = [
     "Programming Language :: Python :: 3",
 ]

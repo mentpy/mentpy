@@ -17,6 +17,15 @@ from mentpy import _rust
 DEVICE = os.environ.get("MENTPY_TEST_DEVICE", "cpu")
 
 
+def test_large_angles_are_not_snapped_to_clifford_values():
+    pattern = mp.templates.linear_cluster(2)
+    angle = 2**40 * np.pi
+    sim = mp.PatternSimulator(pattern, backend="rust", device=DEVICE)
+    value, gradient = sim.expectation_and_grad([angle], "Y")
+    np.testing.assert_allclose(value, np.sin(angle), atol=1e-12)
+    np.testing.assert_allclose(gradient, [np.cos(angle)], atol=1e-12)
+
+
 @pytest.mark.parametrize("plane", ["XY", "XZ", "YZ", "X", "Y", "Z"])
 def test_planes_and_gradients(plane):
     rng = np.random.default_rng(31)

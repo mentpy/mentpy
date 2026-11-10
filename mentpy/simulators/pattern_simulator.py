@@ -10,6 +10,7 @@ import numpy as np
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 from .numpy_simulator import NumpySimulator
 from .rust_simulator import RustSimulator
+from .pauli_simulator import PauliSimulator
 
 try:
     from mentpy.simulators.jax_tn_simulator import JaxTNSimulator
@@ -34,10 +35,11 @@ class PatternSimulator:
         "rust" (default) supports native tensor contraction, gradients, and
         sampled trajectories. "numpy" provides a reference implementation;
         "jax-tn" supports existing JAX transformations on postselected patterns.
+        "pauli" propagates sparse observables through causal-flow XY patterns.
 
     See Also
     --------
-    :class:`mp.NumpySimulator`, :class:`mp.RustSimulator`, :class:`mp.JaxTNSimulator`
+    :class:`mp.NumpySimulator`, :class:`mp.RustSimulator`, :class:`mp.JaxTNSimulator`, :class:`mp.PauliSimulator`
 
     Group
     -----
@@ -52,7 +54,11 @@ class PatternSimulator:
         *args,
         **kwargs,
     ) -> None:
-        supported_backends = {"numpy": NumpySimulator, "rust": RustSimulator}
+        supported_backends = {
+            "numpy": NumpySimulator,
+            "rust": RustSimulator,
+            "pauli": PauliSimulator,
+        }
         if _HAS_JAX:
             supported_backends["jax-tn"] = JaxTNSimulator
 

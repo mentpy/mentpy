@@ -13,7 +13,7 @@ We will use the :obj:`PatternSimulator` class to create a simulator. Let's try i
 .. ipython:: python
 
     grid_cluster = mp.templates.grid_cluster(3, 5)
-    simulator = mp.PatternSimulator(grid_cluster, backend='numpy')
+    simulator = mp.PatternSimulator(grid_cluster)
     print(simulator)
 
 The default ``backend="rust"`` supports native tensor contraction, sampled
@@ -118,6 +118,51 @@ high-degree copy tensors into rank-three factors. ``max_elements`` limits the
 size of an individual planned tensor; it is not a bound on total memory used
 by the gradient tape. Returning a statevector still requires exponential
 memory in the number of quantum outputs.
+
+Pauli propagation
+-----------------
+
+When you need an expectation rather than the entire output state, use
+``backend="pauli"`` for causal-flow patterns with X, Y or XY measurements.
+The backend follows the flow paths to obtain logical rotations and CZ gates,
+then propagates the observable backward as a sparse Pauli sum. Propagation and
+reverse-mode gradients run in Rust; packed Pauli words and Clifford operations
+come from `PPVM <https://github.com/QuEraComputing/ppvm>`_. These features are
+included in the standard installation.
+
+.. ipython:: python
+
+    pattern = mp.templates.grid_cluster(2, 4)
+    simulator = mp.PatternSimulator(pattern, backend="pauli")
+    angles = np.full(len(pattern.trainable_nodes), 0.3)
+    observable = mp.Observable({"ZZ": 0.7, "XY": -0.2})
+    value, gradient = simulator.expectation_and_grad(angles, observable)
+    print(value, gradient.shape)
+
+This avoids an exponential output-state allocation and is useful for wide
+patterns whose observables remain sparse. Non-Clifford rotations can still
+produce exponentially many terms. ``max_terms`` limits the expansion and
+``max_tape`` limits gradient storage; exceeding either raises an error without
+truncating the result. ``peak_terms`` reports the largest expansion of the last
+call. Gradients preserve terms whose value is zero but whose derivative is
+nonzero, including at Clifford angles.
+
+The current implementation supports up to 1024 logical wires, unmeasured
+outputs, and arbitrary normalized input vectors in input-node order. Default
+plus inputs and additional plus-state path roots stay implicit. Patterns with
+only generalized flow or Pauli flow are not yet supported by this backend.
+There is no approximate truncation mode or cuPauliProp device integration yet.
+
+With ``force0=False``, exact expectations describe a sampled corrected
+trajectory. Finite-shot expectations sample the Pauli eigenvalue and resample
+adaptive trajectories for each shot. Their distribution agrees with state
+simulation; the same seed need not produce the same bit sequence across
+different algorithms. Native gradients require ``force0=True``.
+
+``run``, ``probabilities`` and joint ``sample`` calls use the Rust state
+simulator, with its usual output-memory costs. Use ``expectation`` or
+``expectation_and_grad`` to obtain the sparse-propagation benefits. Run
+``python -m benchmarks.pauli`` to compare the two algorithms on your machine.
 
 .. _clifford-t-long-wire:
 

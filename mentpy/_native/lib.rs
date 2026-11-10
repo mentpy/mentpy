@@ -4,6 +4,7 @@ use pyo3::types::PyBytes;
 
 mod contract;
 mod flow;
+mod pauli;
 mod tensor;
 mod tn;
 mod trajectory;
@@ -288,6 +289,7 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
 fn _rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<tn::TensorNetwork>()?;
     m.add_class::<trajectory::Frontier>()?;
+    m.add_class::<pauli::PauliCircuit>()?;
     m.add_function(wrap_pyfunction!(flow::pflow_matrices, m)?)?;
     m.add_function(wrap_pyfunction!(flow::solve_dag, m)?)?;
     m.add_function(wrap_pyfunction!(flow::gflow, m)?)?;

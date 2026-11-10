@@ -182,10 +182,20 @@ impl Tape {
     }
 }
 
-pub fn sin_cos(angle: f64) -> (f64, f64) {
+pub fn clifford(angle: f64) -> Option<usize> {
     let quarters = angle / std::f64::consts::FRAC_PI_2;
-    if quarters.fract() == 0. && quarters.abs() < i64::MAX as f64 {
-        let q = (quarters as i64).rem_euclid(4) as usize;
+    // Beyond one turn, floating-point multiples of pi accumulate reduction
+    // error. In particular, a very large angle can divide to an integer while
+    // its actual sine is far from zero. Keep libm's accurate range reduction.
+    if quarters.fract() == 0. && quarters.abs() <= 4. {
+        Some((quarters as i64).rem_euclid(4) as usize)
+    } else {
+        None
+    }
+}
+
+pub fn sin_cos(angle: f64) -> (f64, f64) {
+    if let Some(q) = clifford(angle) {
         ([0., 1., 0., -1.][q], [1., 0., -1., 0.][q])
     } else {
         angle.sin_cos()
