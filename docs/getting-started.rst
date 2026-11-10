@@ -81,6 +81,10 @@ Contributors are encouraged to follow the repository contributing guidelines
 when submitting enhancements or bug fixes.
 
 Rust acceleration is optional. When a Rust toolchain is available, installation
-builds ``mentpy._rust`` to accelerate GF(2) linear algebra used in flow analysis.
-The source lives in ``mentpy/_native``; the same routines have a NumPy fallback.
+builds ``mentpy._rust`` to run generalized-flow and algebraic Pauli-flow solves,
+including GF(2) elimination and acyclic correction selection, in Rust. Generalized
+flow reuses one elimination for all candidate measurements in each layer.
+The source lives in ``mentpy/_native``; Python reference implementations remain
+available when the extension is absent. Run ``python -m benchmarks.flow`` from
+the repository to compare complete solves on the current machine.
 JAX tensor-network simulation and autodiff do not require Rust.
