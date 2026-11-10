@@ -61,8 +61,10 @@ jobs:
             arch: aarch64
           - runner: macos-15
             arch: arm64
+            deployment_target: '11.0'
           - runner: macos-15-intel
             arch: x86_64
+            deployment_target: '10.12'
           - runner: windows-2025
             arch: AMD64
     runs-on: ${{ matrix.runner }}
@@ -84,6 +86,7 @@ jobs:
         CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
         CIBW_BEFORE_ALL_LINUX: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
         CIBW_ENVIRONMENT_LINUX: 'PATH="$HOME/.cargo/bin:$PATH"'
+        CIBW_ENVIRONMENT_MACOS: 'MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment_target }}'
         CIBW_TEST_COMMAND: python {project}/tests/wheel_smoke.py
     - name: Validate distribution metadata
       run: python -m twine check --strict dist/*
