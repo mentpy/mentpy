@@ -13,11 +13,13 @@ We will use the :obj:`PatternSimulator` class to create a simulator. Let's try i
 .. ipython:: python
 
     grid_cluster = mp.templates.grid_cluster(3, 5)
-    simulator = mp.PatternSimulator(grid_cluster, backend='numpy')
+    simulator = mp.PatternSimulator(grid_cluster)
     print(simulator)
 
-Choose ``backend="numpy"`` for general measurements and sampled branches.
-Use ``backend="jax-tn"`` for differentiating an X, Y, or XY postselected pattern.
+The default ``backend="rust"`` supports native tensor contraction, sampled
+trajectories, and gradients of postselected patterns, including XY, XZ, YZ,
+XYZ and Pauli measurements. ``backend="numpy"`` is a reference implementation.
+``backend="jax-tn"`` remains available for code using JAX transformations.
 
 For larger forced-outcome patterns, the ``jax-tn`` backend contracts the MBQC
 graph as a tensor network with JAX arrays. This backend supports JAX autodiff and
@@ -63,14 +65,14 @@ keyword argument ``input_state``.
 Observable costs
 ----------------
 
-The JAX tensor-network backend can evaluate Pauli-sum observables directly,
+The Rust tensor-network backend can evaluate Pauli-sum observables directly,
 which is useful for variational algorithms.
 
 .. ipython:: python
 
     wire = mp.templates.linear_cluster(5)
     observable = mp.Observable({"Z": 1.0})
-    simulator = mp.PatternSimulator(wire, backend='jax-tn')
+    simulator = mp.PatternSimulator(wire, backend='rust')
     value, gradient = simulator.expectation_and_grad(
         np.zeros(len(wire.trainable_nodes)),
         observable,
@@ -95,11 +97,101 @@ shot count to the same observable API:
     )
     print(exact_value, shot_value)
 
-Use ``expectation_and_grad`` for exact JAX objectives. For finite-shot
+Use ``expectation_and_grad`` for exact observable objectives. For finite-shot
 objectives, differentiate a cost function with
 ``mp.gradients.get_gradient(cost, angles, method="parameter-shift")`` instead.
 See :doc:`../tutorials/intro-mb-vqe` for an ansatz, a molecular Hamiltonian, and
 an explicit optimization loop.
+
+The Rust backend differentiates the normalized branch, so it includes changes
+in postselection probability. Parameters follow ``trainable_nodes`` order;
+XYZ measurements use a pair of angles and return a pair of derivatives.
+With ``force0=True``, ``sample`` draws output shots from the selected branch.
+With ``force0=False``, the Rust backend uses a lazy statevector trajectory and
+resamples intermediate measurements for every output shot, applying available
+flow corrections. Exact expectations in this mode describe one sampled branch,
+not an ensemble average. Native gradients require ``force0=True``. The JAX
+compatibility backend only supports postselected tensor contraction.
+
+Native contractions represent default plus-state inputs implicitly and split
+high-degree copy tensors into rank-three factors. ``max_elements`` limits the
+size of an individual planned tensor; it is not a bound on total memory used
+by the gradient tape. Returning a statevector still requires exponential
+memory in the number of quantum outputs.
+
+Pauli propagation
+-----------------
+
+When you need an expectation rather than the entire output state, use
+``backend="pauli"`` for causal-flow patterns with X, Y or XY measurements.
+The backend follows the flow paths to obtain logical rotations and CZ gates,
+then propagates the observable backward as a sparse Pauli sum. Propagation and
+reverse-mode gradients run in Rust; packed Pauli words and Clifford operations
+come from `PPVM <https://github.com/QuEraComputing/ppvm>`_. These features are
+included in the standard installation.
+
+.. ipython:: python
+
+    pattern = mp.templates.grid_cluster(2, 4)
+    simulator = mp.PatternSimulator(pattern, backend="pauli")
+    angles = np.full(len(pattern.trainable_nodes), 0.3)
+    observable = mp.Observable({"ZZ": 0.7, "XY": -0.2})
+    value, gradient = simulator.expectation_and_grad(angles, observable)
+    print(value, gradient.shape)
+
+This avoids an exponential output-state allocation and is useful for wide
+patterns whose observables remain sparse. Non-Clifford rotations can still
+produce exponentially many terms. ``max_terms`` limits the expansion and
+``max_tape`` limits gradient storage; exceeding either raises an error without
+truncating the result. ``peak_terms`` reports the largest expansion of the last
+call. Gradients preserve terms whose value is zero but whose derivative is
+nonzero, including at Clifford angles.
+
+The current implementation supports up to 1024 logical wires, unmeasured
+outputs, and arbitrary normalized input vectors in input-node order. Default
+plus inputs and additional plus-state path roots stay implicit. Patterns with
+only generalized flow or Pauli flow are not yet supported by this backend.
+There is no approximate truncation mode yet.
+
+With ``force0=False``, exact expectations describe a sampled corrected
+trajectory. Finite-shot expectations sample the Pauli eigenvalue and resample
+adaptive trajectories for each shot. Their distribution agrees with state
+simulation; the same seed need not produce the same bit sequence across
+different algorithms. Native gradients require ``force0=True``.
+
+``run``, ``probabilities`` and joint ``sample`` calls use the Rust state
+simulator, with its usual output-memory costs. Use ``expectation`` or
+``expectation_and_grad`` to obtain the sparse-propagation benefits. Run
+``python -m benchmarks.pauli`` to compare the two algorithms on your machine.
+
+On Linux with an NVIDIA GPU, select ``device="cuda:0"`` to use cuPauliProp
+through MentPy's native Rust interface. The standard Linux installation includes
+cuPauliProp and the CUDA runtime; a compatible CUDA 13 driver is required. A
+CUDA toolkit and a separate MentPy extra are not needed. CPU installations do
+not load these libraries or initialize a GPU.
+
+.. code-block:: python
+
+    simulator = mp.PatternSimulator(pattern, backend="pauli", device="cuda:0")
+    value, gradient = simulator.expectation_and_grad(angles, observable)
+
+GPU expectations and reverse-mode differentiation preserve the same branch and
+ordering conventions. Default plus-state readout stays on GPU. For an explicit
+entangled input vector, its final Pauli expectations are computed in Rust on CPU
+using the supplied vector, and their cotangents seed GPU backpropagation. This
+avoids expanding the input into a density operator. State/probability/joint-shot
+methods still use the CPU Rust state simulator.
+
+``max_memory`` limits MentPy's owned GPU buffers, including the saved expansions
+and workspace. It excludes the CUDA context, library internals and host metadata.
+The default is 256 MiB. Exceeding this limit or ``max_terms`` raises an error;
+the calculation does not silently truncate or switch devices. CPU gradients use
+``max_tape`` instead. ``CUDA_VISIBLE_DEVICES`` is respected.
+
+GPU launch and allocation costs dominate small patterns. Use
+``python -m benchmarks.cupauli --device cuda:0`` to measure first-call latency,
+warm runtime, and term growth against CPU propagation. The benchmark checks
+expectations and derivatives before reporting timings.
 
 .. _clifford-t-long-wire:
 

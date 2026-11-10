@@ -391,6 +391,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -596,6 +620,16 @@
     
     <span class="md-ellipsis">
       <span>Observable costs</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pauli-propagation" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Pauli propagation</span>
     </span>
   </a>
   
@@ -1024,6 +1058,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#pauli-propagation" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Pauli propagation</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#clifford-t-rotations-on-a-long-wire" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -1085,14 +1129,16 @@
 We will use the <code class="xref py py-obj docutils literal notranslate"><span class="pre">PatternSimulator</span></code> class to create a simulator. Let’s try it out</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="n">grid_cluster</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">grid_cluster</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 
-<span class="gp">In [2]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy'</span><span class="p">)</span>
+<span class="gp">In [2]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">)</span>
 
 <span class="gp">In [3]: </span><span class="nb">print</span><span class="p">(</span><span class="n">simulator</span><span class="p">)</span>
-<span class="go">PatternSimulator (NumpySimulator for MBQCircuit with 15 qubits.)</span>
+<span class="go">PatternSimulator (RustSimulator for MBQCircuit with 15 qubits.)</span>
 </code></pre></div>
 </div>
-<p>Choose <code class="docutils literal notranslate"><span class="pre">backend=&quot;numpy&quot;</span></code> for general measurements and sampled branches.
-Use <code class="docutils literal notranslate"><span class="pre">backend=&quot;jax-tn&quot;</span></code> for differentiating an X, Y, or XY postselected pattern.</p>
+<p>The default <code class="docutils literal notranslate"><span class="pre">backend=&quot;rust&quot;</span></code> supports native tensor contraction, sampled
+trajectories, and gradients of postselected patterns, including XY, XZ, YZ,
+XYZ and Pauli measurements. <code class="docutils literal notranslate"><span class="pre">backend=&quot;numpy&quot;</span></code> is a reference implementation.
+<code class="docutils literal notranslate"><span class="pre">backend=&quot;jax-tn&quot;</span></code> remains available for code using JAX transformations.</p>
 <p>For larger forced-outcome patterns, the <code class="docutils literal notranslate"><span class="pre">jax-tn</span></code> backend contracts the MBQC
 graph as a tensor network with JAX arrays. This backend supports JAX autodiff and
 can run on GPU when JAX is installed with CUDA support. It is most useful when
@@ -1135,13 +1181,13 @@ keyword argument <code class="docutils literal notranslate"><span class="pre">in
 </code></pre></div>
 </div>
 <h2 id="observable-costs">Observable costs<a class="headerlink" href="#observable-costs" title="Link to this heading">¶</a></h2>
-<p>The JAX tensor-network backend can evaluate Pauli-sum observables directly,
+<p>The Rust tensor-network backend can evaluate Pauli-sum observables directly,
 which is useful for variational algorithms.</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [14]: </span><span class="n">wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 
 <span class="gp">In [15]: </span><span class="n">observable</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Observable</span><span class="p">({</span><span class="s2">"Z"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">})</span>
 
-<span class="gp">In [16]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'jax-tn'</span><span class="p">)</span>
+<span class="gp">In [16]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'rust'</span><span class="p">)</span>
 
 <span class="gp">In [17]: </span><span class="n">value</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">expectation_and_grad</span><span class="p">(</span>
 <span class="gp">   ....: </span>    <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wire</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">)),</span>
@@ -1174,11 +1220,92 @@ shot count to the same observable API:</p>
 <span class="go">0.0 0.040000000000000036</span>
 </code></pre></div>
 </div>
-<p>Use <code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> for exact JAX objectives. For finite-shot
+<p>Use <code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> for exact observable objectives. For finite-shot
 objectives, differentiate a cost function with
 <code class="docutils literal notranslate"><span class="pre">mp.gradients.get_gradient(cost,</span> <span class="pre">angles,</span> <span class="pre">method=&quot;parameter-shift&quot;)</span></code> instead.
 See <a class="reference internal" href="../tutorials/intro-mb-vqe.html"><span class="doc">Molecular energies with an MBQC ansatz</span></a> for an ansatz, a molecular Hamiltonian, and
 an explicit optimization loop.</p>
+<p>The Rust backend differentiates the normalized branch, so it includes changes
+in postselection probability. Parameters follow <code class="docutils literal notranslate"><span class="pre">trainable_nodes</span></code> order;
+XYZ measurements use a pair of angles and return a pair of derivatives.
+With <code class="docutils literal notranslate"><span class="pre">force0=True</span></code>, <code class="docutils literal notranslate"><span class="pre">sample</span></code> draws output shots from the selected branch.
+With <code class="docutils literal notranslate"><span class="pre">force0=False</span></code>, the Rust backend uses a lazy statevector trajectory and
+resamples intermediate measurements for every output shot, applying available
+flow corrections. Exact expectations in this mode describe one sampled branch,
+not an ensemble average. Native gradients require <code class="docutils literal notranslate"><span class="pre">force0=True</span></code>. The JAX
+compatibility backend only supports postselected tensor contraction.</p>
+<p>Native contractions represent default plus-state inputs implicitly and split
+high-degree copy tensors into rank-three factors. <code class="docutils literal notranslate"><span class="pre">max_elements</span></code> limits the
+size of an individual planned tensor; it is not a bound on total memory used
+by the gradient tape. Returning a statevector still requires exponential
+memory in the number of quantum outputs.</p>
+<h2 id="pauli-propagation">Pauli propagation<a class="headerlink" href="#pauli-propagation" title="Link to this heading">¶</a></h2>
+<p>When you need an expectation rather than the entire output state, use
+<code class="docutils literal notranslate"><span class="pre">backend=&quot;pauli&quot;</span></code> for causal-flow patterns with X, Y or XY measurements.
+The backend follows the flow paths to obtain logical rotations and CZ gates,
+then propagates the observable backward as a sparse Pauli sum. Propagation and
+reverse-mode gradients run in Rust; packed Pauli words and Clifford operations
+come from <a class="reference external" href="https://github.com/QuEraComputing/ppvm">PPVM</a>. These features are
+included in the standard installation.</p>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [22]: </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">grid_cluster</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+<span class="gp">In [23]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"pauli"</span><span class="p">)</span>
+
+<span class="gp">In [24]: </span><span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pattern</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">),</span> <span class="mf">0.3</span><span class="p">)</span>
+
+<span class="gp">In [25]: </span><span class="n">observable</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Observable</span><span class="p">({</span><span class="s2">"ZZ"</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">"XY"</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.2</span><span class="p">})</span>
+
+<span class="gp">In [26]: </span><span class="n">value</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">expectation_and_grad</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">observable</span><span class="p">)</span>
+
+<span class="gp">In [27]: </span><span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">gradient</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">0.057388000531527816 (6,)</span>
+</code></pre></div>
+</div>
+<p>This avoids an exponential output-state allocation and is useful for wide
+patterns whose observables remain sparse. Non-Clifford rotations can still
+produce exponentially many terms. <code class="docutils literal notranslate"><span class="pre">max_terms</span></code> limits the expansion and
+<code class="docutils literal notranslate"><span class="pre">max_tape</span></code> limits gradient storage; exceeding either raises an error without
+truncating the result. <code class="docutils literal notranslate"><span class="pre">peak_terms</span></code> reports the largest expansion of the last
+call. Gradients preserve terms whose value is zero but whose derivative is
+nonzero, including at Clifford angles.</p>
+<p>The current implementation supports up to 1024 logical wires, unmeasured
+outputs, and arbitrary normalized input vectors in input-node order. Default
+plus inputs and additional plus-state path roots stay implicit. Patterns with
+only generalized flow or Pauli flow are not yet supported by this backend.
+There is no approximate truncation mode yet.</p>
+<p>With <code class="docutils literal notranslate"><span class="pre">force0=False</span></code>, exact expectations describe a sampled corrected
+trajectory. Finite-shot expectations sample the Pauli eigenvalue and resample
+adaptive trajectories for each shot. Their distribution agrees with state
+simulation; the same seed need not produce the same bit sequence across
+different algorithms. Native gradients require <code class="docutils literal notranslate"><span class="pre">force0=True</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code>, <code class="docutils literal notranslate"><span class="pre">probabilities</span></code> and joint <code class="docutils literal notranslate"><span class="pre">sample</span></code> calls use the Rust state
+simulator, with its usual output-memory costs. Use <code class="docutils literal notranslate"><span class="pre">expectation</span></code> or
+<code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> to obtain the sparse-propagation benefits. Run
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.pauli</span></code> to compare the two algorithms on your machine.</p>
+<p>On Linux with an NVIDIA GPU, select <code class="docutils literal notranslate"><span class="pre">device=&quot;cuda:0&quot;</span></code> to use cuPauliProp
+through MentPy’s native Rust interface. The standard Linux installation includes
+cuPauliProp and the CUDA runtime; a compatible CUDA 13 driver is required. A
+CUDA toolkit and a separate MentPy extra are not needed. CPU installations do
+not load these libraries or initialize a GPU.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"pauli"</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">"cuda:0"</span><span class="p">)</span>
+<span class="n">value</span><span class="p">,</span> <span class="n">gradient</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">expectation_and_grad</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">observable</span><span class="p">)</span>
+</code></pre></div>
+</div>
+<p>GPU expectations and reverse-mode differentiation preserve the same branch and
+ordering conventions. Default plus-state readout stays on GPU. For an explicit
+entangled input vector, its final Pauli expectations are computed in Rust on CPU
+using the supplied vector, and their cotangents seed GPU backpropagation. This
+avoids expanding the input into a density operator. State/probability/joint-shot
+methods still use the CPU Rust state simulator.</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_memory</span></code> limits MentPy’s owned GPU buffers, including the saved expansions
+and workspace. It excludes the CUDA context, library internals and host metadata.
+The default is 256 MiB. Exceeding this limit or <code class="docutils literal notranslate"><span class="pre">max_terms</span></code> raises an error;
+the calculation does not silently truncate or switch devices. CPU gradients use
+<code class="docutils literal notranslate"><span class="pre">max_tape</span></code> instead. <code class="docutils literal notranslate"><span class="pre">CUDA_VISIBLE_DEVICES</span></code> is respected.</p>
+<p>GPU launch and allocation costs dominate small patterns. Use
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.cupauli</span> <span class="pre">--device</span> <span class="pre">cuda:0</span></code> to measure first-call latency,
+warm runtime, and term growth against CPU propagation. The benchmark checks
+expectations and derivatives before reporting timings.</p>
 <h2 id="clifford-t-rotations-on-a-long-wire"><span id="clifford-t-long-wire"></span>Clifford+T rotations on a long wire<a class="headerlink" href="#clifford-t-rotations-on-a-long-wire" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">jax-tn</span></code> backend is especially useful for one-dimensional clusters. A
 long 1D cluster can represent a compiled single-qubit rotation using only
@@ -1192,17 +1319,17 @@ example with tolerance <code class="docutils literal notranslate"><span class="p
 when you want to compile new angles. The compiler is asked for <code class="docutils literal notranslate"><span class="pre">-target_theta</span></code>
 because the positive measurement pairs below implement the adjoint <code class="docutils literal notranslate"><span class="pre">S</span></code> and
 <code class="docutils literal notranslate"><span class="pre">T</span></code> phases in this forced-outcome convention.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [22]: </span><span class="n">target_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-3</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [28]: </span><span class="n">target_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">+</span> <span class="mf">1e-3</span>
 
-<span class="gp">In [23]: </span><span class="n">epsilon</span> <span class="o">=</span> <span class="s2">"1e-4"</span>
+<span class="gp">In [29]: </span><span class="n">epsilon</span> <span class="o">=</span> <span class="s2">"1e-4"</span>
 
-<span class="gp">In [24]: </span><span class="n">fallback_gates</span> <span class="o">=</span> <span class="p">(</span>
+<span class="gp">In [30]: </span><span class="n">fallback_gates</span> <span class="o">=</span> <span class="p">(</span>
 <span class="gp">   ....: </span>    <span class="s2">"HTHTSHTSHTHTSHTHTHTSHTSHTSHTSHTHTHTSHTSHTHTSHTHTHTHTHTHTHT"</span>
 <span class="gp">   ....: </span>    <span class="s2">"SHTHTHTSHTHTSHTHTSHTSHTSHTHTSHTSHTSHTSHTHTHTSHTSHTHTSHWWWWW"</span>
 <span class="gp">   ....: </span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [25]: </span><span class="k">try</span><span class="p">:</span>
+<span class="gp">In [31]: </span><span class="k">try</span><span class="p">:</span>
 <span class="gp">   ....: </span>    <span class="kn">import</span><span class="w"> </span><span class="nn">mpmath</span>
 <span class="gp">   ....: </span>    <span class="kn">from</span><span class="w"> </span><span class="nn">pygridsynth.gridsynth</span><span class="w"> </span><span class="kn">import</span> <span class="n">gridsynth_gates</span>
 <span class="gp">   ....: </span>    <span class="n">gates</span> <span class="o">=</span> <span class="n">gridsynth_gates</span><span class="p">(</span>
@@ -1213,7 +1340,7 @@ because the positive measurement pairs below implement the adjoint <code class="
 <span class="gp">   ....: </span>    <span class="n">gates</span> <span class="o">=</span> <span class="n">fallback_gates</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [26]: </span><span class="k">def</span><span class="w"> </span><span class="nf">clifford_t_to_1d_angles</span><span class="p">(</span><span class="n">gates</span><span class="p">):</span>
+<span class="gp">In [32]: </span><span class="k">def</span><span class="w"> </span><span class="nf">clifford_t_to_1d_angles</span><span class="p">(</span><span class="n">gates</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="n">angles</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="gp">   ....: </span>    <span class="k">for</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">gates</span><span class="p">:</span>
 <span class="gp">   ....: </span>        <span class="k">if</span> <span class="n">gate</span> <span class="o">==</span> <span class="s2">"H"</span><span class="p">:</span>
@@ -1231,24 +1358,24 @@ because the positive measurement pairs below implement the adjoint <code class="
 <span class="gp">   ....: </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [27]: </span><span class="n">angles</span> <span class="o">=</span> <span class="n">clifford_t_to_1d_angles</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
+<span class="gp">In [33]: </span><span class="n">angles</span> <span class="o">=</span> <span class="n">clifford_t_to_1d_angles</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span>
 
-<span class="gp">In [28]: </span><span class="n">wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+<span class="gp">In [34]: </span><span class="n">wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-<span class="gp">In [29]: </span><span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">wire</span><span class="o">.</span><span class="n">outputc</span><span class="p">,</span> <span class="n">angles</span><span class="p">):</span>
+<span class="gp">In [35]: </span><span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">wire</span><span class="o">.</span><span class="n">outputc</span><span class="p">,</span> <span class="n">angles</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="n">wire</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="n">angle</span><span class="p">,</span> <span class="s2">"XY"</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [30]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Clifford+T gates: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="gp">In [36]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Clifford+T gates: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gates</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="go">Clifford+T gates: 117</span>
 
-<span class="gp">In [31]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"T gates: </span><span class="si">{</span><span class="n">gates</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">'T'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="gp">In [37]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"T gates: </span><span class="si">{</span><span class="n">gates</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">'T'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="go">T gates: 44</span>
 
-<span class="gp">In [32]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"1D cluster nodes: </span><span class="si">{</span><span class="n">wire</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="gp">In [38]: </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"1D cluster nodes: </span><span class="si">{</span><span class="n">wire</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="go">1D cluster nodes: 180</span>
 
-<span class="gp">In [33]: </span><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">}))</span>
+<span class="gp">In [39]: </span><span class="nb">print</span><span class="p">(</span><span class="nb">sorted</span><span class="p">({</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">}))</span>
 <span class="go">[0.0, 0.25, 0.5]</span>
 </code></pre></div>
 </div>
@@ -1256,7 +1383,7 @@ because the positive measurement pairs below implement the adjoint <code class="
 pattern whose bases are only <code class="docutils literal notranslate"><span class="pre">X</span></code>, <code class="docutils literal notranslate"><span class="pre">Y</span></code>, and <code class="docutils literal notranslate"><span class="pre">(X+Y)/sqrt(2)</span></code>. We can verify
 the effective one-qubit unitary by simulating the two computational-basis inputs
 with the tensor-network backend:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [34]: </span><span class="k">def</span><span class="w"> </span><span class="nf">simulated_unitary</span><span class="p">(</span><span class="n">circuit</span><span class="p">):</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [40]: </span><span class="k">def</span><span class="w"> </span><span class="nf">simulated_unitary</span><span class="p">(</span><span class="n">circuit</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="n">columns</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="gp">   ....: </span>    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])]:</span>
 <span class="gp">   ....: </span>        <span class="n">output</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span>
@@ -1268,21 +1395,21 @@ with the tensor-network backend:</p>
 <span class="gp">   ....: </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [35]: </span><span class="k">def</span><span class="w"> </span><span class="nf">rz</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
+<span class="gp">In [41]: </span><span class="k">def</span><span class="w"> </span><span class="nf">rz</span><span class="p">(</span><span class="n">theta</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="n">j</span> <span class="o">*</span> <span class="n">theta</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5</span><span class="n">j</span> <span class="o">*</span> <span class="n">theta</span><span class="p">)])</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [36]: </span><span class="k">def</span><span class="w"> </span><span class="nf">operator_error_up_to_phase</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+<span class="gp">In [42]: </span><span class="k">def</span><span class="w"> </span><span class="nf">operator_error_up_to_phase</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="n">phase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vdot</span><span class="p">(</span><span class="n">actual</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
 <span class="gp">   ....: </span>    <span class="n">phase</span> <span class="o">=</span> <span class="n">phase</span> <span class="o">/</span> <span class="nb">abs</span><span class="p">(</span><span class="n">phase</span><span class="p">)</span>
 <span class="gp">   ....: </span>    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">phase</span> <span class="o">*</span> <span class="n">actual</span> <span class="o">-</span> <span class="n">target</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [37]: </span><span class="n">unitary</span> <span class="o">=</span> <span class="n">simulated_unitary</span><span class="p">(</span><span class="n">wire</span><span class="p">)</span>
+<span class="gp">In [43]: </span><span class="n">unitary</span> <span class="o">=</span> <span class="n">simulated_unitary</span><span class="p">(</span><span class="n">wire</span><span class="p">)</span>
 
-<span class="gp">In [38]: </span><span class="n">error</span> <span class="o">=</span> <span class="n">operator_error_up_to_phase</span><span class="p">(</span><span class="n">unitary</span><span class="p">,</span> <span class="n">rz</span><span class="p">(</span><span class="n">target_theta</span><span class="p">))</span>
+<span class="gp">In [44]: </span><span class="n">error</span> <span class="o">=</span> <span class="n">operator_error_up_to_phase</span><span class="p">(</span><span class="n">unitary</span><span class="p">,</span> <span class="n">rz</span><span class="p">(</span><span class="n">target_theta</span><span class="p">))</span>
 
-<span class="gp">In [39]: </span><span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="gp">In [45]: </span><span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
 <span class="go">4.975174462476754e-05</span>
 </code></pre></div>
 </div>
@@ -1294,36 +1421,36 @@ That is the kind of low-treewidth pattern where <code class="docutils literal no
 dense statevector simulator.</p>
 <p>This executed example keeps the docs build small while still using the same
 code path as the long compiled rotation above:</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [40]: </span><span class="n">large_n</span> <span class="o">=</span> <span class="mi">101</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [46]: </span><span class="n">large_n</span> <span class="o">=</span> <span class="mi">101</span>
 
-<span class="gp">In [41]: </span><span class="n">large_wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="n">large_n</span><span class="p">)</span>
+<span class="gp">In [47]: </span><span class="n">large_wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="n">large_n</span><span class="p">)</span>
 
-<span class="gp">In [42]: </span><span class="n">fixed_angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
+<span class="gp">In [48]: </span><span class="n">fixed_angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span>
 <span class="gp">   ....: </span>    <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">],</span>
 <span class="gp">   ....: </span>    <span class="nb">len</span><span class="p">(</span><span class="n">large_wire</span><span class="o">.</span><span class="n">outputc</span><span class="p">),</span>
 <span class="gp">   ....: </span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [43]: </span><span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">large_wire</span><span class="o">.</span><span class="n">outputc</span><span class="p">,</span> <span class="n">fixed_angles</span><span class="p">):</span>
+<span class="gp">In [49]: </span><span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">large_wire</span><span class="o">.</span><span class="n">outputc</span><span class="p">,</span> <span class="n">fixed_angles</span><span class="p">):</span>
 <span class="gp">   ....: </span>    <span class="n">large_wire</span><span class="p">[</span><span class="n">node</span><span class="p">]</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Ment</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">angle</span><span class="p">),</span> <span class="s2">"XY"</span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [44]: </span><span class="n">large_simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span>
+<span class="gp">In [50]: </span><span class="n">large_simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span>
 <span class="gp">   ....: </span>    <span class="n">large_wire</span><span class="p">,</span>
 <span class="gp">   ....: </span>    <span class="n">backend</span><span class="o">=</span><span class="s2">"jax-tn"</span><span class="p">,</span>
 <span class="gp">   ....: </span>    <span class="n">output_form</span><span class="o">=</span><span class="s2">"sv"</span><span class="p">,</span>
 <span class="gp">   ....: </span><span class="p">)</span>
 <span class="gp">   ....: </span>
 
-<span class="gp">In [45]: </span><span class="n">large_state</span> <span class="o">=</span> <span class="n">large_simulator</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
+<span class="gp">In [51]: </span><span class="n">large_state</span> <span class="o">=</span> <span class="n">large_simulator</span><span class="o">.</span><span class="n">run</span><span class="p">([])</span>
 
-<span class="gp">In [46]: </span><span class="nb">print</span><span class="p">(</span><span class="n">large_wire</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
+<span class="gp">In [52]: </span><span class="nb">print</span><span class="p">(</span><span class="n">large_wire</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">number_of_nodes</span><span class="p">())</span>
 <span class="go">101</span>
 
-<span class="gp">In [47]: </span><span class="nb">print</span><span class="p">(</span><span class="n">large_state</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="gp">In [53]: </span><span class="nb">print</span><span class="p">(</span><span class="n">large_state</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="go">(2,)</span>
 
-<span class="gp">In [48]: </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">large_state</span><span class="p">)))</span>
+<span class="gp">In [54]: </span><span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">large_state</span><span class="p">)))</span>
 <span class="go">0.9999999999999999</span>
 </code></pre></div>
 </div>
@@ -1357,24 +1484,24 @@ outputs or observable costs, and keep dense output states small.</p>
 <p><code class="docutils literal notranslate"><span class="pre">probabilities</span></code> returns exact output probabilities. <code class="docutils literal notranslate"><span class="pre">sample</span></code> returns a
 <code class="docutils literal notranslate"><span class="pre">Samples</span></code> object with output bitstrings, counts, shot count, measurement basis,
 and empirical frequencies. Output columns follow <code class="docutils literal notranslate"><span class="pre">quantum_output_nodes</span></code>.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [49]: </span><span class="n">wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [55]: </span><span class="n">wire</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">linear_cluster</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 
-<span class="gp">In [50]: </span><span class="n">sample_sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"jax-tn"</span><span class="p">)</span>
+<span class="gp">In [56]: </span><span class="n">sample_sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">wire</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"jax-tn"</span><span class="p">)</span>
 
-<span class="gp">In [51]: </span><span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wire</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">))</span>
+<span class="gp">In [57]: </span><span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wire</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">))</span>
 
-<span class="gp">In [52]: </span><span class="n">sample_sim</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
-<span class="gh">Out[52]: </span><span class="go">Array([0.5, 0.5], dtype=float64)</span>
+<span class="gp">In [58]: </span><span class="n">sample_sim</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+<span class="gh">Out[58]: </span><span class="go">Array([0.5, 0.5], dtype=float64)</span>
 
-<span class="gp">In [53]: </span><span class="n">samples</span> <span class="o">=</span> <span class="n">sample_sim</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">In [59]: </span><span class="n">samples</span> <span class="o">=</span> <span class="n">sample_sim</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
-<span class="gp">In [54]: </span><span class="n">samples</span><span class="o">.</span><span class="n">counts</span>
-<span class="gh">Out[54]: </span><span class="go">{'0': 517, '1': 507}</span>
+<span class="gp">In [60]: </span><span class="n">samples</span><span class="o">.</span><span class="n">counts</span>
+<span class="gh">Out[60]: </span><span class="go">{'0': 517, '1': 507}</span>
 
-<span class="gp">In [55]: </span><span class="n">x_samples</span> <span class="o">=</span> <span class="n">sample_sim</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"X"</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="gp">In [61]: </span><span class="n">x_samples</span> <span class="o">=</span> <span class="n">sample_sim</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">angles</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"X"</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
-<span class="gp">In [56]: </span><span class="n">x_samples</span><span class="o">.</span><span class="n">expectation</span>
-<span class="gh">Out[56]: </span><span class="go">1.0</span>
+<span class="gp">In [62]: </span><span class="n">x_samples</span><span class="o">.</span><span class="n">expectation</span>
+<span class="gh">Out[62]: </span><span class="go">1.0</span>
 </code></pre></div>
 </div>
 <h2 id="measurement-branches">Measurement branches<a class="headerlink" href="#measurement-branches" title="Link to this heading">¶</a></h2>

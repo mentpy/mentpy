@@ -14,7 +14,7 @@
         <link rel="prev" href="index.html">
       
       
-        <link rel="next" href="basic-usage/measurements-in-qm.html">
+        <link rel="next" href="native.html">
       
       
       <link rel="icon" href="_static/favicon-32x32.png">
@@ -70,7 +70,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#install-using-pip" class="md-skip">
+        <a href="#integrations" class="md-skip">
           Skip to content
         </a>
       
@@ -423,50 +423,40 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-using-pip" class="md-nav__link">
+  <a href="#integrations" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Install using pip</span>
+      <span>Integrations</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#optional-backends" class="md-nav__link">
+  <a href="#native-builds" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Optional backends</span>
+      <span>Native builds</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-from-source" class="md-nav__link">
+  <a href="#development-checks" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Install from Source</span>
+      <span>Development checks</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#development-installation" class="md-nav__link">
+  <a href="#native-dependency-notices" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Development Installation</span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-and-development" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Testing and Development</span>
+      <span>Native dependency notices</span>
     </span>
   </a>
   
@@ -476,6 +466,30 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -968,50 +982,40 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-using-pip" class="md-nav__link">
+  <a href="#integrations" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Install using pip</span>
+      <span>Integrations</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#optional-backends" class="md-nav__link">
+  <a href="#native-builds" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Optional backends</span>
+      <span>Native builds</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-from-source" class="md-nav__link">
+  <a href="#development-checks" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Install from Source</span>
+      <span>Development checks</span>
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#development-installation" class="md-nav__link">
+  <a href="#native-dependency-notices" class="md-nav__link">
     
     <span class="md-ellipsis">
-      <span>Development Installation</span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#testing-and-development" class="md-nav__link">
-    
-    <span class="md-ellipsis">
-      <span>Testing and Development</span>
+      <span>Native dependency notices</span>
     </span>
   </a>
   
@@ -1034,62 +1038,86 @@
 
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
-<p>The <a class="reference internal" href="#"><span class="doc">Installation</span></a> guide is intended to assist users with installing the library.</p>
-<h2 id="install-using-pip">Install using <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-using-pip" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library requires Python 3.10 or above. It can be installed from
-<a class="reference external" href="https://pypi.org/project/mentpy/">PyPI</a> using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>mentpy
+<p>MentPy requires Python 3.10 or above. Install it into your environment with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>mentpy
 </code></pre></div>
 </div>
-<h2 id="optional-backends">Optional backends<a class="headerlink" href="#optional-backends" title="Link to this heading">¶</a></h2>
-<p>Install optional extras for the heavier integrations only when you need them:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[jax]"</span><span class="w">        </span><span class="c1"># JAX tensor-network backend</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[compiler]"</span><span class="w">   </span><span class="c1"># OpenQASM import and ZX simplification</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[synthesis]"</span><span class="w">  </span><span class="c1"># pygridsynth Clifford+T synthesis</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[interop]"</span><span class="w">    </span><span class="c1"># Cirq, Qiskit, and OpenFermion helpers</span>
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[cudaq]"</span><span class="w">      </span><span class="c1"># CUDA-Q helpers on supported platforms</span>
+<p>In a uv project, use <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">add</span> <span class="pre">mentpy</span></code>. With pip, use
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--pre</span> <span class="pre">mentpy</span></code> while releases are in alpha.</p>
+<p>The standard install includes native flow algorithms, Rust tensor-network
+simulation, Pauli propagation, reverse-mode autodiff, algebra utilities,
+OpenQASM/ZX compilation, and the existing
+JAX interface. No <code class="docutils literal notranslate"><span class="pre">[jax]</span></code> or <code class="docutils literal notranslate"><span class="pre">[compiler]</span></code> extra is needed.</p>
+<p>Linux x86-64 and ARM64 installations also include the cuPauliProp and CUDA 13
+runtime libraries. <code class="docutils literal notranslate"><span class="pre">backend=&quot;pauli&quot;,</span> <span class="pre">device=&quot;cuda:0&quot;</span></code> uses them through
+Rust when an NVIDIA GPU and compatible driver are available. CPU use does not
+load CUDA. GPU Pauli propagation needs no CUDA toolkit or source build.</p>
+<p>Intel macOS installations use Numba 0.62, the last release providing binaries
+for that platform. Its Python support ends at 3.13. Other platforms use the
+current compatible dependency versions.</p>
+<h2 id="integrations">Integrations<a class="headerlink" href="#integrations" title="Link to this heading">¶</a></h2>
+<p>Install external toolkits when using their integration examples:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[chem]"</span><span class="w">       </span><span class="c1"># OpenFermion/PySCF molecular integrals</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[synthesis]"</span><span class="w">  </span><span class="c1"># pygridsynth Clifford+T synthesis</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[interop]"</span><span class="w">    </span><span class="c1"># Cirq, Qiskit, and OpenFermion helpers</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"mentpy[cudaq]"</span><span class="w">      </span><span class="c1"># CUDA-Q export and execution helpers</span>
 </code></pre></div>
 </div>
-<h2 id="install-from-source">Install from Source<a class="headerlink" href="#install-from-source" title="Link to this heading">¶</a></h2>
-<p>To install from source, you can <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> the repository and then use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to handle the installation. This method will also ensure that all necessary dependencies as specified in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> are installed.</p>
+<h2 id="native-builds">Native builds<a class="headerlink" href="#native-builds" title="Link to this heading">¶</a></h2>
+<p>Platform wheels contain the compiled Rust extension; using a wheel does not
+require a Rust compiler. Building from source requires a Rust toolchain and a
+C/C++ compiler. The native extension is required, so a failed build reports an
+error instead of silently omitting native features.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mentpy/mentpy
 <span class="nb">cd</span><span class="w"> </span>mentpy
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev,chem]'</span>
 </code></pre></div>
 </div>
-<p>Now, you can verify the installation by importing the <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> package and checking its version.</p>
-<div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="kn">import</span><span class="w"> </span><span class="nn">mentpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
-
-<span class="gp">In [2]: </span><span class="n">mp</span><span class="o">.</span><span class="n">__version__</span>
-<span class="gh">Out[2]: </span><span class="go">'0.1.0a16'</span>
+<p>Native code lives in <code class="docutils literal notranslate"><span class="pre">mentpy/_native</span></code>. Flow discovery uses packed GF(2)
+operations and reuses one elimination for each generalized-flow layer. Tensor
+contraction uses an iterative reverse-mode tape on CPU, with GEMM kernels for
+larger products. The Python flow algorithms remain as independent references
+for validation.</p>
+<p>CUDA tensor contraction is available in source builds made with the Cargo
+<code class="docutils literal notranslate"><span class="pre">cuda</span></code> feature and a compatible CUDA toolkit. It uses Candle for tensor
+operations and differentiation. CPU wheels do not contain this CUDA build.
+For a source build, add <code class="docutils literal notranslate"><span class="pre">features</span> <span class="pre">=</span> <span class="pre">[&quot;cuda&quot;]</span></code> to the existing
+<code class="docutils literal notranslate"><span class="pre">[[tool.setuptools-rust.ext-modules]]</span></code> table in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> before
+installing. The CUDA toolkit must be on the compiler and library search paths.
+Select a GPU explicitly with <code class="docutils literal notranslate"><span class="pre">backend=&quot;rust&quot;,</span> <span class="pre">device=&quot;cuda:0&quot;</span></code>; requesting
+CUDA from a CPU-only build raises an error. Driver and toolkit availability are
+separate from the standard Python dependencies.</p>
+<h2 id="development-checks">Development checks<a class="headerlink" href="#development-checks" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>black<span class="w"> </span>--check<span class="w"> </span>.
+python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>-q
+python<span class="w"> </span>-m<span class="w"> </span>sphinx<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span>docs<span class="w"> </span>docs/_build/html
+cargo<span class="w"> </span>fmt<span class="w"> </span>--check
+cargo<span class="w"> </span>clippy<span class="w"> </span>--<span class="w"> </span>-D<span class="w"> </span>warnings
+cargo<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--lib
 </code></pre></div>
 </div>
-<h2 id="development-installation">Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading">¶</a></h2>
-<p>Developers who wish to contribute to <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mentpy/mentpy
-<span class="nb">cd</span><span class="w"> </span>mentpy
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev,chem]'</span>
+<p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.flow</span></code> for complete flow-solving timings,
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.native</span> <span class="pre">--jax</span></code> to compare native and JAX gradients,
+and <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.trajectories</span></code> for sampled execution and shot batches.
+The simulator benchmark reports setup, first-call, and warmed timings
+separately. Results depend on the graph, output size, and hardware.</p>
+<p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.pauli</span></code> for sparse CPU propagation,
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.cupauli</span></code> on a compatible NVIDIA GPU, and
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">benchmarks.algebra</span></code> for Lie closure and local-Clifford equivalence.</p>
+<h2 id="native-dependency-notices">Native dependency notices<a class="headerlink" href="#native-dependency-notices" title="Link to this heading">¶</a></h2>
+<p>Wheels and source archives include <code class="docutils literal notranslate"><span class="pre">THIRD_PARTY_NOTICES</span></code> for locked Cargo
+dependencies, <code class="docutils literal notranslate"><span class="pre">NOTICE</span></code> for PPVM attribution, and <code class="docutils literal notranslate"><span class="pre">LICENSE-RUST.html</span></code> for
+Rust’s standard library. Regenerate notices after changing Cargo dependencies:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>cargo<span class="w"> </span>install<span class="w"> </span>cargo-about<span class="w"> </span>--version<span class="w"> </span><span class="m">0</span>.9.3<span class="w"> </span>--locked<span class="w"> </span>--features<span class="w"> </span>cli
+cargo<span class="w"> </span>about<span class="w"> </span>generate<span class="w"> </span>--locked<span class="w"> </span>--all-features<span class="w"> </span>--fail<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--config<span class="w"> </span>mentpy/_native/about.toml<span class="w"> </span>mentpy/_native/about.hbs<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-o<span class="w"> </span>THIRD_PARTY_NOTICES
 </code></pre></div>
 </div>
-<p>This installs MentPy in editable mode with the development and chemistry extras used by CI.</p>
-<h2 id="testing-and-development">Testing and Development<a class="headerlink" href="#testing-and-development" title="Link to this heading">¶</a></h2>
-<p>Before submitting changes, you can run the test suite to ensure everything is functioning correctly:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>pytest
-</code></pre></div>
-</div>
-<p>If you’re adding new features or fixing any bugs, it’s a good idea to include new tests that cover your changes.</p>
-<p>Additionally, you can build the documentation locally to check for any errors and see how it looks before pushing changes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>docs
-make<span class="w"> </span>html
-</code></pre></div>
-</div>
-<p>This process generates HTML documentation in <cite>docs/_build/html</cite>, which you can open in a web browser to review.</p>
-<p>Contributors are encouraged to follow the repository contributing guidelines
-when submitting enhancements or bug fixes.</p>
-<p>Rust acceleration is optional. When a Rust toolchain is available, installation
-builds <code class="docutils literal notranslate"><span class="pre">mentpy._rust</span></code> to accelerate GF(2) linear algebra used in flow analysis.
-The source lives in <code class="docutils literal notranslate"><span class="pre">mentpy/_native</span></code>; the same routines have a NumPy fallback.
-JAX tensor-network simulation and autodiff do not require Rust.</p>
+<p><code class="docutils literal notranslate"><span class="pre">LICENSE-RUST.html</span></code> contains Rust 1.99.1’s distributed
+<code class="docutils literal notranslate"><span class="pre">share/doc/rustc/COPYRIGHT-library.html</span></code>, with its MIT, compiler-builtins, and
+libunwind license texts appended. Update it when changing the release toolchain. NVIDIA libraries remain separately installed distributions with
+their own license terms; their binaries are not copied into MentPy wheels.</p>
 
 
 

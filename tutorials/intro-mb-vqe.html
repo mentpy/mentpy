@@ -385,6 +385,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1248,8 +1272,8 @@
 optimization loop. This example uses H₂ in the STO-3G basis. We first optimize
 at a fixed geometry, then repeat the calculation over several bond lengths to
 plot a potential-energy surface.</p>
-<p>Install <code class="docutils literal notranslate"><span class="pre">mentpy[jax]</span></code> for the first example. The geometry sweep also uses
-<code class="docutils literal notranslate"><span class="pre">mentpy[chem,jax]</span></code> for the OpenFermion/PySCF molecular integrals.</p>
+<p>The first example uses the standard MentPy install. The geometry sweep also
+uses <code class="docutils literal notranslate"><span class="pre">mentpy[chem]</span></code> for the OpenFermion/PySCF molecular integrals.</p>
 <h2 id="create-the-ansatz">Create the ansatz<a class="headerlink" href="#create-the-ansatz" title="Link to this heading">¶</a></h2>
 <p>The four quantum outputs represent four spin orbitals in Jordan-Wigner order.
 We start from the Hartree-Fock state <code class="docutils literal notranslate"><span class="pre">|1100&gt;</span></code>. A Pauli-rotation template for
@@ -1293,7 +1317,7 @@ example run without a chemistry installation.</p>
 <p>The Pauli-string positions follow the circuit’s quantum-output order. This
 Hamiltonian is an <code class="docutils literal notranslate"><span class="pre">Observable</span></code>; the simulator measures its expectation on the
 output state.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">ansatz</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"jax-tn"</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">ansatz</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"rust"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">energy</span><span class="p">(</span><span class="n">parameters</span><span class="p">):</span>
@@ -1307,7 +1331,8 @@ output state.</p>
 <p>Each iteration evaluates the energy and its gradient, then updates the angles
 with Adam. The loop records the initial energy and the energy after every
 update, so iteration zero and the final value are both visible in the plot.
-<code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> uses JAX autodiff and caches its compiled objective.</p>
+<code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> uses reverse-mode differentiation through the Rust
+tensor contraction, including normalization of the selected branch.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">steps</span> <span class="o">=</span> <span class="mi">100</span>
 <span class="n">optimizer</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOpt</span><span class="p">(</span><span class="n">step_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
 <span class="n">energies</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">energy</span><span class="p">(</span><span class="n">angles</span><span class="p">))]</span>
@@ -1378,7 +1403,7 @@ than assuming every point has converged.</p>
 <span class="k">for</span> <span class="n">distance</span> <span class="ow">in</span> <span class="n">bond_lengths</span><span class="p">:</span>
     <span class="n">geometry</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"H"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span> <span class="p">(</span><span class="s2">"H"</span><span class="p">,</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance</span><span class="p">)))]</span>
     <span class="n">hamiltonian</span><span class="p">,</span> <span class="n">molecule</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">chem</span><span class="o">.</span><span class="n">molecular_hamiltonian</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"sto-3g"</span><span class="p">)</span>
-    <span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">ansatz</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"jax-tn"</span><span class="p">)</span>
+    <span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">ansatz</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"rust"</span><span class="p">)</span>
     <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">])</span>
     <span class="n">optimizer</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamOpt</span><span class="p">(</span><span class="n">step_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
 

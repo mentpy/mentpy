@@ -385,6 +385,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -982,6 +1006,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Notes</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -1285,7 +1319,7 @@
     <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
   
   <span class="md-ellipsis">
-    <span title="mentpy.utils.lie_algebra_completion (Python function) — Completes a given set of Pauli operators to a basis of the Lie algebra"><span>lie_<wbr>algebra_<wbr>completion</span></span>
+    <span title="mentpy.utils.lie_algebra_completion (Python function) — Complete Pauli generators under nonzero commutators, modulo phase."><span>lie_<wbr>algebra_<wbr>completion</span></span>
     
   </span>
   
@@ -1441,6 +1475,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Notes</span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns" class="md-nav__link">
     
     <span class="md-ellipsis">
@@ -1492,11 +1536,18 @@
 </dd>
 </dl>
 </dd>
-<dt class="field-even" id="returns">Returns<span class="colon">:</span><a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></dt>
-<dd class="field-even"><p>Equivalence flag and the Clifford operator, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if inequivalent.</p>
+</dl>
+<p class="rubric" id="notes">Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></p>
+<p>The packed GF(2) solve and certificate search run in Rust. Matching node
+labels specify the qubit correspondence; otherwise insertion order is used.
+This does not search over vertex permutations. Returned matrices encode
+Clifford action on Pauli labels modulo phase, not physical unitary matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd" id="returns">Returns<span class="colon">:</span><a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></dt>
+<dd class="field-odd"><p>Equivalence flag and the Clifford operator, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if inequivalent.</p>
 </dd>
-<dt class="field-odd" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a></p>
+<dt class="field-even" id="return-type">Return type<span class="colon">:</span><a class="headerlink" href="#return-type" title="Permalink to this headline">¶</a></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)">tuple</a></p>
 </dd>
 </dl>
 </dd></dl>

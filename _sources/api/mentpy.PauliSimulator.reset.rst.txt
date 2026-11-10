@@ -6,5 +6,5 @@
 
 
 
-.. python-apigen-entity-page::  mentpy.NumpySimulator.sample
+.. python-apigen-entity-page::  mentpy.PauliSimulator.reset
 

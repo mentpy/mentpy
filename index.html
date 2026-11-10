@@ -381,6 +381,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -943,16 +967,19 @@
 </div>
 <h1 id="welcome-to-mentpy-s-documentation">Welcome to MentPy’s documentation<a class="headerlink" href="#welcome-to-mentpy-s-documentation" title="Link to this heading">¶</a></h1>
 <p>MentPy is an open-source Python package for building, simulating, and training
-measurement-based quantum circuits. The NumPy backend simulates measurement
-branches with lazy qubit preparation. The JAX tensor-network backend supports
-differentiation through postselected patterns. MentPy also includes Pauli
-observables, chemistry utilities, and OpenQASM import with ZX simplification.</p>
+measurement-based quantum circuits. Rust runs the flow solvers, tensor
+contractions, gradients, and sampled quantum trajectories. A sparse Pauli
+backend evaluates observables on causal-flow patterns, with CPU execution and
+CUDA acceleration through cuPauliProp. MentPy also includes chemistry utilities,
+OpenQASM import with ZX simplification, and a compatible JAX interface.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Manipulation of graph states.</p></li>
-<li><p>Automatically calculate the causal flow or generalized flow of a graph.</p></li>
-<li><p>Simulate MBQC circuits with NumPy and JAX tensor-network backends.</p></li>
-<li><p>Evaluate tensor-network observable costs with JAX autodiff.</p></li>
+<li><p>Calculate causal, generalized, and Pauli flow with native GF(2) solvers.</p></li>
+<li><p>Simulate postselected patterns and sampled trajectories with the Rust backend.</p></li>
+<li><p>Differentiate tensor-network and Pauli expectation values in Rust.</p></li>
+<li><p>Propagate sparse Pauli observables on CPU or compatible NVIDIA GPUs.</p></li>
+<li><p>Use the existing NumPy and JAX backends for comparison and interoperability.</p></li>
 <li><p>Optimize measurement angles in MBQC ansatzes used for QML.</p></li>
 <li><p>Build molecular Hamiltonians and optimize ansatzes with explicit training loops.</p></li>
 <li><p>Import and export supported circuits with PennyLane, Cirq, Qiskit, and CUDA-Q.</p></li>
@@ -960,16 +987,20 @@ observables, chemistry utilities, and OpenQASM import with ZX simplification.</p
 <li><p>Simplify circuits with PyZX before compiling them to MBQC.</p></li>
 <li><p>Collect output bitstrings, counts, and finite-shot Pauli estimates.</p></li>
 <li><p>Create data and noisy data for training QML models.</p></li>
-<li><p>Determine the lie algebra of an MBQC ansatz.</p></li>
+<li><p>Compute Pauli Lie closure and graph-state local-Clifford equivalence in Rust.</p></li>
 </ul>
 <h2 id="roadmap">Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">¶</a></h2>
+<p>The native flow, contraction, gradient, trajectory, and sparse Pauli engines are
+implemented. The next steps extend the patterns and resource states they can
+represent:</p>
 <ul class="simple">
-<li><p>Stabilize compiler passes that convert between gate circuits, ZX diagrams, and MBQC resources.</p></li>
-<li><p>Benchmark and optimize tensor-network contractions for larger low-treewidth patterns.</p></li>
-<li><p>Broaden support for general MBQC resource states and non-forced measurement workflows.</p></li>
-<li><p>Expand hardware-aware export paths and dynamic-circuit execution examples.</p></li>
-<li><p>Continue increasing coverage around simulators, gradients, interop, chemistry, and compiler utilities.</p></li>
+<li><p>Extend Pauli circuit extraction beyond causal-flow X/Y/XY patterns.</p></li>
+<li><p>Add controlled approximation with reported error bounds and efficient joint sampling.</p></li>
+<li><p>Introduce MPS resources and local measurement instruments, starting with an AKLT wire.</p></li>
+<li><p>Improve contraction ordering for wider patterns and distribute the CUDA tensor build.</p></li>
+<li><p>Expand hardware-aware compilation and dynamic-circuit execution examples.</p></li>
 </ul>
+<p>See <a class="reference internal" href="native.html"><span class="doc">Native execution</span></a> for supported execution paths, validation, and remaining limits.</p>
 <h2 id="contributing">Contributing<a class="headerlink" href="#contributing" title="Link to this heading">¶</a></h2>
 <p>If you would like to contribute to this project, please feel free to open an issue or pull request 😄.</p>
 <h2 id="acknowledgements">Acknowledgements<a class="headerlink" href="#acknowledgements" title="Link to this heading">¶</a></h2>

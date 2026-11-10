@@ -380,6 +380,30 @@
 
               
             
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1811,6 +1835,58 @@
   
   <span class="md-ellipsis">
     <span title="mentpy.PatternSimulator (Python class) — Simulator for measuring patterns of MBQC circuits."><span>Pattern<wbr>Simulator</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/mentpy.PauliSimulator.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.PauliSimulator (Python class) — Propagate observables through causal-flow paths in Rust."><span>Pauli<wbr>Simulator</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/mentpy.RustSimulator.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.RustSimulator (Python class) — Simulate graph-state patterns and differentiate expectations in Rust."><span>Rust<wbr>Simulator</span></span>
     
   </span>
   
@@ -3270,7 +3346,7 @@
     <span aria-label="Python function" class="objinfo-icon objinfo-icon__procedure" title="Python function">F</span>
   
   <span class="md-ellipsis">
-    <span title="mentpy.utils.lie_algebra_completion (Python function) — Completes a given set of Pauli operators to a basis of the Lie algebra"><span>lie_<wbr>algebra_<wbr>completion</span></span>
+    <span title="mentpy.utils.lie_algebra_completion (Python function) — Complete Pauli generators under nonzero commutators, modulo phase."><span>lie_<wbr>algebra_<wbr>completion</span></span>
     
   </span>
   
@@ -4105,6 +4181,18 @@ is the output of the last state.</p>
 
 <dl class="py class summary objdesc">
 <dt class="sig sig-object highlight py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mentpy.</span></span><a class="sig-name descname pseudo-toc-entry reference internal" href="api/mentpy.PauliSimulator.html" title="mentpy.PauliSimulator (Python class) — Propagate observables through causal-flow paths in Rust."><span class="sig-name descname pseudo-toc-entry"><span class="pre">PauliSimulator</span></span></a><span class="p"><span class="pre">(</span></span><span class="desctype"><a class="reference internal" href="api/mentpy.BaseSimulator.html" title="mentpy.BaseSimulator (Python class) — Base class for simulators."><span class="pre">mentpy.BaseSimulator</span></a></span><span class="p"><span class="pre">)</span></span></dt>
+<dd><p>Propagate observables through causal-flow paths in Rust.</p>
+</dd></dl>
+
+<dl class="py class summary objdesc">
+<dt class="sig sig-object highlight py">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mentpy.</span></span><a class="sig-name descname pseudo-toc-entry reference internal" href="api/mentpy.RustSimulator.html" title="mentpy.RustSimulator (Python class) — Simulate graph-state patterns and differentiate expectations in Rust."><span class="sig-name descname pseudo-toc-entry"><span class="pre">RustSimulator</span></span></a><span class="p"><span class="pre">(</span></span><span class="desctype"><a class="reference internal" href="api/mentpy.BaseSimulator.html" title="mentpy.BaseSimulator (Python class) — Base class for simulators."><span class="pre">mentpy.BaseSimulator</span></a></span><span class="p"><span class="pre">)</span></span></dt>
+<dd><p>Simulate graph-state patterns and differentiate expectations in Rust.</p>
+</dd></dl>
+
+<dl class="py class summary objdesc">
+<dt class="sig sig-object highlight py">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mentpy.</span></span><a class="sig-name descname pseudo-toc-entry reference internal" href="api/mentpy.Samples.html" title="mentpy.Samples (Python class) — Output bits; zero/one denotes the +1/-1 eigenstate of each basis axis."><span class="sig-name descname pseudo-toc-entry"><span class="pre">Samples</span></span></a></dt>
 <dd><p>Output bits; zero/one denotes the +1/-1 eigenstate of each basis axis.</p>
 </dd></dl>
@@ -4305,8 +4393,8 @@ brownian noise parametrized by <code class="docutils literal notranslate"><span 
 
 <dl class="py function summary objdesc">
 <dt class="sig sig-object highlight py">
-<span class="sig-prename descclassname"><span class="pre">mentpy.utils.</span></span><a class="sig-name descname pseudo-toc-entry reference internal" href="api/mentpy.utils.lie_algebra_completion.html" title="mentpy.utils.lie_algebra_completion (Python function) — Completes a given set of Pauli operators to a basis of the Lie algebra"><span class="sig-name descname pseudo-toc-entry"><span class="pre">lie_algebra_completion</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="api/mentpy.utils.lie_algebra_completion.html" title="mentpy.utils.lie_algebra_completion.generators (Python parameter)"><span class="n"><span class="pre">generators</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="api/mentpy.PauliOp.html" title="mentpy.operators.pauliop.PauliOp (Python class)"><span class="pre">PauliOp</span></a></span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="p"><span class="pre">...</span></span></em></span><span class="sig-paren">)</span></dt>
-<dd><p>Completes a given set of Pauli operators to a basis of the Lie algebra</p>
+<span class="sig-prename descclassname"><span class="pre">mentpy.utils.</span></span><a class="sig-name descname pseudo-toc-entry reference internal" href="api/mentpy.utils.lie_algebra_completion.html" title="mentpy.utils.lie_algebra_completion (Python function) — Complete Pauli generators under nonzero commutators, modulo phase."><span class="sig-name descname pseudo-toc-entry"><span class="pre">lie_algebra_completion</span></span></a><span class="sig-paren">(</span><span class="sig-param-decl"><em class="sig-param"><a class="n reference internal" href="api/mentpy.utils.lie_algebra_completion.html#p-generators" title="mentpy.utils.lie_algebra_completion.generators (Python parameter) — Initial Pauli generators."><span class="n"><span class="pre">generators</span></span></a><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="desctype"><a class="reference internal" href="api/mentpy.PauliOp.html" title="mentpy.operators.pauliop.PauliOp (Python class)"><span class="pre">PauliOp</span></a></span></span></em>, </span><span class="sig-param-decl"><em class="sig-param"><span class="p"><span class="pre">...</span></span></em></span><span class="sig-paren">)</span></dt>
+<dd><p>Complete Pauli generators under nonzero commutators, modulo phase.</p>
 </dd></dl>
 
 <dl class="py function summary objdesc">

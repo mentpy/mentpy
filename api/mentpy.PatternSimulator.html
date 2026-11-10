@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="mentpy.NumpySimulator.sample.html">
+        <link rel="prev" href="mentpy.NumpySimulator.run.html">
       
       
         <link rel="next" href="mentpy.PatternSimulator.__init__.html">
@@ -375,6 +375,30 @@
   
   <span class="md-ellipsis">
     <span>Installation</span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../native.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <span>Native execution</span>
     
   </span>
   
@@ -1510,6 +1534,58 @@
   
   
     <li class="md-nav__item">
+      <a href="mentpy.PauliSimulator.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.PauliSimulator (Python class) — Propagate observables through causal-flow paths in Rust."><span>Pauli<wbr>Simulator</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="mentpy.RustSimulator.html" class="md-nav__link">
+        
+  
+  
+    <span aria-label="Python class" class="objinfo-icon objinfo-icon__data" title="Python class">C</span>
+  
+  <span class="md-ellipsis">
+    <span title="mentpy.RustSimulator (Python class) — Simulate graph-state patterns and differentiate expectations in Rust."><span>Rust<wbr>Simulator</span></span>
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="mentpy.Samples.html" class="md-nav__link">
         
   
@@ -1765,15 +1841,17 @@
 <dd class="field-odd"><dl class="simple api-field highlight">
 <dt><span class="sig-name descname">mbqcircuit</span><span class="p"> : </span><span class="desctype"><span class="desctype">mp.MBQCircuit</span></span></dt><dd><p>The MBQC circuit used for the simulation.</p>
 </dd>
-<dt><span class="sig-name descname">backend</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></span></span></dt><dd><p>Use “numpy” for branch simulation or “jax-tn” for differentiable
-zero-outcome tensor contraction. “jax-tn” requires the JAX extra.</p>
+<dt><span class="sig-name descname">backend</span><span class="p"> : </span><span class="desctype"><span class="desctype"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)">str</a></span></span></dt><dd><p>“rust” (default) supports native tensor contraction, gradients, and
+sampled trajectories. “numpy” provides a reference implementation;
+“jax-tn” supports existing JAX transformations on postselected patterns.
+“pauli” propagates sparse observables through causal-flow XY patterns.</p>
 </dd>
 </dl>
 </dd>
 </dl>
 <div class="seealso admonition">
 <p class="admonition-title">See also</p>
-<p><code class="xref py py-class docutils literal notranslate"><span class="pre">mp.NumpySimulator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.JaxTNSimulator</span></code></p>
+<p><code class="xref py py-class docutils literal notranslate"><span class="pre">mp.NumpySimulator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.RustSimulator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.JaxTNSimulator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">mp.PauliSimulator</span></code></p>
 </div>
 <h2 id="constructors">Constructors<a class="headerlink" href="#constructors" title="Link to this heading">¶</a></h2>
 <dl class="py method summary objdesc">
