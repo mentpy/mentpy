@@ -307,9 +307,7 @@ impl TensorNetwork {
                 Operand::Measurement(index) => {
                     let angle = parameters.i(2 * index)?;
                     let (mut cos, mut sin) = (angle.cos()?, angle.sin()?);
-                    let quarter_turns = angles[2 * index] / std::f64::consts::FRAC_PI_2;
-                    if quarter_turns.fract() == 0. && quarter_turns.abs() < i64::MAX as f64 {
-                        let quadrant = (quarter_turns as i64).rem_euclid(4) as usize;
+                    if let Some(quadrant) = super::tensor::clifford(angles[2 * index]) {
                         // Correct the value at exact Clifford angles while
                         // retaining derivatives of otherwise zero sine terms.
                         cos = (&cos - cos.detach())?.affine(1., [1., 0., -1., 0.][quadrant])?;
@@ -319,10 +317,9 @@ impl TensorNetwork {
                         .i(2 * index + 1)?
                         .affine(-0.5, std::f64::consts::FRAC_PI_4)?;
                     let (mut first, mut second) = (polar.cos()?, polar.sin()?);
-                    let turns = (std::f64::consts::FRAC_PI_4 - 0.5 * angles[2 * index + 1])
-                        / std::f64::consts::FRAC_PI_2;
-                    if turns.fract() == 0. && turns.abs() < i64::MAX as f64 {
-                        let quadrant = (turns as i64).rem_euclid(4) as usize;
+                    if let Some(quadrant) = super::tensor::clifford(
+                        std::f64::consts::FRAC_PI_4 - 0.5 * angles[2 * index + 1],
+                    ) {
                         first =
                             (&first - first.detach())?.affine(1., [1., 0., -1., 0.][quadrant])?;
                         second =

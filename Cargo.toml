@@ -14,6 +14,9 @@ petgraph = "0.8"
 candle-core = "0.11.1"
 gemm = "0.19"
 num-complex = "0.4"
+ppvm-pauli-word = { version = "0.3.0", default-features = false }
+ppvm-traits = { version = "0.3.0", default-features = false }
+fxhash = "0.2"
 
 [features]
 cuda = ["candle-core/cuda"]

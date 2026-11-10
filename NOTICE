@@ -1,0 +1,10 @@
+MentPy uses PPVM's Rust Pauli word and Clifford operations.
+
+PPVM - Programmable Pauli Virtual Machine
+Copyright 2026 The PPVM Authors.
+
+This product was initially developed at QuEra Computing Inc.
+(https://www.quera.com/). See the AUTHORS file in
+https://github.com/QuEraComputing/ppvm for the full list of copyright holders.
+
+PPVM is distributed under the Apache License, Version 2.0.
