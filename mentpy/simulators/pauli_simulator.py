@@ -5,6 +5,8 @@
 """Sparse Pauli propagation for causal-flow MBQC patterns."""
 
 from numbers import Integral
+from importlib.metadata import distribution, PackageNotFoundError
+import sys
 
 import numpy as np
 
@@ -55,6 +57,8 @@ class PauliSimulator(BaseSimulator):
         max_elements=2**26,
         schedule=None,
         output_form="dm",
+        device="cpu",
+        max_memory=2**28,
     ):
         """Create a sparse expectation simulator.
 
@@ -75,7 +79,7 @@ class PauliSimulator(BaseSimulator):
             Limit on distinct Pauli terms in each expansion, including
             zero-valued terms needed by differentiation.
         max_tape : int
-            Limit on scalar nodes in the reverse-mode tape. Each node stores
+            CPU limit on scalar nodes in the reverse-mode tape. Each node stores
             at most two parent edges, in addition to an adjoint during backprop.
         max_elements : int
             Tensor-size limit for dense-output methods delegated to Rust.
@@ -83,6 +87,14 @@ class PauliSimulator(BaseSimulator):
             Measurement schedule respecting causal flow.
         output_form : str
             Default ``run`` form, "dm" or "sv".
+        device : str
+            "cpu" or "cuda:N". CUDA uses cuPauliProp 0.5 on Linux with an
+            NVIDIA driver supporting CUDA 13. Libraries are included in the
+            standard Linux installation and loaded only for GPU expectations.
+        max_memory : int
+            Byte limit for GPU buffers owned by this simulator, including
+            saved expansions and workspace. Library/context allocations and
+            host metadata are outside this limit. Default 256 MiB.
         """
         super().__init__(mbqcircuit)
         for name, value in (("max_terms", max_terms), ("max_tape", max_tape)):
@@ -91,6 +103,37 @@ class PauliSimulator(BaseSimulator):
         self.max_terms = int(max_terms)
         self.max_tape = int(max_tape)
         self.max_elements = max_elements
+        self.device = device
+        gpu = None
+        if device != "cpu":
+            if (
+                not isinstance(device, str)
+                or not device.startswith("cuda:")
+                or not device[5:].isdigit()
+            ):
+                raise ValueError('device must be "cpu" or "cuda:N".')
+            if (
+                isinstance(max_memory, bool)
+                or not isinstance(max_memory, Integral)
+                or max_memory < 1
+            ):
+                raise ValueError(
+                    "max_memory must be a positive integer number of bytes."
+                )
+            if sys.platform != "linux":
+                raise ValueError("cuPauliProp requires Linux and an NVIDIA GPU.")
+            try:
+                library = distribution("cupauliprop-cu13").locate_file(
+                    "cuquantum/lib/libcupauliprop.so.0"
+                )
+                runtime = distribution("nvidia-cuda-runtime").locate_file(
+                    "nvidia/cu13/lib/libcudart.so.13"
+                )
+            except PackageNotFoundError as exc:
+                raise ImportError(
+                    "CUDA libraries are missing; reinstall mentpy to restore its Linux dependencies."
+                ) from exc
+            gpu = (str(library), str(runtime), int(device[5:]), int(max_memory))
         self.peak_terms = 0
         self.force0 = force0
         self.rng = np.random.default_rng(seed)
@@ -106,6 +149,7 @@ class PauliSimulator(BaseSimulator):
             len(self.resolver.measurement_nodes),
             self.max_terms,
             self.max_tape,
+            gpu=gpu,
         )
         self._adaptive = any(
             self.resolver._dependencies(node)
@@ -218,7 +262,7 @@ class PauliSimulator(BaseSimulator):
             self.outcomes = dict(zip(measured, map(int, outcomes)))
         return values, dest, source
 
-    def _evaluate(self, values, observable, gradient=False):
+    def _evaluate(self, values, observable, gradient=False, active=None):
         inputs = (
             {}
             if self.input_state is None
@@ -229,6 +273,7 @@ class PauliSimulator(BaseSimulator):
             [(word, float(np.real(c))) for word, c in observable.terms.items()],
             constant=float(np.real(observable.constant)),
             gradient=gradient,
+            active=None if active is None else active.tolist(),
             **inputs,
         )
         self.peak_terms = max(self.peak_terms, peak)
@@ -288,7 +333,11 @@ class PauliSimulator(BaseSimulator):
         observable._validate_qubits(len(self.mbqcircuit.quantum_output_nodes))
         self.reset(input_state)
         values, dest, source = self._angles(angles, None)
-        value, derivative = self._evaluate(values, observable, gradient=True)
+        active = np.zeros(len(values), dtype=bool)
+        active[dest] = True
+        value, derivative = self._evaluate(
+            values, observable, gradient=bool(len(angles)), active=active
+        )
         result = np.zeros(len(angles))
         np.add.at(result, source, np.asarray(derivative)[dest])
         return value, result

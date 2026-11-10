@@ -17,6 +17,8 @@ num-complex = "0.4"
 ppvm-pauli-word = { version = "0.3.0", default-features = false }
 ppvm-traits = { version = "0.3.0", default-features = false }
 fxhash = "0.2"
+libloading = "0.8"
+bytemuck = "1"
 
 [features]
 cuda = ["candle-core/cuda"]

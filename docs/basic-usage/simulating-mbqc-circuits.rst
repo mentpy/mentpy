@@ -151,7 +151,7 @@ The current implementation supports up to 1024 logical wires, unmeasured
 outputs, and arbitrary normalized input vectors in input-node order. Default
 plus inputs and additional plus-state path roots stay implicit. Patterns with
 only generalized flow or Pauli flow are not yet supported by this backend.
-There is no approximate truncation mode or cuPauliProp device integration yet.
+There is no approximate truncation mode yet.
 
 With ``force0=False``, exact expectations describe a sampled corrected
 trajectory. Finite-shot expectations sample the Pauli eigenvalue and resample
@@ -163,6 +163,35 @@ different algorithms. Native gradients require ``force0=True``.
 simulator, with its usual output-memory costs. Use ``expectation`` or
 ``expectation_and_grad`` to obtain the sparse-propagation benefits. Run
 ``python -m benchmarks.pauli`` to compare the two algorithms on your machine.
+
+On Linux with an NVIDIA GPU, select ``device="cuda:0"`` to use cuPauliProp
+through MentPy's native Rust interface. The standard Linux installation includes
+cuPauliProp and the CUDA runtime; a compatible CUDA 13 driver is required. A
+CUDA toolkit and a separate MentPy extra are not needed. CPU installations do
+not load these libraries or initialize a GPU.
+
+.. code-block:: python
+
+    simulator = mp.PatternSimulator(pattern, backend="pauli", device="cuda:0")
+    value, gradient = simulator.expectation_and_grad(angles, observable)
+
+GPU expectations and reverse-mode differentiation preserve the same branch and
+ordering conventions. Default plus-state readout stays on GPU. For an explicit
+entangled input vector, its final Pauli expectations are computed in Rust on CPU
+using the supplied vector, and their cotangents seed GPU backpropagation. This
+avoids expanding the input into a density operator. State/probability/joint-shot
+methods still use the CPU Rust state simulator.
+
+``max_memory`` limits MentPy's owned GPU buffers, including the saved expansions
+and workspace. It excludes the CUDA context, library internals and host metadata.
+The default is 256 MiB. Exceeding this limit or ``max_terms`` raises an error;
+the calculation does not silently truncate or switch devices. CPU gradients use
+``max_tape`` instead. ``CUDA_VISIBLE_DEVICES`` is respected.
+
+GPU launch and allocation costs dominate small patterns. Use
+``python -m benchmarks.cupauli --device cuda:0`` to measure first-call latency,
+warm runtime, and term growth against CPU propagation. The benchmark checks
+expectations and derivatives before reporting timings.
 
 .. _clifford-t-long-wire:
 
