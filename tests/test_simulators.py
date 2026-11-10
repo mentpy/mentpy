@@ -8,7 +8,7 @@ import pytest
 import numpy as np
 import mentpy as mp
 
-all_backends = ["numpy-dm", "numpy-sv", "pennylane"]
+all_backends = ["numpy-dm", "numpy-sv", "pennylane", "rust"]
 
 
 @pytest.mark.parametrize("backend", all_backends)

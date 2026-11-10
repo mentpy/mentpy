@@ -72,7 +72,8 @@ Development checks
    cargo clippy -- -D warnings
    cargo test --lib
 
-Run ``python -m benchmarks.flow`` for complete flow-solving timings and
-``python -m benchmarks.native --jax`` to compare native and JAX gradients.
+Run ``python -m benchmarks.flow`` for complete flow-solving timings,
+``python -m benchmarks.native --jax`` to compare native and JAX gradients,
+and ``python -m benchmarks.trajectories`` for sampled execution and shot batches.
 The simulator benchmark reports setup, first-call, and warmed timings
 separately. Results depend on the graph, output size, and hardware.

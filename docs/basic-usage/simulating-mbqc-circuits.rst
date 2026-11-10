@@ -16,9 +16,9 @@ We will use the :obj:`PatternSimulator` class to create a simulator. Let's try i
     simulator = mp.PatternSimulator(grid_cluster, backend='numpy')
     print(simulator)
 
-Choose ``backend="numpy"`` for general measurements and sampled branches.
-Use ``backend="rust"`` for native tensor contraction and gradients of
-postselected patterns, including XY, XZ, YZ, XYZ and Pauli measurements.
+The default ``backend="rust"`` supports native tensor contraction, sampled
+trajectories, and gradients of postselected patterns, including XY, XZ, YZ,
+XYZ and Pauli measurements. ``backend="numpy"`` is a reference implementation.
 ``backend="jax-tn"`` remains available for code using JAX transformations.
 
 For larger forced-outcome patterns, the ``jax-tn`` backend contracts the MBQC
@@ -106,9 +106,12 @@ an explicit optimization loop.
 The Rust backend differentiates the normalized branch, so it includes changes
 in postselection probability. Parameters follow ``trainable_nodes`` order;
 XYZ measurements use a pair of angles and return a pair of derivatives.
-Both tensor backends currently require ``force0=True``. ``sample`` draws output
-shots from that selected branch; use the NumPy backend with ``force0=False``
-to resample intermediate measurements and apply feed-forward.
+With ``force0=True``, ``sample`` draws output shots from the selected branch.
+With ``force0=False``, the Rust backend uses a lazy statevector trajectory and
+resamples intermediate measurements for every output shot, applying available
+flow corrections. Exact expectations in this mode describe one sampled branch,
+not an ensemble average. Native gradients require ``force0=True``. The JAX
+compatibility backend only supports postselected tensor contraction.
 
 Native contractions represent default plus-state inputs implicitly and split
 high-degree copy tensors into rank-three factors. ``max_elements`` limits the

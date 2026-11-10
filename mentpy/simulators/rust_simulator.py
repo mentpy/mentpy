@@ -9,14 +9,27 @@ import numpy as np
 from mentpy import _rust
 from mentpy.mbqc.measurement_angles import MeasurementAngleResolver
 from mentpy.operators import Observable
-from .base_simulator import BaseSimulator
-from .results import normalize_output_form
+from .base_simulator import BaseSimulator, _window_size
+from .results import Samples, normalize_output_form, validate_shots
 
 __all__ = ["RustSimulator"]
 
 
+def _basis(plane, angle):
+    """Map a measurement plane to azimuth and latitude."""
+    if plane == "XY":
+        return angle, 0.0
+    if plane == "XZ":
+        return 0.0, angle
+    if plane == "YZ":
+        return np.pi / 2, angle
+    if plane == "XYZ":
+        return tuple(angle)
+    return {"X": (0.0, 0.0), "Y": (np.pi / 2, 0.0), "Z": (0.0, np.pi / 2)}[plane]
+
+
 class RustSimulator(BaseSimulator):
-    """Contract graph-state patterns and differentiate expectations in Rust.
+    """Simulate graph-state patterns and differentiate expectations in Rust.
 
     Notes
     -----
@@ -25,6 +38,10 @@ class RustSimulator(BaseSimulator):
     reverse-mode tape; CUDA contractions use Candle. The output vector has ``2**n`` entries for
     ``n`` quantum outputs. :meth:`expectation_and_grad` differentiates the
     normalized selected branch, including its normalization probability.
+    Sampled execution uses a lazy active-state simulation on CPU and applies
+    available flow corrections after each intermediate outcome. ``run`` and
+    exact expectations describe one trajectory; ``sample`` resamples the
+    intermediate measurements for each output shot.
 
     Group
     -----
@@ -44,6 +61,7 @@ class RustSimulator(BaseSimulator):
         max_elements=2**26,
         device="cpu",
         seed=None,
+        window_size=None,
     ):
         """Create a native tensor-network simulator.
 
@@ -55,25 +73,41 @@ class RustSimulator(BaseSimulator):
             Normalized vector in input-node order. The default ``|+>`` product
             state is represented without allocating an exponential input array.
         force0 : bool
-            Postselect outcome zero at each measurement. Currently must be True.
+            Postselect zero at each measurement, or sample outcomes and apply
+            available flow corrections when False.
         output_form : str
             Default output form, "dm" or "sv". Both describe the same branch.
         max_elements : int
-            Maximum number of elements in a planned tensor. This bounds individual
-            intermediate tensors, not the total memory used by differentiation.
+            Maximum number of elements in a planned tensor or active trajectory
+            state. This does not bound total memory used by differentiation.
         device : str
-            "cpu" or "cuda:N". CUDA requires an extension built with CUDA support.
+            "cpu" or "cuda:N". CUDA requires an extension built with CUDA support
+            and currently supports postselected tensor contraction only.
         seed : int, optional
             Seed for output-shot sampling when a call does not supply its own seed.
         """
         super().__init__(mbqcircuit)
         self.rng = np.random.default_rng(seed)
-        if not force0:
-            raise NotImplementedError("Rust tensor contraction requires force0=True.")
+        if not force0 and device != "cpu":
+            raise NotImplementedError(
+                "Sampled native trajectories currently require device='cpu'."
+            )
         self.force0 = force0
         self._default_output_form = normalize_output_form(output_form)
         self.resolver = MeasurementAngleResolver(mbqcircuit, schedule)
         self.resolver.validate_dependencies()
+        if window_size is not None and (window_size != 1 or schedule is not None):
+            _window_size(
+                mbqcircuit,
+                self.resolver.schedule,
+                self.resolver.measurement_nodes,
+                window_size,
+            )
+        self.corrections = {} if force0 else self.resolver._flow_corrections()
+        self._adaptive = any(
+            self.resolver._dependencies(node)
+            for node in self.resolver.measurement_nodes
+        )
         self._forced_outcomes = dict.fromkeys(self.resolver.measurement_nodes, 0)
         self._measurement_info = [
             self.resolver.resolve(
@@ -107,12 +141,30 @@ class RustSimulator(BaseSimulator):
     def _build_network(self):
         nodes = {node: i for i, node in enumerate(self.mbqcircuit.graph)}
         self._network_explicit = self.input_state is not None
-        self._network = _rust.TensorNetwork(
+        specification = (
             len(nodes),
             [(nodes[u], nodes[v]) for u, v in self.mbqcircuit.graph.edges],
             [nodes[n] for n in self.mbqcircuit.input_nodes],
             [nodes[n] for n in self.mbqcircuit.quantum_output_nodes],
             [nodes[n] for n in self.resolver.measurement_nodes],
+        )
+        if not self.force0:
+            self._network = _rust.Frontier(
+                *specification,
+                [
+                    [
+                        (nodes[target], int(pauli == "z"))
+                        for target, pauli in self.corrections.get(node, ())
+                    ]
+                    for node in self.resolver.measurement_nodes
+                ],
+                max_elements=self._max_elements,
+            )
+            if self.input_state is not None:
+                self._network.set_input(self.input_state.real, self.input_state.imag)
+            return
+        self._network = _rust.TensorNetwork(
+            *specification,
             explicit_input=self._network_explicit,
             max_elements=self._max_elements,
             device_name=self.device,
@@ -120,8 +172,17 @@ class RustSimulator(BaseSimulator):
 
     @property
     def peak_elements(self):
-        """Largest planned tensor, excluding differentiation storage."""
-        return self._network.peak_elements
+        """Largest planned tensor or active state in the last sampled trajectory."""
+        return (
+            self._network.peak_elements
+            if self.force0
+            else 2**self._network.max_frontier
+        )
+
+    @property
+    def max_frontier(self):
+        """Largest active qubit count in the last sampled trajectory."""
+        return None if self.force0 else self._network.max_frontier
 
     def reset(self, input_state=None):
         """Clear outcomes, optionally replacing the normalized input vector."""
@@ -138,6 +199,11 @@ class RustSimulator(BaseSimulator):
             self.input_state is not None
         ):
             self._build_network()
+        elif not self.force0:
+            if self.input_state is not None:
+                self._network.set_input(self.input_state.real, self.input_state.imag)
+            else:
+                self._network.set_input()
         self.outcomes = {}
 
     def _input(self):
@@ -177,9 +243,12 @@ class RustSimulator(BaseSimulator):
             for dest, (source, component) in self._pair_dest:
                 values[dest] = angles[source][component]
         else:
-            values[self._scalar_dest] = np.asarray(angles, dtype=float)[
-                self._scalar_source
-            ]
+            if len(self._scalar_dest):
+                try:
+                    selected = np.asarray(angles, dtype=float)[self._scalar_source]
+                except ValueError:
+                    selected = [angles[i] for i in self._scalar_source]
+                values[self._scalar_dest] = selected
         return values
 
     def measure(self, angle, **kwargs):
@@ -194,10 +263,29 @@ class RustSimulator(BaseSimulator):
             else normalize_output_form(output_form)
         )
         self.reset(input_state)
-        values = self._angles(angles)
-        re, im = self._network.run(values, **self._input())
+        if self.force0:
+            values = self._angles(angles)
+            re, im = self._network.run(values, **self._input())
+            self.outcomes = self._forced_outcomes.copy()
+        else:
+            self.resolver.validate_parameters(angles)
+            rng = self.rng if seed is None else np.random.default_rng(seed)
+            draws = rng.random(len(self.resolver.measurement_nodes))
+            if self._adaptive:
+                outcomes = {}
+                for node, draw in zip(self.resolver.measurement_nodes, draws):
+                    command = self.resolver.resolve(node, angles, outcomes)
+                    outcomes[node] = self._network.step(
+                        *_basis(command.plane, command.angle), draw
+                    )
+                re, im = self._network.finish()
+            else:
+                re, im = self._network.run(self._angles(angles), draws)
+                outcomes = dict(
+                    zip(self.resolver.measurement_nodes, self._network.outcomes)
+                )
+            self.outcomes = outcomes
         state = np.asarray(re) + 1j * np.asarray(im)
-        self.outcomes = self._forced_outcomes.copy()
         return state if form == "sv" else np.outer(state, state.conj())
 
     def _evaluate(self, angles, observable, gradient, input_state=None):
@@ -238,10 +326,41 @@ class RustSimulator(BaseSimulator):
 
     def expectation(self, angles, observable, shots=None, seed=None, **kwargs):
         """Evaluate an expectation, optionally estimating each term from shots."""
-        if shots is not None:
+        if shots is not None or not self.force0:
             return super().expectation(angles, observable, shots, seed, **kwargs)
         kwargs.pop("output_form", None)
         return self._evaluate(angles, observable, False, **kwargs)
+
+    def sample(self, angles=(), *, shots=1024, basis=None, seed=None, **kwargs):
+        """Draw joint output shots, resampling intermediate outcomes when requested."""
+        if self.force0 or self._adaptive:
+            return super().sample(angles, shots=shots, basis=basis, seed=seed, **kwargs)
+        shots = validate_shots(shots)
+        nodes = tuple(self.mbqcircuit.quantum_output_nodes)
+        basis = "Z" * len(nodes) if basis is None else basis.upper()
+        if len(basis) != len(nodes) or not set(basis) <= set("IXYZ"):
+            raise ValueError("basis must contain one I, X, Y or Z per output.")
+        kwargs.pop("output_form", None)
+        self.reset(kwargs.pop("input_state", None))
+        if kwargs:
+            raise TypeError(f"Unexpected sampling options: {', '.join(kwargs)}")
+        rng = self.rng if seed is None else np.random.default_rng(seed)
+        values = self._angles(angles)
+        width = len(self.resolver.measurement_nodes) + 1
+        bits = np.empty((shots, len(nodes)), dtype=np.int8)
+        # Bound random-number storage independently of the requested shot count.
+        batch = max(1, min(256, 2**18 // width))
+        for start in range(0, shots, batch):
+            size = min(batch, shots - start)
+            draws = rng.random(size * width)
+            data = self._network.sample(values, draws, basis)
+            bits[start : start + size] = np.frombuffer(data, dtype=np.uint8).reshape(
+                size, len(nodes)
+            )
+        self.outcomes = dict(
+            zip(self.resolver.measurement_nodes, self._network.outcomes)
+        )
+        return Samples(bits, nodes, basis)
 
     def expectation_and_grad(self, angles, observable, *, input_state=None, shots=None):
         """Return an exact expectation and its native reverse-mode gradient.
@@ -252,4 +371,8 @@ class RustSimulator(BaseSimulator):
         """
         if shots is not None:
             raise ValueError("Shot-sampled expectations do not support autodiff.")
+        if not self.force0:
+            raise ValueError(
+                "Autodiff requires a fixed postselected branch (force0=True)."
+            )
         return self._evaluate(angles, observable, True, input_state)

@@ -31,8 +31,9 @@ class PatternSimulator:
     mbqcircuit: mp.MBQCircuit
         The MBQC circuit used for the simulation.
     backend: str
-        Use "numpy" for branch simulation, "rust" for native differentiable
-        tensor contraction, or "jax-tn" for compatibility with JAX transforms.
+        "rust" (default) supports native tensor contraction, gradients, and
+        sampled trajectories. "numpy" provides a reference implementation;
+        "jax-tn" supports existing JAX transformations on postselected patterns.
 
     See Also
     --------
@@ -47,7 +48,7 @@ class PatternSimulator:
         self,
         mbqcircuit: MBQCircuit,
         input_state: np.ndarray = None,
-        backend="numpy",
+        backend="rust",
         *args,
         **kwargs,
     ) -> None:

@@ -338,7 +338,7 @@ def test_nontrivial_autodiff_jit_and_training():
     evaluate = jax.jit(jax.value_and_grad(cost))
     value, gradient = evaluate(angles)
     assert np.linalg.norm(gradient) > 0.1
-    numpy_sim = mp.PatternSimulator(pattern)
+    numpy_sim = mp.PatternSimulator(pattern, backend="numpy")
     reference = mp.gradients.get_gradient(
         lambda a: numpy_sim.expectation(a, observable),
         np.asarray(angles, dtype=float),
@@ -388,7 +388,9 @@ def test_cached_gradient_respects_input_and_observable_changes():
     sim.reset(np.array([1.0, 0.0]))
     value, grad = sim.expectation_and_grad(angles, observable)
     np.testing.assert_allclose(value, sim.expectation(angles, observable))
-    numpy_sim = mp.PatternSimulator(pattern, input_state=np.array([1.0, 0.0]))
+    numpy_sim = mp.PatternSimulator(
+        pattern, input_state=np.array([1.0, 0.0]), backend="numpy"
+    )
     reference = mp.gradients.get_gradient(
         lambda a: numpy_sim.expectation(a, observable), angles, method="fd"
     )
