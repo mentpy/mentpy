@@ -61,7 +61,7 @@ ps = mp.PatternSimulator(st)
 output = ps(np.random.rand(len(st.trainable_nodes)))
 ```
 
-Native simulation, autodiff, OpenQASM compilation, and JAX compatibility are
+Native simulation, autodiff, Pauli propagation, OpenQASM compilation, and JAX compatibility are
 included in the standard install. For differentiable observable costs:
 
 ```python
@@ -81,6 +81,12 @@ postselected patterns and keeps only active qubits for sampled trajectories
 (`force0=False`). See the
 [Grover tutorial](https://github.com/mentpy/mentpy/blob/main/docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,
 exact probabilities, finite shots, Pauli measurements, and output ordering.
+
+Use `backend="pauli"` for sparse output expectations on causal-flow X/Y/XY
+patterns. On supported Linux systems, `device="cuda:0"` selects cuPauliProp;
+its runtime libraries come with the standard install. A compatible NVIDIA
+driver is required. Dense Pauli output methods reuse the Rust state simulator.
+See the [native execution guide](docs/native.rst) for support limits and benchmarks.
 
 For visualization of circuits, you can use the `mp.draw(st)` function
 

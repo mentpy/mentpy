@@ -21,19 +21,22 @@ Welcome to MentPy's documentation
 =================================
 
 MentPy is an open-source Python package for building, simulating, and training
-measurement-based quantum circuits. The NumPy backend simulates measurement
-branches with lazy qubit preparation. The JAX tensor-network backend supports
-differentiation through postselected patterns. MentPy also includes Pauli
-observables, chemistry utilities, and OpenQASM import with ZX simplification.
+measurement-based quantum circuits. Rust runs the flow solvers, tensor
+contractions, gradients, and sampled quantum trajectories. A sparse Pauli
+backend evaluates observables on causal-flow patterns, with CPU execution and
+CUDA acceleration through cuPauliProp. MentPy also includes chemistry utilities,
+OpenQASM import with ZX simplification, and a compatible JAX interface.
 
 
 Features
 --------
 
 * Manipulation of graph states.
-* Automatically calculate the causal flow or generalized flow of a graph.
-* Simulate MBQC circuits with NumPy and JAX tensor-network backends.
-* Evaluate tensor-network observable costs with JAX autodiff.
+* Calculate causal, generalized, and Pauli flow with native GF(2) solvers.
+* Simulate postselected patterns and sampled trajectories with the Rust backend.
+* Differentiate tensor-network and Pauli expectation values in Rust.
+* Propagate sparse Pauli observables on CPU or compatible NVIDIA GPUs.
+* Use the existing NumPy and JAX backends for comparison and interoperability.
 * Optimize measurement angles in MBQC ansatzes used for QML.
 * Build molecular Hamiltonians and optimize ansatzes with explicit training loops.
 * Import and export supported circuits with PennyLane, Cirq, Qiskit, and CUDA-Q.
@@ -41,15 +44,21 @@ Features
 * Simplify circuits with PyZX before compiling them to MBQC.
 * Collect output bitstrings, counts, and finite-shot Pauli estimates.
 * Create data and noisy data for training QML models.
-* Determine the lie algebra of an MBQC ansatz.
+* Compute Pauli Lie closure and graph-state local-Clifford equivalence in Rust.
 
 Roadmap
 -------
-* Stabilize compiler passes that convert between gate circuits, ZX diagrams, and MBQC resources.
-* Benchmark and optimize tensor-network contractions for larger low-treewidth patterns.
-* Broaden support for general MBQC resource states and non-forced measurement workflows.
-* Expand hardware-aware export paths and dynamic-circuit execution examples.
-* Continue increasing coverage around simulators, gradients, interop, chemistry, and compiler utilities.
+The native flow, contraction, gradient, trajectory, and sparse Pauli engines are
+implemented. The next steps extend the patterns and resource states they can
+represent:
+
+* Extend Pauli circuit extraction beyond causal-flow X/Y/XY patterns.
+* Add controlled approximation with reported error bounds and efficient joint sampling.
+* Introduce MPS resources and local measurement instruments, starting with an AKLT wire.
+* Improve contraction ordering for wider patterns and distribute the CUDA tensor build.
+* Expand hardware-aware compilation and dynamic-circuit execution examples.
+
+See :doc:`native` for supported execution paths, validation, and remaining limits.
 
 
 Contributing
@@ -111,6 +120,7 @@ If you find MentPy useful in your research, please consider citing us 🙂
    :hidden:
 
    getting-started
+   native
 
 .. toctree::
    :caption: Basic usage
