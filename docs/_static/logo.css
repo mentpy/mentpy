@@ -1,0 +1,8 @@
+.mentpy-logo-dark,
+[data-md-color-scheme="slate"] .mentpy-logo-light {
+  display: none;
+}
+
+[data-md-color-scheme="slate"] .mentpy-logo-dark {
+  display: block;
+}
