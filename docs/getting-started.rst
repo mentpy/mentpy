@@ -14,6 +14,10 @@ The standard install includes native flow algorithms, Rust tensor-network
 simulation and reverse-mode autodiff, OpenQASM/ZX compilation, and the existing
 JAX interface. No ``[jax]`` or ``[compiler]`` extra is needed.
 
+Intel macOS installations use Numba 0.62, the last release providing binaries
+for that platform. Its Python support ends at 3.13. Other platforms use the
+current compatible dependency versions.
+
 Integrations
 ------------
 
