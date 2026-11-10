@@ -4,15 +4,11 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """A module for calculating the Lie algebra of a given MBQC circuit"""
 
-from itertools import combinations
-from collections import deque
+import operator
 
 import numpy as np
-from mentpy import MBQCircuit, PauliOp
-import galois
-import copy
-
-from mentpy.calculator import solve
+from mentpy import MBQCircuit, PauliOp, _rust
+from mentpy.mbqc.flow import _ordered_graph_nodes
 
 __all__ = [
     "calculate_complete_gens",
@@ -25,76 +21,6 @@ __all__ = [
     "dim_sp",
 ]
 
-GF = galois.GF(2)
-
-
-def _constrains(j: int, state: MBQCircuit, stabilizers: PauliOp):
-    """Creates the A matrix for the constraints on the stabilizers"""
-
-    if j not in state.outputc:
-        raise ValueError("j should be in outputc")
-
-    mo = state.measurement_order
-    mapping = state.index_mapping()
-    mo = [mapping[i] for i in mo]
-    j = mapping[j]
-
-    A = []
-    b = []
-    for k in mo:
-        if (not state.partial_order(j, k)) or k == j:
-            A.append(stabilizers[k].matrix[0, : len(mo)])
-            b.append(np.zeros(1, dtype=int))
-
-    for k in [mapping[i] for i in state.outputc]:
-        A.append(stabilizers[k].matrix[0, len(mo) :])
-        p = 0 if k != j else 1
-        b.append(np.array([p]))
-
-    return GF(np.vstack(A)), GF(np.vstack(b))
-
-
-def _check_solution(A, b, x):
-    x = x.reshape(-1, 1)
-    return np.linalg.norm(A @ x - b) == 0
-
-
-def _find_solution(j: int, state: MBQCircuit, stabilizers: PauliOp):
-    """Finds the solution of the system of constraints"""
-    A, b = _constrains(j, state, stabilizers)
-    sol = GF(solve(A, b))
-
-    if not _check_solution(A, b, sol):
-        raise ValueError("Solution not found for j: " + str(j))
-
-    op = PauliOp("I" * len(state.measurement_order))
-    for i in range(len(sol)):
-        if sol[i] == 1:
-            op = op * stabilizers[i]
-    return op
-
-
-def calculate_complete_gens_lie_algebra_old(state: MBQCircuit):
-    """Calculates the Pauli operators for the Lie algebra of a given state
-
-    NOTE: This function is deprecated
-
-    Group
-    -----
-    utils
-    """
-    graph_stabs = state.stabilizers()
-
-    lieAlgebra = None
-    for i in state.outputc:
-        op = _find_solution(i, state, graph_stabs)
-        if lieAlgebra is None:
-            lieAlgebra = op
-        else:
-            lieAlgebra.append(op)
-
-    return lieAlgebra
-
 
 def calculate_complete_gens(circuit: MBQCircuit):
     """Calculates the complete generators for the Lie algebra of a given circuit.
@@ -103,18 +29,13 @@ def calculate_complete_gens(circuit: MBQCircuit):
     -----
     utils
     """
-    gens = None
-    if circuit.flow is None:
+    if not circuit.trainable_nodes:
+        return PauliOp(np.empty((0, 2 * len(circuit)), dtype=np.uint8))
+    circuit.flow.initialize_flow()
+    if circuit.flow.func is None:
         raise ValueError("Cannot calculate the Lie algebra of a circuit without a flow")
-
-    for node in circuit.trainable_nodes:
-        op = circuit.flow.generator_op(node)
-        if gens is None:
-            gens = op
-        else:
-            gens.append(op)
-
-    return gens
+    rows = [circuit.flow.generator_op(node).matrix for node in circuit.trainable_nodes]
+    return PauliOp(np.vstack(rows))
 
 
 def calculate_gens(circuit: MBQCircuit):
@@ -124,10 +45,7 @@ def calculate_gens(circuit: MBQCircuit):
     -----
     utils
     """
-    lieAlgebra = calculate_complete_gens(circuit)
-
-    output_ops = lieAlgebra.get_subset(circuit.output_nodes)
-    return remove_repeated_ops(output_ops)
+    return remove_repeated_ops(calculate_ordered_gens(circuit))
 
 
 def calculate_ordered_gens(circuit: MBQCircuit):
@@ -144,76 +62,55 @@ def calculate_ordered_gens(circuit: MBQCircuit):
     -----
     utils
     """
-    lieAlgebra = calculate_complete_gens(circuit)
-    output_ops = lieAlgebra.get_subset(circuit.output_nodes)
-    return output_ops
-
-
-# def lie_algebra_completion_old(generators: PauliOp, max_iter: int = 1000):
-#     """Completes a given set of Pauli operators to a basis of the Lie algebra"""
-#     lieAlg = copy.deepcopy(generators)
-#     already_commutated = []
-#     iter = 0
-#     while iter < max_iter:
-#         iter += 1
-#         new_lieAlg = None
-#         for i, j in combinations(range(len(lieAlg)), 2):
-#             if (i, j) not in already_commutated:
-#                 already_commutated.append((i, j))
-#                 if lieAlg[i].symplectic_prod(lieAlg[j])[0][0] != 0:
-#                     if new_lieAlg is None:
-#                         new_lieAlg = lieAlg[i].commutator(lieAlg[j])
-#                     else:
-#                         new_lieAlg.append(lieAlg[i].commutator(lieAlg[j]))
-
-#         if new_lieAlg is None:
-#             break
-#         else:
-#             lieAlg.append(new_lieAlg)
-#             new_lieAlg = remove_repeated_ops(lieAlg)
-#             if len(new_lieAlg) == len(lieAlg):
-#                 break
-
-#         lieAlg = new_lieAlg
-
-#     if iter >= max_iter - 1:
-#         raise ValueError("Max iterations reached")
-
-#     return lieAlg
+    generators = calculate_complete_gens(circuit)
+    indices = {
+        node: index for index, node in enumerate(_ordered_graph_nodes(circuit.graph))
+    }
+    return generators.get_subset([indices[node] for node in circuit.output_nodes])
 
 
 def lie_algebra_completion(generators: PauliOp, max_iter: int = 1000):
-    """Completes a given set of Pauli operators to a basis of the Lie algebra
+    """Complete Pauli generators under nonzero commutators, modulo phase.
+
+    The Rust solver preserves first occurrence and discovery order, removes
+    duplicates, and includes the identity, following MentPy's convention.
+    Subtract one from the returned size when counting traceless generators.
+    ``max_iter`` bounds the number of pairs examined; exhaustion raises instead
+    of returning a partial basis. The basis can grow exponentially with qubits.
+
+    Parameters
+    ----------
+    generators : PauliOp
+        Initial Pauli generators. An empty tableau returns just the identity.
+    max_iter : int
+        Positive maximum number of commutator checks.
+
+    Returns
+    -------
+    PauliOp
+        Completed basis including the identity.
 
     Group
     -----
     utils
     """
-    lieAlg = copy.deepcopy(generators)
-    already_commutated = set()
-    queue = deque(combinations(lieAlg, 2))
-    iter = 0
-    while iter < max_iter and queue:
-        iter += 1
-        x, y = queue.popleft()
-        pair = tuple(sorted((x.txt, y.txt)))
-        if pair not in already_commutated:
-            already_commutated.add(pair)
-            newOp = x.commutator(y)
-            if isinstance(newOp, PauliOp):
-                if newOp not in lieAlg:
-                    lieAlg.append(newOp)
-                    queue.extend((newOp, k) for k in lieAlg if k != newOp)
-
-    if iter >= max_iter - 1 and queue:
-        raise ValueError("Max iterations reached")
-
-    # check IIII is in lieAlg
-    identityPauli = PauliOp("I" * int(lieAlg[0].matrix.shape[1] // 2))
-    if identityPauli not in lieAlg:
-        lieAlg.append(identityPauli)
-
-    return lieAlg
+    if isinstance(max_iter, (bool, np.bool_)):
+        raise ValueError("max_iter must be a positive integer.")
+    try:
+        max_iter = operator.index(max_iter)
+    except TypeError as exc:
+        raise ValueError("max_iter must be a positive integer.") from exc
+    if max_iter < 1:
+        raise ValueError("max_iter must be a positive integer.")
+    qubits = generators.number_of_qubits
+    data, rows = _rust.lie_closure(
+        np.asarray(generators.matrix, dtype=np.uint8).tobytes(),
+        len(generators),
+        qubits,
+        max_iter,
+    )
+    tableau = np.frombuffer(data, dtype=np.uint8).reshape(rows, 2 * qubits)
+    return PauliOp(tableau)
 
 
 def calculate_lie_algebra(circuit: MBQCircuit, max_iter: int = 10000):
@@ -239,13 +136,8 @@ def calculate_lie_algebra(circuit: MBQCircuit, max_iter: int = 10000):
 
 def remove_repeated_ops(ops: PauliOp):
     """Removes repeated Pauli operators from a set"""
-    ops = copy.deepcopy(ops)
-    unrep_ops = ops[0]
-    if len(ops) > 1:
-        for op in ops[1:]:
-            if op not in unrep_ops:
-                unrep_ops.append(op)
-    return unrep_ops
+    _, indices = np.unique(np.asarray(ops.matrix), axis=0, return_index=True)
+    return PauliOp(ops.matrix[np.sort(indices)])
 
 
 def dim_su(n):

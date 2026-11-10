@@ -2,9 +2,11 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
+mod algebra;
 mod contract;
 mod cupauli;
 mod flow;
+mod lc;
 mod pauli;
 mod tensor;
 mod tn;
@@ -288,6 +290,8 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
 
 #[pymodule]
 fn _rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(algebra::lie_closure, m)?)?;
+    m.add_function(wrap_pyfunction!(lc::lc_equivalent, m)?)?;
     m.add_class::<tn::TensorNetwork>()?;
     m.add_class::<trajectory::Frontier>()?;
     m.add_class::<pauli::PauliCircuit>()?;
