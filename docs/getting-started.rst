@@ -11,7 +11,8 @@ In a uv project, use ``uv add mentpy``. With pip, use
 ``python -m pip install --pre mentpy`` while releases are in alpha.
 
 The standard install includes native flow algorithms, Rust tensor-network
-simulation and reverse-mode autodiff, OpenQASM/ZX compilation, and the existing
+simulation, Pauli propagation, reverse-mode autodiff, algebra utilities,
+OpenQASM/ZX compilation, and the existing
 JAX interface. No ``[jax]`` or ``[compiler]`` extra is needed.
 
 Linux x86-64 and ARM64 installations also include the cuPauliProp and CUDA 13
@@ -82,3 +83,26 @@ Run ``python -m benchmarks.flow`` for complete flow-solving timings,
 and ``python -m benchmarks.trajectories`` for sampled execution and shot batches.
 The simulator benchmark reports setup, first-call, and warmed timings
 separately. Results depend on the graph, output size, and hardware.
+
+Run ``python -m benchmarks.pauli`` for sparse CPU propagation,
+``python -m benchmarks.cupauli`` on a compatible NVIDIA GPU, and
+``python -m benchmarks.algebra`` for Lie closure and local-Clifford equivalence.
+
+Native dependency notices
+-------------------------
+
+Wheels and source archives include ``THIRD_PARTY_NOTICES`` for locked Cargo
+dependencies, ``NOTICE`` for PPVM attribution, and ``LICENSE-RUST.html`` for
+Rust's standard library. Regenerate notices after changing Cargo dependencies:
+
+.. code-block:: bash
+
+   cargo install cargo-about --version 0.9.3 --locked --features cli
+   cargo about generate --locked --all-features --fail \
+       --config mentpy/_native/about.toml mentpy/_native/about.hbs \
+       -o THIRD_PARTY_NOTICES
+
+``LICENSE-RUST.html`` contains Rust 1.99.1's distributed
+``share/doc/rustc/COPYRIGHT-library.html``, with its MIT, compiler-builtins, and
+libunwind license texts appended. Update it when changing the release toolchain. NVIDIA libraries remain separately installed distributions with
+their own license terms; their binaries are not copied into MentPy wheels.

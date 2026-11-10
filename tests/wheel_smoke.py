@@ -1,11 +1,23 @@
 """Exercise the standard installation outside the repository checkout."""
 
+from importlib.metadata import distribution
+
 import jax
 import jax.numpy as jnp
 import networkx as nx
 import numpy as np
 import mentpy as mp
 from mentpy import _rust
+
+installed = distribution("mentpy")
+for name in ("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES", "LICENSE-RUST.html"):
+    files = [
+        path
+        for path in installed.files
+        if path.name == name and ".dist-info/licenses/" in str(path)
+    ]
+    assert files, f"Missing bundled license: {name}"
+    assert installed.locate_file(files[0]).stat().st_size > 0
 
 assert _rust.gf2_inverse([[1, 1], [0, 1]]) == [[1, 1], [0, 1]]
 assert mp.utils.lie_algebra_completion(mp.PauliOp("X;Z")).txt == "X\nZ\nY\nI"

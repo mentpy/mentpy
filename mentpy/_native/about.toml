@@ -1,0 +1,9 @@
+# Prefer permissive licenses when a dependency offers alternatives.
+accepted = ["MIT", "Apache-2.0", "Unicode-3.0", "Zlib", "ISC", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0 WITH LLVM-exception"]
+targets = [
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+]
