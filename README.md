@@ -22,16 +22,16 @@
 
 The `mentpy` library is open-source software for building, simulating, and
 training measurement-based quantum computing circuits. It includes graph-state
-tools, NumPy simulators, a JAX tensor-network backend with autodiff for
-supported forced-outcome patterns, Pauli observables and chemistry utilities, circuit
-interoperability, and OpenQASM-to-MBQC compilation with optional ZX simplification.
+tools, native tensor-network simulation and autodiff, sampled measurement
+trajectories, Pauli observables and chemistry utilities, circuit interoperability,
+and OpenQASM-to-MBQC compilation with ZX simplification.
 
 ## Installation
 
 You can install the latest published release of `mentpy` from PyPI using:
 
 ```bash
-pip install --pre mentpy
+uv pip install mentpy
 ```
 
 For the latest, potentially unstable version, you can install directly from the source:
@@ -61,22 +61,20 @@ ps = mp.PatternSimulator(st)
 output = ps(np.random.rand(len(st.trainable_nodes)))
 ```
 
-For differentiable costs, install `mentpy[jax]` and use the tensor-network backend:
+Native simulation, autodiff, OpenQASM compilation, and JAX compatibility are
+included in the standard install. For differentiable observable costs:
 
 ```python
-import jax
-import jax.numpy as jnp
-
-sim = mp.PatternSimulator(st, backend="jax-tn")
+sim = mp.PatternSimulator(st, backend="rust")
 observable = mp.Observable("ZZ")
-cost = lambda angles: sim.expectation(angles, observable)
-value_and_grad = jax.jit(jax.value_and_grad(cost))
-value, gradient = value_and_grad(jnp.zeros(len(st.trainable_nodes)))
+value, gradient = sim.expectation_and_grad(
+    np.zeros(len(st.trainable_nodes)), observable
+)
 shots = sim.sample(np.zeros(len(st.trainable_nodes)), shots=1024, seed=7)
 print(shots.counts)
 ```
 
-Install `mentpy[compiler]` to import a unitary OpenQASM 2 program with
+Import a unitary OpenQASM 2 program with
 `pattern = mp.from_qasm(qasm)`. Use `mp.compile(qasm).pattern` to apply PyZX
 simplification first. The default NumPy backend keeps only the active qubits in memory. See the
 [Grover tutorial](https://github.com/mentpy/mentpy/blob/main/docs/tutorials/grover-qasm.rst) for Qiskit and PennyLane examples,

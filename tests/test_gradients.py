@@ -125,5 +125,5 @@ def test_autodiff_missing_dependency(monkeypatch):
         mp.gradients.get_hessian,
         mp.gradients.get_value_and_gradient,
     ]:
-        with pytest.raises(ImportError, match="mentpy\\[jax\\]"):
+        with pytest.raises(ImportError, match="standard dependencies"):
             function(np.sin, np.array([0.3]), method="jax")

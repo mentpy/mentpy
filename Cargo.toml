@@ -9,5 +9,11 @@ path = "mentpy/_native/lib.rs"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.25"
+pyo3 = { version = "0.25", features = ["abi3-py310"] }
 petgraph = "0.8"
+candle-core = "0.11.1"
+gemm = "0.19"
+num-complex = "0.4"
+
+[features]
+cuda = ["candle-core/cuda"]

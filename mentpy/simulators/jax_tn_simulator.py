@@ -74,6 +74,7 @@ class JaxTNSimulator(BaseSimulator):
         super().__init__(mbqcircuit, input_state)
 
         self.force0 = kwargs.pop("force0", True)
+        self.rng = np.random.default_rng(kwargs.pop("seed", None))
         self._default_output_form = normalize_output_form(
             kwargs.pop("output_form", "dm")
         )
@@ -426,6 +427,7 @@ class JaxTNSimulator(BaseSimulator):
         kwargs.pop("output_form", None)
         state = self.run(angles, output_form="sv", **kwargs)
         if shots is not None:
+            seed = self.rng if seed is None else seed
             return observable.sample_expectation(np.asarray(state), shots, seed=seed)
         return observable.expectation(state)
 

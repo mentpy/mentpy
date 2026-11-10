@@ -6,6 +6,7 @@
 
 from .base_simulator import BaseSimulator
 from .numpy_simulator import NumpySimulator
+from .rust_simulator import RustSimulator
 from .np_simulator_dm import *
 from .np_simulator_sv import *
 from .pattern_simulator import *

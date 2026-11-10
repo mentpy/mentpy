@@ -1,90 +1,74 @@
 Installation
-=============
+============
 
-The :doc:`getting-started` guide is intended to assist users with installing the library.
-
-Install using ``pip``
----------------------
-The :obj:`mentpy` library requires Python 3.10 or above. It can be installed from
-`PyPI <https://pypi.org/project/mentpy/>`_ using ``pip``.
+MentPy requires Python 3.10 or above. Install it into your environment with:
 
 .. code-block:: bash
 
-   python3 -m pip install --pre mentpy
+   uv pip install mentpy
 
-Optional backends
------------------
+In a uv project, use ``uv add mentpy``. With pip, use
+``python -m pip install --pre mentpy`` while releases are in alpha.
 
-Install optional extras for the heavier integrations only when you need them:
+The standard install includes native flow algorithms, Rust tensor-network
+simulation and reverse-mode autodiff, OpenQASM/ZX compilation, and the existing
+JAX interface. No ``[jax]`` or ``[compiler]`` extra is needed.
 
-.. code-block:: bash
+Integrations
+------------
 
-   python3 -m pip install "mentpy[jax]"        # JAX tensor-network backend
-   python3 -m pip install "mentpy[compiler]"   # OpenQASM import and ZX simplification
-   python3 -m pip install "mentpy[synthesis]"  # pygridsynth Clifford+T synthesis
-   python3 -m pip install "mentpy[interop]"    # Cirq, Qiskit, and OpenFermion helpers
-   python3 -m pip install "mentpy[cudaq]"      # CUDA-Q helpers on supported platforms
-
-Install from Source
--------------------
-
-To install from source, you can ``git clone`` the repository and then use ``pip`` to handle the installation. This method will also ensure that all necessary dependencies as specified in ``pyproject.toml`` are installed.
+Install external toolkits when using their integration examples:
 
 .. code-block:: bash
 
-   git clone https://github.com/mentpy/mentpy
-   cd mentpy
-   python3 -m pip install -e .
+   uv pip install "mentpy[chem]"       # OpenFermion/PySCF molecular integrals
+   uv pip install "mentpy[synthesis]"  # pygridsynth Clifford+T synthesis
+   uv pip install "mentpy[interop]"    # Cirq, Qiskit, and OpenFermion helpers
+   uv pip install "mentpy[cudaq]"      # CUDA-Q export and execution helpers
 
-Now, you can verify the installation by importing the :obj:`mentpy` package and checking its version.
+Native builds
+-------------
 
-.. ipython:: python
-
-   import mentpy as mp
-   mp.__version__
-
-Development Installation
-------------------------
-
-Developers who wish to contribute to :obj:`mentpy` or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.
+Platform wheels contain the compiled Rust extension; using a wheel does not
+require a Rust compiler. Building from source requires a Rust toolchain and a
+C/C++ compiler. The native extension is required, so a failed build reports an
+error instead of silently omitting native features.
 
 .. code-block:: bash
 
    git clone https://github.com/mentpy/mentpy
    cd mentpy
-   python3 -m pip install -e '.[dev,chem]'
+   uv pip install -e '.[dev,chem]'
 
+Native code lives in ``mentpy/_native``. Flow discovery uses packed GF(2)
+operations and reuses one elimination for each generalized-flow layer. Tensor
+contraction uses an iterative reverse-mode tape on CPU, with GEMM kernels for
+larger products. The Python flow algorithms remain as independent references
+for validation.
 
-This installs MentPy in editable mode with the development and chemistry extras used by CI.
+CUDA tensor contraction is available in source builds made with the Cargo
+``cuda`` feature and a compatible CUDA toolkit. It uses Candle for tensor
+operations and differentiation. CPU wheels do not contain this CUDA build.
+For a source build, add ``features = ["cuda"]`` to the existing
+``[[tool.setuptools-rust.ext-modules]]`` table in ``pyproject.toml`` before
+installing. The CUDA toolkit must be on the compiler and library search paths.
+Select a GPU explicitly with ``backend="rust", device="cuda:0"``; requesting
+CUDA from a CPU-only build raises an error. Driver and toolkit availability are
+separate from the standard Python dependencies.
 
-Testing and Development
------------------------
-
-Before submitting changes, you can run the test suite to ensure everything is functioning correctly:
+Development checks
+------------------
 
 .. code-block:: bash
 
-   pytest
+   python -m black --check .
+   python -m pytest -q
+   python -m sphinx -b html docs docs/_build/html
+   cargo fmt --check
+   cargo clippy -- -D warnings
+   cargo test --lib
 
-If you're adding new features or fixing any bugs, it's a good idea to include new tests that cover your changes.
-
-Additionally, you can build the documentation locally to check for any errors and see how it looks before pushing changes:
-
-.. code-block:: bash
-
-   cd docs
-   make html
-
-This process generates HTML documentation in `docs/_build/html`, which you can open in a web browser to review.
-
-Contributors are encouraged to follow the repository contributing guidelines
-when submitting enhancements or bug fixes.
-
-Rust acceleration is optional. When a Rust toolchain is available, installation
-builds ``mentpy._rust`` to run generalized-flow and algebraic Pauli-flow solves,
-including GF(2) elimination and acyclic correction selection, in Rust. Generalized
-flow reuses one elimination for all candidate measurements in each layer.
-The source lives in ``mentpy/_native``; Python reference implementations remain
-available when the extension is absent. Run ``python -m benchmarks.flow`` from
-the repository to compare complete solves on the current machine.
-JAX tensor-network simulation and autodiff do not require Rust.
+Run ``python -m benchmarks.flow`` for complete flow-solving timings and
+``python -m benchmarks.native --jax`` to compare native and JAX gradients.
+The simulator benchmark reports setup, first-call, and warmed timings
+separately. Results depend on the graph, output size, and hardware.

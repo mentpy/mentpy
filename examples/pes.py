@@ -4,7 +4,7 @@
 # See <http://www.apache.org/licenses/LICENSE-2.0> for details.
 """Optimize H2 at several bond lengths and plot a potential-energy surface.
 
-Run ``OMP_NUM_THREADS=1 python examples/pes.py`` with ``mentpy[chem,jax]``
+Run ``OMP_NUM_THREADS=1 python examples/pes.py`` with ``mentpy[chem]``
 installed. Geometry is in Angstrom; energies include nuclear repulsion.
 """
 
@@ -26,7 +26,7 @@ exact_energies = []
 for distance in bond_lengths:
     geometry = [("H", (0.0, 0.0, 0.0)), ("H", (0.0, 0.0, float(distance)))]
     hamiltonian, molecule = mp.chem.molecular_hamiltonian(geometry, basis="sto-3g")
-    simulator = mp.PatternSimulator(ansatz, input_state=initial_state, backend="jax-tn")
+    simulator = mp.PatternSimulator(ansatz, input_state=initial_state, backend="rust")
     angles = np.array([0.1])
     optimizer = mp.optimizers.AdamOpt(step_size=0.05)
 

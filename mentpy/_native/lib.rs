@@ -2,7 +2,10 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
+mod contract;
 mod flow;
+mod tensor;
+mod tn;
 
 type Matrix = Vec<Vec<u32>>;
 type PackedSolution = (Py<PyBytes>, usize, usize, Py<PyBytes>, usize, usize);
@@ -282,6 +285,7 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
 
 #[pymodule]
 fn _rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_class::<tn::TensorNetwork>()?;
     m.add_function(wrap_pyfunction!(flow::pflow_matrices, m)?)?;
     m.add_function(wrap_pyfunction!(flow::solve_dag, m)?)?;
     m.add_function(wrap_pyfunction!(flow::gflow, m)?)?;

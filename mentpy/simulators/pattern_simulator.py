@@ -9,6 +9,7 @@ import numpy as np
 
 from mentpy.mbqc.mbqcircuit import MBQCircuit
 from .numpy_simulator import NumpySimulator
+from .rust_simulator import RustSimulator
 
 try:
     from mentpy.simulators.jax_tn_simulator import JaxTNSimulator
@@ -30,12 +31,12 @@ class PatternSimulator:
     mbqcircuit: mp.MBQCircuit
         The MBQC circuit used for the simulation.
     backend: str
-        Use "numpy" for branch simulation or "jax-tn" for differentiable
-        zero-outcome tensor contraction. "jax-tn" requires the JAX extra.
+        Use "numpy" for branch simulation, "rust" for native differentiable
+        tensor contraction, or "jax-tn" for compatibility with JAX transforms.
 
     See Also
     --------
-    :class:`mp.NumpySimulator`, :class:`mp.JaxTNSimulator`
+    :class:`mp.NumpySimulator`, :class:`mp.RustSimulator`, :class:`mp.JaxTNSimulator`
 
     Group
     -----
@@ -50,7 +51,7 @@ class PatternSimulator:
         *args,
         **kwargs,
     ) -> None:
-        supported_backends = {"numpy": NumpySimulator}
+        supported_backends = {"numpy": NumpySimulator, "rust": RustSimulator}
         if _HAS_JAX:
             supported_backends["jax-tn"] = JaxTNSimulator
 
@@ -58,7 +59,9 @@ class PatternSimulator:
         if backend in {"numpy-dm", "numpy-sv", "trajectory", "pennylane"}:
             backend = "numpy"
         if backend == "jax-tn" and not _HAS_JAX:
-            raise ImportError("Install 'mentpy[jax]' to use the jax-tn backend.")
+            raise ImportError(
+                "JAX is missing from this installation; reinstall mentpy to restore its dependencies."
+            )
         if backend not in supported_backends:
             raise ValueError(
                 f"Backend {backend} not supported. Supported backends are {supported_backends.keys()}"

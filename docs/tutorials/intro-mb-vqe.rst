@@ -6,8 +6,8 @@ optimization loop. This example uses H₂ in the STO-3G basis. We first optimize
 at a fixed geometry, then repeat the calculation over several bond lengths to
 plot a potential-energy surface.
 
-Install ``mentpy[jax]`` for the first example. The geometry sweep also uses
-``mentpy[chem,jax]`` for the OpenFermion/PySCF molecular integrals.
+The first example uses the standard MentPy install. The geometry sweep also
+uses ``mentpy[chem]`` for the OpenFermion/PySCF molecular integrals.
 
 Create the ansatz
 -----------------
@@ -51,7 +51,8 @@ Optimize the angles
 Each iteration evaluates the energy and its gradient, then updates the angles
 with Adam. The loop records the initial energy and the energy after every
 update, so iteration zero and the final value are both visible in the plot.
-``expectation_and_grad`` uses JAX autodiff and caches its compiled objective.
+``expectation_and_grad`` uses reverse-mode differentiation through the Rust
+tensor contraction, including normalization of the selected branch.
 
 .. literalinclude:: ../../examples/vqe.py
    :language: python
