@@ -1374,7 +1374,7 @@ together.</p>
 </a>
 <h2 id="execute-and-collect-statistics">Execute and collect statistics<a class="headerlink" href="#execute-and-collect-statistics" title="Link to this heading">¶</a></h2>
 <p>MentPy uses <code class="docutils literal notranslate"><span class="pre">|+&gt;</span></code> inputs by default. To reproduce Qiskit’s <code class="docutils literal notranslate"><span class="pre">|00000&gt;</span></code> input,
-we supply it explicitly. The <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> backend prepares graph qubits as
+we supply it explicitly. The NumPy backend prepares graph qubits as
 needed and removes each measured qubit. Its memory depends on the active
 frontier rather than the total graph size. It supports XY patterns with causal
 flow, including this compiled circuit.</p>
@@ -1382,7 +1382,7 @@ flow, including this compiled circuit.</p>
 
 <span class="gp">In [32]: </span><span class="n">initial</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
-<span class="gp">In [33]: </span><span class="n">sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"trajectory"</span><span class="p">)</span>
+<span class="gp">In [33]: </span><span class="n">sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"numpy"</span><span class="p">)</span>
 
 <span class="gp">In [34]: </span><span class="n">probabilities</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">probabilities</span><span class="p">()</span>
 
@@ -1413,7 +1413,7 @@ observed frequencies. The seed makes output sampling reproducible.</p>
 <span class="gh">Out[41]: </span><span class="go">np.float64(-0.9991559386253356)</span>
 
 <span class="gp">In [42]: </span><span class="n">sim</span><span class="o">.</span><span class="n">expectation</span><span class="p">([],</span> <span class="n">observable</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
-<span class="gh">Out[42]: </span><span class="go">np.float64(-1.0)</span>
+<span class="gh">Out[42]: </span><span class="go">np.float64(-0.998779296875)</span>
 
 <span class="gp">In [43]: </span><span class="n">x_samples</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">shots</span><span class="o">=</span><span class="mi">4096</span><span class="p">,</span> <span class="n">basis</span><span class="o">=</span><span class="s2">"XXXXX"</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
 
@@ -1425,7 +1425,7 @@ observed frequencies. The seed makes output sampling reproducible.</p>
 A sample result with a product basis records joint outcomes in that basis.
 Finite shots add output measurement noise; the state preparation itself uses
 exact complex amplitudes. To sample intermediate MBQC measurements as well,
-construct the trajectory simulator with <code class="docutils literal notranslate"><span class="pre">force0=False,</span> <span class="pre">seed=7</span></code>. It applies
+construct the NumPy simulator with <code class="docutils literal notranslate"><span class="pre">force0=False,</span> <span class="pre">seed=7</span></code>. It applies
 flow corrections, so the corrected output distribution is unchanged.</p>
 <h2 id="export-from-pennylane">Export from PennyLane<a class="headerlink" href="#export-from-pennylane" title="Link to this heading">¶</a></h2>
 <p>PennyLane can export the same search using <code class="docutils literal notranslate"><span class="pre">qml.to_openqasm</span></code>. Use a tape
@@ -1454,7 +1454,7 @@ ignored because they do not affect measurement statistics.</p>
 
 <span class="gp">In [48]: </span><span class="n">pl_pattern</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">from_qasm</span><span class="p">(</span><span class="n">pl_qasm</span><span class="p">)</span>
 
-<span class="gp">In [49]: </span><span class="n">pl_sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pl_pattern</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"trajectory"</span><span class="p">)</span>
+<span class="gp">In [49]: </span><span class="n">pl_sim</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">pl_pattern</span><span class="p">,</span> <span class="n">input_state</span><span class="o">=</span><span class="n">initial</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s2">"numpy"</span><span class="p">)</span>
 
 <span class="gp">In [50]: </span><span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pl_sim</span><span class="o">.</span><span class="n">probabilities</span><span class="p">(),</span> <span class="n">reference</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-8</span><span class="p">)</span>
 

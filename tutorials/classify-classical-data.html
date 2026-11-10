@@ -865,7 +865,7 @@
   
   
   <span class="md-ellipsis">
-    <span>Learning a quantum instrument</span>
+    <span>An adaptive quantum instrument</span>
     
   </span>
   
@@ -1255,7 +1255,7 @@ of a 2D dataset and use this map to formulate the kernel:</p>
 <span class="gp">In [12]: </span><span class="n">ax</span><span class="o">.</span><span class="n">set_facecolor</span><span class="p">(</span><span class="s1">'white'</span><span class="p">)</span>
 
 <span class="gp">In [13]: </span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="s1">'feature1'</span><span class="p">],</span> <span class="n">X_train</span><span class="p">[</span><span class="s1">'feature2'</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">'coolwarm'</span><span class="p">)</span>
-<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x7ff93d830fa0&gt;</span>
+<span class="gh">Out[13]: </span><span class="go">&lt;matplotlib.collections.PathCollection at 0x786fb4cbf1f0&gt;</span>
 </code></pre></div>
 </div>
 <a class="reference internal image-reference" href="../_images/scatter_classical_data.png"><img alt="../_images/scatter_classical_data.png" src="../_images/scatter_classical_data.png" style="width: 500px;" />
@@ -1280,7 +1280,7 @@ of a 2D dataset and use this map to formulate the kernel:</p>
 embeddings mentioned in <a class="footnote-reference brackets" href="#suzuki2020" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> to define the measurement angles for each qubit.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">gs</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">muta</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">one_column</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">mp</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">gs</span><span class="p">)</span>
-<span class="n">ps</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy-dm'</span><span class="p">,</span> <span class="n">window_size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy'</span><span class="p">,</span> <span class="n">window_size</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">quantum_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 

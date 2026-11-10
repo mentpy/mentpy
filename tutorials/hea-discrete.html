@@ -895,7 +895,7 @@
   
   
   <span class="md-ellipsis">
-    <span>Learning a quantum instrument</span>
+    <span>An adaptive quantum instrument</span>
     
   </span>
   
@@ -1299,7 +1299,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
 <span class="n">gs</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">muta</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">one_column</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">ps</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy-dm'</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy'</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">mygate</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">gates</span><span class="o">.</span><span class="n">ising_xx</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">)</span>
 <span class="n">mygate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">kron</span><span class="p">(</span><span class="n">mp</span><span class="o">.</span><span class="n">gates</span><span class="o">.</span><span class="n">TGate</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span> <span class="o">@</span> <span class="n">mygate</span>
 <span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">random_train_test_states_unitary</span><span class="p">(</span><span class="n">mygate</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>

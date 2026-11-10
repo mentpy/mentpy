@@ -53,9 +53,9 @@ def energy(parameters):
 steps = 100
 optimizer = mp.optimizers.AdamOpt(step_size=0.05)
 energies = [float(energy(angles))]
-for iteration in range(steps):
+for _ in range(steps):
     value, gradient = simulator.expectation_and_grad(angles, hamiltonian)
-    angles = optimizer.step(energy, angles, iteration, gradient=gradient)
+    angles = optimizer.step(energy, angles, gradient=gradient)
     energies.append(float(energy(angles)))
 
 # Plot

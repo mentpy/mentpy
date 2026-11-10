@@ -1,5 +1,5 @@
 Molecular energies with an MBQC ansatz
-====================================
+======================================
 
 A variational energy calculation needs an ansatz, a Hamiltonian, and an
 optimization loop. This example uses H₂ in the STO-3G basis. We first optimize
@@ -141,9 +141,9 @@ optimizer, and loop structure stay the same:
    angles = np.array([0.1])
    optimizer = mp.optimizers.AdamOpt(step_size=0.05)
    energies = [float(energy(angles))]
-   for iteration in range(steps):
+   for _ in range(steps):
        gradient = mp.gradients.get_gradient(energy, angles, method="parameter-shift")
-       angles = optimizer.step(energy, angles, iteration, gradient=gradient)
+       angles = optimizer.step(energy, angles, gradient=gradient)
        energies.append(float(energy(angles)))
 
 Each Pauli term receives 4096 shots. Finite-shot estimates fluctuate, so use an

@@ -859,6 +859,16 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#outcome-controlled-measurements" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Outcome-<wbr>controlled measurements</span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1232,6 +1242,16 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#outcome-controlled-measurements" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Outcome-<wbr>controlled measurements</span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1317,8 +1337,8 @@ through the same supported gate subset:</p>
 <span class="n">mbqc_circuit</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">from_cudaq</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">n_qubits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="mf">0.2</span><span class="p">])</span>
 </code></pre></div>
 </div>
-<p>Symbolic gate parameters in imported PennyLane, Cirq, or Qiskit circuits become
-trainable MentPy measurement angles.</p>
+<p>Bind symbolic gate parameters to numeric values before importing. To build a
+trainable MBQC pattern directly, use <code class="xref py py-mod docutils literal notranslate"><span class="pre">mentpy.mbqc.templates</span></code>.</p>
 <h2 id="export-mbqc-circuits">Export MBQC circuits<a class="headerlink" href="#export-mbqc-circuits" title="Link to this heading">¶</a></h2>
 <p>An MBQC circuit can be exported to each supported backend:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">mentpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
@@ -1331,9 +1351,10 @@ trainable MentPy measurement angles.</p>
 <span class="n">cudaq_kernel</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">to_cudaq</span><span class="p">(</span><span class="n">mbqc_circuit</span><span class="p">)</span>
 </code></pre></div>
 </div>
-<p>Cirq, Qiskit, and CUDA-Q exports preserve MBQC adaptivity with dynamic-circuit
-constructs. Trainable measurement angles are exported as backend parameters by
-default:</p>
+<p>The exporters implement feed-forward with classical controls on measurement
+outcomes. See <a class="reference internal" href="learn-instrument.html"><span class="doc">An adaptive quantum instrument</span></a> for a pattern with an outcome-dependent
+measurement basis. Cirq and Qiskit expose trainable angles as named parameters
+by default. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">qiskit_circuit</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">to_qiskit</span><span class="p">(</span>
     <span class="n">mbqc_circuit</span><span class="p">,</span>
     <span class="n">parameter_prefix</span><span class="o">=</span><span class="s2">"theta"</span><span class="p">,</span>
@@ -1343,6 +1364,13 @@ default:</p>
     <span class="n">mbqc_circuit</span><span class="p">,</span>
     <span class="n">parameters</span><span class="o">=</span><span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mbqc_circuit</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">),</span>
 <span class="p">)</span>
+</code></pre></div>
+</div>
+<p>CUDA-Q exports run with <code class="docutils literal notranslate"><span class="pre">cudaq.run</span></code>. Each shot contains the intermediate
+outcomes in measurement order, followed by the Z-basis output bits in
+<code class="docutils literal notranslate"><span class="pre">quantum_output_nodes</span></code> order. Pass the trainable angles as one list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><code><span class="n">angles</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mbqc_circuit</span><span class="o">.</span><span class="n">trainable_nodes</span><span class="p">)</span>
+<span class="n">shots</span> <span class="o">=</span> <span class="n">cudaq</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">cudaq_kernel</span><span class="p">,</span> <span class="n">angles</span><span class="p">,</span> <span class="n">shots_count</span><span class="o">=</span><span class="mi">256</span><span class="p">)</span>
 </code></pre></div>
 </div>
 <h2 id="compile-circuits-with-pyzx">Compile circuits with PyZX<a class="headerlink" href="#compile-circuits-with-pyzx" title="Link to this heading">¶</a></h2>
@@ -1408,6 +1436,12 @@ rotations, <code class="docutils literal notranslate"><span class="pre">H</span>
 Barriers and terminal measurements are skipped during unitary circuit import.</p>
 <p><code class="docutils literal notranslate"><span class="pre">from_cudaq</span></code> supports CUDA-Q spin operators. Kernel import requires CUDA-Q’s
 OpenQASM 2 translation API and the same imported gate subset used by Cirq.</p>
+<h2 id="outcome-controlled-measurements">Outcome-controlled measurements<a class="headerlink" href="#outcome-controlled-measurements" title="Link to this heading">¶</a></h2>
+<p>When a measurement basis depends on earlier outcomes, the exported circuit
+contains classical controls on its basis rotation. MentPy keeps these controls
+separate from the Pauli corrections supplied by flow. The outcome dependencies
+must identify earlier measured nodes. The exporters support branches in X, Y,
+and XY. Bind the parameters of imported gate circuits before converting them.</p>
 
 
 

@@ -935,14 +935,11 @@
 <a class="reference internal image-reference" href="_images/logo.png"><img alt="_images/logo.png" class="align-center" src="_images/logo.png" style="width: 70%;" />
 </a>
 <h1 id="welcome-to-mentpy-s-documentation">Welcome to MentPy’s documentation<a class="headerlink" href="#welcome-to-mentpy-s-documentation" title="Link to this heading">¶</a></h1>
-<p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library is an open-source Python package for creating and training quantum machine learning (QML) models
-in the measurement-based quantum computing (MBQC) framework. This library contains functions
-to automatically calculate the causal flow or generalized flow of a graph and tools to analyze the
-expressivity of the MBQC ansatzes. MentPy includes graph construction tools, NumPy simulators, a JAX
-tensor-network backend with autodiff, and a frontier-based trajectory backend.
-It supports fixed or trainable patterns, output sampling, Pauli observables,
-chemistry utilities, and OpenQASM import with optional ZX simplification. Public APIs may still
-evolve as the project grows.</p>
+<p>MentPy is an open-source Python package for building, simulating, and training
+measurement-based quantum circuits. The NumPy backend simulates measurement
+branches with lazy qubit preparation. The JAX tensor-network backend supports
+differentiation through postselected patterns. MentPy also includes Pauli
+observables, chemistry utilities, and OpenQASM import with ZX simplification.</p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Manipulation of graph states.</p></li>

@@ -96,7 +96,7 @@ Execute and collect statistics
 ------------------------------
 
 MentPy uses ``|+>`` inputs by default. To reproduce Qiskit's ``|00000>`` input,
-we supply it explicitly. The ``trajectory`` backend prepares graph qubits as
+we supply it explicitly. The NumPy backend prepares graph qubits as
 needed and removes each measured qubit. Its memory depends on the active
 frontier rather than the total graph size. It supports XY patterns with causal
 flow, including this compiled circuit.
@@ -105,7 +105,7 @@ flow, including this compiled circuit.
 
    initial = np.zeros(2**n)
    initial[0] = 1
-   sim = mp.PatternSimulator(pattern, input_state=initial, backend="trajectory")
+   sim = mp.PatternSimulator(pattern, input_state=initial, backend="numpy")
    probabilities = sim.probabilities()
    samples = sim.sample(shots=4096, seed=7)
    probabilities[-1], samples.counts["11111"], samples.shots
@@ -136,7 +136,7 @@ Each noncommuting Pauli term in ``Observable`` uses a separate set of shots.
 A sample result with a product basis records joint outcomes in that basis.
 Finite shots add output measurement noise; the state preparation itself uses
 exact complex amplitudes. To sample intermediate MBQC measurements as well,
-construct the trajectory simulator with ``force0=False, seed=7``. It applies
+construct the NumPy simulator with ``force0=False, seed=7``. It applies
 flow corrections, so the corrected output distribution is unchanged.
 
 Export from PennyLane
@@ -167,7 +167,7 @@ ignored because they do not affect measurement statistics.
    )
 
    pl_pattern = mp.from_qasm(pl_qasm)
-   pl_sim = mp.PatternSimulator(pl_pattern, input_state=initial, backend="trajectory")
+   pl_sim = mp.PatternSimulator(pl_pattern, input_state=initial, backend="numpy")
    assert np.allclose(pl_sim.probabilities(), reference, atol=1e-8)
    pl_sim.sample(shots=4096, seed=7).counts["11111"]
 

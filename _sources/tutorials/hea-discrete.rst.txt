@@ -40,7 +40,7 @@ Let's define our quantum circuit and prepare the training and testing data.
     import matplotlib.pyplot as plt
 
     gs = mp.templates.muta(2, 1, one_column=True)
-    ps = mp.PatternSimulator(gs, backend='numpy-dm', window_size=5)
+    ps = mp.PatternSimulator(gs, backend='numpy', window_size=5)
     mygate = mp.gates.ising_xx(np.pi/4)
     mygate = np.kron(mp.gates.TGate, np.eye(2)) @ mygate
     (X_train, y_train), (X_test, y_test) = mp.utils.random_train_test_states_unitary(mygate, 30)

@@ -630,6 +630,16 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#measurement-branches" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Measurement branches</span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1042,6 +1052,16 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#measurement-branches" class="md-nav__link">
+    
+    <span class="md-ellipsis">
+      <span>Measurement branches</span>
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1064,18 +1084,14 @@
 We will use the <code class="xref py py-obj docutils literal notranslate"><span class="pre">PatternSimulator</span></code> class to create a simulator. Let’s try it out</p>
 <div class="highlight-ipython notranslate"><div class="highlight"><pre><span></span><code><span class="gp">In [1]: </span><span class="n">grid_cluster</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">templates</span><span class="o">.</span><span class="n">grid_cluster</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 
-<span class="gp">In [2]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy-dm'</span><span class="p">)</span>
+<span class="gp">In [2]: </span><span class="n">simulator</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">PatternSimulator</span><span class="p">(</span><span class="n">grid_cluster</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">'numpy'</span><span class="p">)</span>
 
 <span class="gp">In [3]: </span><span class="nb">print</span><span class="p">(</span><span class="n">simulator</span><span class="p">)</span>
-<span class="go">PatternSimulator (NumpySimulatorDM for MBQCircuit with 15 qubits.)</span>
+<span class="go">PatternSimulator (NumpySimulator for MBQCircuit with 15 qubits.)</span>
 </code></pre></div>
 </div>
-<p>You can specify the backend you want to use with the keyword argument <code class="docutils literal notranslate"><span class="pre">backend</span></code>.
-This can be useful if you want to run a circuit on real hardware.</p>
-<div class="warning admonition">
-<p class="admonition-title">Note</p>
-<p>Currently, <code class="docutils literal notranslate"><span class="pre">mentpy</span></code> does not support running circuits on real hardware. This feature will be added in the future.</p>
-</div>
+<p>Choose <code class="docutils literal notranslate"><span class="pre">backend=&quot;numpy&quot;</span></code> for general measurements and sampled branches.
+Use <code class="docutils literal notranslate"><span class="pre">backend=&quot;jax-tn&quot;</span></code> for differentiating an X, Y, or XY postselected pattern.</p>
 <p>For larger forced-outcome patterns, the <code class="docutils literal notranslate"><span class="pre">jax-tn</span></code> backend contracts the MBQC
 graph as a tensor network with JAX arrays. This backend supports JAX autodiff and
 can run on GPU when JAX is installed with CUDA support. It is most useful when
@@ -1090,7 +1106,9 @@ small enough to materialize.</p>
 </code></pre></div>
 </div>
 <h2 id="running-the-circuit">Running the circuit<a class="headerlink" href="#running-the-circuit" title="Link to this heading">¶</a></h2>
-<p>To run the circuit, we can simply call <code class="docutils literal notranslate"><span class="pre">simulator</span></code> with the circuit as an argument.
+<p>Pass the measurement angles in <code class="docutils literal notranslate"><span class="pre">trainable_nodes</span></code> order. The simulator returns
+a density matrix by default. Pass <code class="docutils literal notranslate"><span class="pre">output_form=&quot;sv&quot;</span></code> for the statevector of
+the selected branch.
 If the measurement angle of a node is fixed (i.e. the measurement object <code class="xref py py-obj docutils literal notranslate"><span class="pre">Ment</span></code> is
 not trainable), you will not need to specify the measurement angle in the call to the
 simulator.</p>
@@ -1152,7 +1170,7 @@ shot count to the same observable API:</p>
 <span class="gp">   ....: </span>
 
 <span class="gp">In [21]: </span><span class="nb">print</span><span class="p">(</span><span class="n">exact_value</span><span class="p">,</span> <span class="n">shot_value</span><span class="p">)</span>
-<span class="go">0.0 -0.06</span>
+<span class="go">0.0 0.040000000000000036</span>
 </code></pre></div>
 </div>
 <p>Use <code class="docutils literal notranslate"><span class="pre">expectation_and_grad</span></code> for exact JAX objectives. For finite-shot
@@ -1358,12 +1376,23 @@ and empirical frequencies. Output columns follow <code class="docutils literal n
 <span class="gh">Out[56]: </span><span class="go">1.0</span>
 </code></pre></div>
 </div>
-<p>The <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> backend executes XY patterns with causal flow using a state
-vector over the active frontier. Set <code class="docutils literal notranslate"><span class="pre">force0=False</span></code> to sample intermediate
-measurements and apply their flow corrections. Output measurements use the
-same <code class="docutils literal notranslate"><span class="pre">sample</span></code> and <code class="docutils literal notranslate"><span class="pre">expectation</span></code> interfaces on every backend. State evolution
-is exact; finite shots describe output measurement statistics. See
-<a class="reference internal" href="../tutorials/grover-qasm.html"><span class="doc">Grover search from OpenQASM</span></a> for a fixed-angle algorithm example.</p>
+<h2 id="measurement-branches">Measurement branches<a class="headerlink" href="#measurement-branches" title="Link to this heading">¶</a></h2>
+<p>Both backends default to <code class="docutils literal notranslate"><span class="pre">force0=True</span></code>, which selects outcome zero at every
+intermediate measurement. A zero-probability branch raises an error. JAX raises
+a runtime error when compiled execution reaches an impossible branch. MentPy
+uses the precision configured by the application. Set <code class="docutils literal notranslate"><span class="pre">JAX_ENABLE_X64=1</span></code> before
+starting Python when the calculation needs double precision.</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">backend=&quot;numpy&quot;,</span> <span class="pre">force0=False</span></code> to sample intermediate outcomes. The
+simulator applies the pattern’s available flow corrections and evaluates
+controlled measurements against the recorded outcomes. Each <code class="docutils literal notranslate"><span class="pre">run()</span></code>
+returns a single trajectory and exposes its outcomes in <code class="docutils literal notranslate"><span class="pre">sim.outcomes</span></code>.
+<code class="docutils literal notranslate"><span class="pre">probabilities()</span></code> and exact <code class="docutils literal notranslate"><span class="pre">expectation()</span></code> refer to the state of that
+trajectory. <code class="docutils literal notranslate"><span class="pre">sample()</span></code> and <code class="docutils literal notranslate"><span class="pre">expectation(...,</span> <span class="pre">shots=...)</span></code> draw an independent
+trajectory for each shot in this mode.</p>
+<p>The legacy backend names <code class="docutils literal notranslate"><span class="pre">numpy-sv</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy-dm</span></code>, <code class="docutils literal notranslate"><span class="pre">trajectory</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">pennylane</span></code> select the unified NumPy simulator. Use
+<a class="reference internal" href="../tutorials/import-export-circuits.html"><span class="doc">Importing and Exporting Circuits</span></a> for native PennyLane execution or
+other framework exports.</p>
 
 
 

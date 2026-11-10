@@ -1035,9 +1035,9 @@
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
 <p>The <a class="reference internal" href="#"><span class="doc">Installation</span></a> guide is intended to assist users with installing the library.</p>
 <h2 id="install-using-pip">Install using <code class="docutils literal notranslate"><span class="pre">pip</span></code><a class="headerlink" href="#install-using-pip" title="Link to this heading">¶</a></h2>
-<p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library requires Python 3.9 or above. It can be installed from
+<p>The <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> library requires Python 3.10 or above. It can be installed from
 <a class="reference external" href="https://pypi.org/project/mentpy/">PyPI</a> using <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>mentpy
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>mentpy
 </code></pre></div>
 </div>
 <h2 id="optional-backends">Optional backends<a class="headerlink" href="#optional-backends" title="Link to this heading">¶</a></h2>
@@ -1067,10 +1067,10 @@ python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </s
 <p>Developers who wish to contribute to <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> or use the development version can set up a development environment. This involves cloning the repository and installing the necessary dependencies, including those required for testing and documentation.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/mentpy/mentpy
 <span class="nb">cd</span><span class="w"> </span>mentpy
-python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev]'</span>
+python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">'.[dev,chem]'</span>
 </code></pre></div>
 </div>
-<p>This command installs <a class="reference internal" href="api.html#module-mentpy" title="mentpy (Python module)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mentpy</span></code></a> in an “editable” mode and also installs additional development dependencies specified under <cite>[dev-dependencies]</cite> in <cite>pyproject.toml</cite>. Now, you are set up to make changes, run tests, and build documentation.</p>
+<p>This installs MentPy in editable mode with the development and chemistry extras used by CI.</p>
 <h2 id="testing-and-development">Testing and Development<a class="headerlink" href="#testing-and-development" title="Link to this heading">¶</a></h2>
 <p>Before submitting changes, you can run the test suite to ensure everything is functioning correctly:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><code>pytest
