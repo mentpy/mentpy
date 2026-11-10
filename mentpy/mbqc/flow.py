@@ -207,6 +207,30 @@ def find_cflow(graph, input_nodes, output_nodes) -> object:
     flow
     """
 
+    if _rust_ext is not None:
+        nodes = _ordered_graph_nodes(graph)
+        indices = {node: i for i, node in enumerate(nodes)}
+        result = _rust_ext.cflow(
+            [[indices[u] for u in graph.neighbors(v)] for v in nodes],
+            [indices[v] for v in input_nodes],
+            [indices[v] for v in output_nodes],
+        )
+        if result is None:
+            return None, None, None, None
+        successors, native_layers = result
+        layers = dict(zip(nodes, native_layers))
+        corrections = {
+            node: nodes[target]
+            for node, target in zip(nodes, successors)
+            if target < len(nodes)
+        }
+        return (
+            corrections.__getitem__,
+            lambda u, v: layers[u] > layers[v],
+            max(native_layers, default=0),
+            layers,
+        )
+
     l = {}
     g = {}
     past = {}
@@ -319,6 +343,29 @@ def find_gflow(graph, input_nodes, output_nodes) -> object:
     """
     nodes = _ordered_graph_nodes(graph)
     gamma = nx.to_numpy_array(graph, nodelist=nodes, dtype=np.uint8, weight=None)
+
+    if _rust_ext is not None:
+        indices = {node: i for i, node in enumerate(nodes)}
+        result = _rust_ext.gflow(
+            gamma.tobytes(),
+            len(nodes),
+            [indices[node] for node in input_nodes],
+            [indices[node] for node in output_nodes],
+        )
+        if result is None:
+            return None, None, None, None
+        data, native_layers = result
+        corrections = np.frombuffer(data, dtype=np.uint8).reshape(
+            len(nodes), len(nodes)
+        )
+        layers = dict(zip(nodes, native_layers))
+        measured = {node: indices[node] for node in nodes if layers[node] > 0}
+        return (
+            lambda node: corrections[measured[node]].astype(int).reshape(-1, 1),
+            lambda u, v: layers[u] > layers[v],
+            max(native_layers, default=0),
+            layers,
+        )
 
     l = {}
     g = {}
@@ -452,6 +499,18 @@ def _find_pflow_matrices(graph, I, O, planes):
     M, N, row_vertices, column_vertices = _pflow_demand_matrices(graph, I, O, planes)
     n_rows = M.shape[0]
     n_cols = M.shape[1]
+
+    if _rust_ext is not None:
+        result = _rust_ext.pflow_matrices(M.tobytes(), N.tobytes(), n_rows, n_cols)
+        if result is None:
+            raise ValueError("No right inverse yields an acyclic Pauli-flow relation.")
+        c_data, r_data = result
+        return (
+            np.frombuffer(c_data, dtype=np.uint8).reshape(n_cols, n_rows).copy(),
+            np.frombuffer(r_data, dtype=np.uint8).reshape(n_rows, n_rows).copy(),
+            row_vertices,
+            column_vertices,
+        )
 
     if n_rows == 0:
         return (
@@ -709,6 +768,15 @@ def _solve_dag_right_inverse(NL, NR):
     NR = np.array(NR, dtype=np.uint8, copy=True) & 1
     n_vertices = NL.shape[0]
     free_dim = NR.shape[1]
+    if _rust_ext is not None:
+        result = _rust_ext.solve_dag(NL.tobytes(), NR.tobytes(), n_vertices, free_dim)
+        return (
+            None
+            if result is None
+            else np.frombuffer(result, dtype=np.uint8)
+            .reshape(free_dim, n_vertices)
+            .copy()
+        )
     if free_dim == 0:
         if _is_dag_adjacency(NL):
             return np.zeros((0, n_vertices), dtype=np.uint8)
@@ -785,6 +853,14 @@ def _pflow_layers_from_relation(relation, row_vertices, output_nodes):
     """Convert the algebraic induced relation into MentPy layer numbers."""
     layers = {node: 0 for node in output_nodes}
     relation = np.array(relation, dtype=np.uint8, copy=False) & 1
+    if _rust_ext is not None:
+        layers.update(
+            zip(
+                row_vertices,
+                _rust_ext.flow_layers(relation.tobytes(), len(row_vertices)),
+            )
+        )
+        return layers
     successors = {
         vertex: {row_vertices[row] for row in np.flatnonzero(relation[:, col])}
         for col, vertex in enumerate(row_vertices)

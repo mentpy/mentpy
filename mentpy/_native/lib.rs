@@ -2,6 +2,8 @@ use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 
+mod flow;
+
 type Matrix = Vec<Vec<u32>>;
 type PackedSolution = (Py<PyBytes>, usize, usize, Py<PyBytes>, usize, usize);
 
@@ -280,6 +282,12 @@ fn gf2_right_inverse_and_kernel_bytes<'py>(
 
 #[pymodule]
 fn _rust(m: &Bound<'_, PyModule>) -> PyResult<()> {
+    m.add_function(wrap_pyfunction!(flow::pflow_matrices, m)?)?;
+    m.add_function(wrap_pyfunction!(flow::solve_dag, m)?)?;
+    m.add_function(wrap_pyfunction!(flow::gflow, m)?)?;
+    m.add_function(wrap_pyfunction!(flow::flow_layers, m)?)?;
+    m.add_function(wrap_pyfunction!(flow::cflow, m)?)?;
+    m.add_function(wrap_pyfunction!(flow::gf2_solve, m)?)?;
     m.add_function(wrap_pyfunction!(gf2_inverse, m)?)?;
     m.add_function(wrap_pyfunction!(gf2_inverse_bytes, m)?)?;
     m.add_function(wrap_pyfunction!(gf2_right_inverse_and_kernel, m)?)?;

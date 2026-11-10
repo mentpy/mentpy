@@ -6,6 +6,12 @@
 
 import numpy as np
 import galois
+import importlib
+
+try:
+    _rust_ext = importlib.import_module("mentpy._rust")
+except ImportError:
+    _rust_ext = None
 
 __all__ = ["solve"]
 
@@ -22,6 +28,13 @@ def solve(A, b, check_solution=False):
     b = GF(b.astype(np.uint8)).reshape(-1)
 
     rows, cols = A.shape
+    if _rust_ext is not None:
+        result = _rust_ext.gf2_solve(A.tobytes(), b.tobytes(), rows, cols)
+        if result is not None:
+            solution = GF(np.frombuffer(result, dtype=np.uint8).copy())
+            return solution.reshape(-1, 1) if check_solution else solution
+        if check_solution:
+            raise ValueError("Solution not found")
     augmented_matrix = np.hstack((A, b.reshape(-1, 1)))
 
     row = 0
